@@ -7,71 +7,63 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum OrderStatus {
-  PLACED
-  ACCEPTED
-  PREPARING
-  READY
-  SERVED
-  PAID
-  CANCELLED
-}
-
 model Branch {
-  id          Int            @id @default(autoincrement())
-  name        String
-  location    String
-  createdAt   DateTime       @default(now())
-
-  categories  MenuCategory[]
-  orders      Order[]
+  id         Int            @id @default(autoincrement())
+  name       String
+  location   String
+  createdAt  DateTime       @default(now())
+  categories MenuCategory[]
+  orders     Order[]
 }
 
 model MenuCategory {
-  id          Int         @id @default(autoincrement())
-  name        String
-
-  branchId    Int
-  branch      Branch     @relation(fields: [branchId], references: [id])
-
-  menuItems   MenuItem[]
+  id        Int        @id @default(autoincrement())
+  name      String
+  branchId  Int
+  branch    Branch     @relation(fields: [branchId], references: [id])
+  menuItems MenuItem[]
 }
 
 model MenuItem {
-  id              Int      @id @default(autoincrement())
+  id              Int          @id @default(autoincrement())
   name            String
-  description     String?
   price           Float
-  available       Boolean  @default(true)
-  preparationTime Int      @default(10)
-
+  available       Boolean      @default(true)
   categoryId      Int
+  createdAt       DateTime     @default(now())
+  description     String?
+  preparationTime Int          @default(10)
   category        MenuCategory @relation(fields: [categoryId], references: [id])
-
   orderItems      OrderItem[]
-
-  createdAt       DateTime @default(now())
 }
 
 model Order {
-  id            Int            @id @default(autoincrement())
-  status        OrderStatus    @default(PLACED)
-  totalAmount   Float
-  createdAt     DateTime       @default(now())
-
-  branchId      Int
-  branch        Branch         @relation(fields: [branchId], references: [id])
-
-  items         OrderItem[]
+  id          Int         @id @default(autoincrement())
+  status      OrderStatus @default(PLACED)
+  totalAmount Float
+  createdAt   DateTime    @default(now())
+  branchId    Int
+  tokenNumber Int         @unique
+  collectedAt DateTime?
+  notes       String?
+  readyAt     DateTime?
+  startedAt   DateTime?
+  branch      Branch      @relation(fields: [branchId], references: [id])
+  items       OrderItem[]
 }
 
 model OrderItem {
-  id            Int         @id @default(autoincrement())
-  quantity      Int
+  id         Int      @id @default(autoincrement())
+  quantity   Int
+  orderId    Int
+  menuItemId Int
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+}
 
-  orderId       Int
-  order         Order       @relation(fields: [orderId], references: [id])
-
-  menuItemId    Int
-  menuItem      MenuItem    @relation(fields: [menuItemId], references: [id])
+enum OrderStatus {
+  PLACED
+  PREPARING
+  READY
+  COLLECTED
 }

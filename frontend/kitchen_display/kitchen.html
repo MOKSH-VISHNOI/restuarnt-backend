@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Kitchen Dashboard</title>
+
+    <link rel="stylesheet" href="kitchen.css">
+</head>
+
+<body>
+
+    <header>
+
+        <h1>KITCHEN DASHBOARD</h1>
+
+        <div id="liveIndicator">
+            🟢 LIVE
+        </div>
+
+    </header>
+
+    <div class="dashboard">
+
+        <div class="column">
+
+            <h2 class="placed-heading">
+                🔴 PLACED
+            </h2>
+
+            <div id="placedOrders"></div>
+
+        </div>
+
+        <div class="column">
+
+            <h2 class="preparing-heading">
+                🟡 PREPARING
+            </h2>
+
+            <div id="preparingOrders"></div>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="statsBar">
+
+        <span>
+            Placed:
+            <strong id="placedCount">0</strong>
+        </span>
+    
+        <span>
+            Preparing:
+            <strong id="preparingCount">0</strong>
+        </span>
+    
+        <span>
+            Active:
+            <strong id="activeCount">0</strong>
+        </span>
+    
+    </div>
+
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+    <script src="kitchen.js"></script>
+
+</body>
+
+</html>
