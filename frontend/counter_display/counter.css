@@ -32,38 +32,17 @@ header h1{
 }
 
 .dashboard{
-    display:flex;
     height:calc(100vh - 130px);
     overflow:hidden;
 }
 
 .column{
-    flex:1;
+    height:100%;
     padding:20px;
     overflow-y:auto;
-    overflow-x:hidden;
 }
 
-.column:first-child{
-    border-right:1px solid #222;
-}
-
-.placed-heading,
-.preparing-heading{
-    font-size:24px;
-    font-weight:700;
-    margin-bottom:20px;
-}
-
-.placed-heading{
-    color:#D94A4A;
-}
-
-.preparing-heading{
-    color:#E8A317;
-}
-
-/* Scrollbars */
+/* Scrollbar */
 
 .column::-webkit-scrollbar{
     width:10px;
@@ -73,25 +52,25 @@ header h1{
     background:#121212;
 }
 
-.column:first-child::-webkit-scrollbar-thumb{
-    background:#D94A4A;
+.column::-webkit-scrollbar-thumb{
+    background:#2ECC71;
     border-radius:20px;
 }
 
-.column:last-child::-webkit-scrollbar-thumb{
-    background:#E8A317;
-    border-radius:20px;
+.column{
+    scrollbar-color:#2ECC71 #121212;
 }
 
-.column:first-child{
-    scrollbar-color:#D94A4A #121212;
+/* Heading */
+
+.ready-heading{
+    color:#2ECC71;
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:20px;
 }
 
-.column:last-child{
-    scrollbar-color:#E8A317 #121212;
-}
-
-/* Cards */
+/* Ready Card */
 
 .order-card{
     position:relative;
@@ -105,29 +84,7 @@ header h1{
 
     border-radius:16px;
 
-    cursor:pointer;
-
-    transition:
-        transform .15s ease,
-        opacity .15s ease,
-        background-color .15s ease,
-        border-color .15s ease;
-
     overflow:hidden;
-}
-
-.order-card:hover{
-    transform:scale(1.01);
-}
-
-.placed{
-    background:#2A1414;
-    border:2px solid #D94A4A;
-}
-
-.preparing{
-    background:#2B2414;
-    border:2px solid #E8A317;
 }
 
 .ready{
@@ -135,11 +92,18 @@ header h1{
     border:2px solid #2ECC71;
 }
 
-/* Token Section */
+.completed{
+    background:#F5F5F5;
+    border:2px solid #FFFFFF;
+    color:#121212;
+}
+
+/* Token */
 
 .token{
     width:120px;
     min-width:120px;
+
     align-self:stretch;
 
     display:flex;
@@ -152,28 +116,7 @@ header h1{
     border-right:2px solid rgba(255,255,255,0.12);
 }
 
-/* Glow only token area */
-
-.token-glow{
-    animation:tokenGlow 1s infinite;
-}
-
-@keyframes tokenGlow{
-
-    0%{
-        background:rgba(217,74,74,.15);
-    }
-
-    50%{
-        background:rgba(217,74,74,.45);
-    }
-
-    100%{
-        background:rgba(217,74,74,.15);
-    }
-}
-
-/* Items Section */
+/* Items */
 
 .items-section{
     flex:1;
@@ -196,14 +139,10 @@ header h1{
     margin-bottom:0;
 }
 
-.item-name{
-    white-space:nowrap;
-}
-
-/* Time */
+/* Timer */
 
 .time-section{
-    width:90px;
+    width:100px;
 
     padding-right:18px;
 
@@ -214,59 +153,96 @@ header h1{
     font-size:16px;
 }
 
-/* NEW Badge */
+/* Button */
 
-.new-badge{
+.collect-btn{
+
     position:absolute;
 
-    top:10px;
-    right:10px;
+    right:15px;
+    bottom:15px;
 
-    background:#D94A4A;
+    border:none;
+
+    background:#2ECC71;
 
     color:white;
 
-    padding:4px 10px;
+    border-radius:10px;
 
-    border-radius:20px;
+    padding:10px 18px;
 
-    font-size:11px;
+    font-size:14px;
 
     font-weight:bold;
+
+    cursor:pointer;
 }
 
-/* READY CARD */
+.collect-btn:hover{
 
-.ready-card{
+    opacity:.9;
+}
+
+/* New Ready Glow */
+
+.new-ready{
+
+    animation:greenGlow 1s infinite;
+}
+
+@keyframes greenGlow{
+
+    0%{
+        box-shadow:0 0 10px #2ECC71;
+    }
+
+    50%{
+        box-shadow:0 0 30px #2ECC71;
+    }
+
+    100%{
+        box-shadow:0 0 10px #2ECC71;
+    }
+}
+
+/* Completed Card */
+
+.completed-card{
+
     display:flex;
     flex-direction:column;
+
     justify-content:center;
     align-items:center;
 
     min-height:140px;
-
-    width:100%;
 }
 
-.ready-check{
+.completed-check{
+
     font-size:60px;
-    color:#2ECC71;
-    margin-bottom:12px;
+
+    margin-bottom:10px;
 }
 
-.ready-text{
+.completed-text{
+
     font-size:28px;
+
     font-weight:bold;
-    letter-spacing:1px;
 }
 
-/* Bottom Bar */
+/* Footer */
 
 #statsBar{
+
     height:50px;
 
     display:flex;
+
     justify-content:space-between;
+
     align-items:center;
 
     padding:0 30px;
@@ -274,20 +250,6 @@ header h1{
     border-top:1px solid #222;
 
     background:#111;
-}
-
-.age-normal{
-    color:#BBBBBB;
-}
-
-.age-yellow{
-    color:#E8A317;
-    font-weight:bold;
-}
-
-.age-red{
-    color:#D94A4A;
-    font-weight:bold;
 }
 
 #fullscreenBtn{
@@ -303,13 +265,4 @@ header h1{
     padding:8px 14px;
 
     cursor:pointer;
-
-    font-size:14px;
-
-    transition:.2s;
-}
-
-#fullscreenBtn:hover{
-
-    background:#2c2c2c;
 }

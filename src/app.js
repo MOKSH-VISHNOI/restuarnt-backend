@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-
 const app = express();
 
 app.use(cors());
@@ -20,11 +19,13 @@ const kitchenRoutes = require("./routes/kitchenRoutes");
 const displayRoutes = require("./routes/displayRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const branchRoutes = require("./routes/branchRoutes");
+const counterRoutes = require("./routes/counterRoutes");
 
 app.use("/orders", orderRoutes);
 app.use("/kitchen", kitchenRoutes);
 app.use("/display", displayRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/branches", branchRoutes);
+app.use("/counter",counterRoutes);
 
 module.exports = app;

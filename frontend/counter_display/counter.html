@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Counter Dashboard</title>
+
+    <link rel="stylesheet"
+          href="counter.css">
+
+</head>
+
+<body>
+
+    <header>
+
+        <h1>
+            COUNTER DASHBOARD
+        </h1>
+
+        <div style="display:flex;gap:15px;align-items:center;">
+
+            <button id="fullscreenBtn">
+                ⛶ Fullscreen
+            </button>
+
+            <div id="liveIndicator">
+                🟢 LIVE
+            </div>
+
+        </div>
+
+    </header>
+
+    <div class="dashboard">
+
+        <div class="column">
+
+            <h2 class="ready-heading">
+                🟢 READY ORDERS
+            </h2>
+
+            <div id="readyOrders"></div>
+
+        </div>
+
+    </div>
+
+    <div id="statsBar">
+
+        <span>
+            Ready:
+            <strong id="readyCount">0</strong>
+        </span>
+
+        <span>
+            Oldest Waiting:
+            <strong id="oldestWait">
+                0:00
+            </strong>
+        </span>
+
+    </div>
+
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+    <script src="counter.js"></script>
+
+</body>
+
+</html>

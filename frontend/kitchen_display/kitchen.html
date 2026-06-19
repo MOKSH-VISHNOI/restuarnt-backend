@@ -13,8 +13,16 @@
 
         <h1>KITCHEN DASHBOARD</h1>
 
-        <div id="liveIndicator">
-            🟢 LIVE
+        <div style="display:flex;gap:15px;align-items:center;">
+
+            <button id="fullscreenBtn">
+                ⛶ Fullscreen
+            </button>
+        
+            <div id="liveIndicator">
+                🟢 LIVE
+            </div>
+        
         </div>
 
     </header>
@@ -53,13 +61,13 @@
         </span>
     
         <span>
-            Preparing:
-            <strong id="preparingCount">0</strong>
+            Active:
+            <strong id="activeCount">0</strong>
         </span>
     
         <span>
-            Active:
-            <strong id="activeCount">0</strong>
+            Preparing:
+            <strong id="preparingCount">0</strong>
         </span>
     
     </div>

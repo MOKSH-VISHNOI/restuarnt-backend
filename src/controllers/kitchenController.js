@@ -59,7 +59,8 @@ const startPreparing = async (req, res) => {
           id: Number(req.params.id)
       },
       data: {
-          status: "PREPARING"
+          status: "PREPARING",
+          startedAt: new Date()
       },
       select: {
           id: true,
@@ -96,7 +97,8 @@ const markReady = async (req, res) => {
           id: Number(req.params.id)
       },
       data: {
-          status: "READY"
+          status: "READY",
+          readyAt: new Date()
       },
       select: {
           id: true,

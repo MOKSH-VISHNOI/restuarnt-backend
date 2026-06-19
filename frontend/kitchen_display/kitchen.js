@@ -12,6 +12,9 @@ const liveIndicator =
 const notificationSound =
     new Audio("./sounds/ding.mp3");
 
+const fullscreenBtn =
+    document.getElementById("fullscreenBtn");
+
 let knownOrders = new Set();
 let firstLoad = true;
 let audioUnlocked = false;
@@ -467,3 +470,75 @@ setInterval(() => {
     });
 
 }, 1000);
+
+// ======================
+// FULLSCREEN BUTTON
+// =====================
+
+fullscreenBtn.onclick =
+async () => {
+
+    if (
+        !document.fullscreenElement
+    ) {
+
+        await document
+            .documentElement
+            .requestFullscreen();
+
+        fullscreenBtn.innerHTML =
+            "🗗 Exit";
+
+    } else {
+
+        await document
+            .exitFullscreen();
+
+        fullscreenBtn.innerHTML =
+            "⛶ Fullscreen";
+    }
+};
+
+// =============
+// SCREEN AWAKE
+// =============
+
+let wakeLock = null;
+
+async function keepScreenAwake() {
+
+    try {
+
+        wakeLock =
+            await navigator
+                .wakeLock
+                .request("screen");
+
+        console.log(
+            "Screen Wake Lock Active"
+        );
+
+    } catch (err) {
+
+        console.log(
+            err
+        );
+    }
+}
+
+keepScreenAwake();
+
+document.addEventListener(
+    "visibilitychange",
+    async () => {
+
+        if (
+            wakeLock !== null &&
+            document.visibilityState ===
+                "visible"
+        ) {
+
+            keepScreenAwake();
+        }
+    }
+);
