@@ -43,7 +43,7 @@ model Order {
   totalAmount Float
   createdAt   DateTime    @default(now())
   branchId    Int
-  tokenNumber Int         @unique
+  tokenNumber Int        
   collectedAt DateTime?
   notes       String?
   readyAt     DateTime?

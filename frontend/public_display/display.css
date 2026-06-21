@@ -19,17 +19,61 @@ h1 {
     flex: 1;
     border: 2px solid white;
     padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
 }
 
 .column h2 {
     font-size: 40px;
+    
 }
 
-.token {
-    font-size: 60px;
-    font-weight: bold;
-    margin: 15px;
+#preparing,
+#ready {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fill, 120px);
+
+    justify-content: center;
+
+    gap: 20px;
+
+    align-content: start;
 }
+
+.token{
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    width:120px;
+    height:120px;
+
+    font-size:60px;
+    font-weight:bold;
+
+    border-radius:16px;
+
+    background:#1a1a1a;
+
+    margin:auto;
+}
+
+.token.compact{
+
+    width:90px;
+    height:90px;
+
+    font-size:42px;
+}
+
 .ready-token {
     color: white;
     transition: all 0.3s ease;

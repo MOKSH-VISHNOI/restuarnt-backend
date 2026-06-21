@@ -15,6 +15,14 @@ const createOrder = async (req, res) => {
       }
     });
 
+    // Water Only decision
+    const isWaterOnly = menuItems.every(
+      item =>
+        item.name
+          .toLowerCase()
+          .includes("water")
+    );
+
     // Calculate total
     items.forEach(item => {
       const menuItem = menuItems.find(
@@ -26,16 +34,36 @@ const createOrder = async (req, res) => {
       }
     });
 
-    // Generate token number
-    const lastOrder = await prisma.order.findFirst({
-      orderBy: {
-        tokenNumber: "desc"
-      }
-    });
+    // Generate daily token number
 
-    const tokenNumber = lastOrder
-      ? lastOrder.tokenNumber + 1
-      : 101;
+    const today = new Date();
+
+    today.setHours(
+      0,
+      0,
+      0,
+      0
+    );
+    
+    const lastOrder =
+      await prisma.order.findFirst({
+    
+        where: {
+          createdAt: {
+            gte: today
+          }
+        },
+    
+        orderBy: {
+          tokenNumber: "desc"
+        }
+    
+      });
+    
+    const tokenNumber =
+      lastOrder
+        ? lastOrder.tokenNumber + 1
+        : 101;
 
     // Create order
     const order = await prisma.order.create({
@@ -43,7 +71,15 @@ const createOrder = async (req, res) => {
         branchId,
         tokenNumber,
         totalAmount,
-
+    
+        status: isWaterOnly
+          ? "READY"
+          : "PLACED",
+    
+        readyAt: isWaterOnly
+          ? new Date()
+          : null,
+    
         items: {
           create: items.map(item => ({
             quantity: item.quantity,
@@ -51,7 +87,7 @@ const createOrder = async (req, res) => {
           }))
         }
       },
-
+    
       include: {
         items: true
       }
@@ -59,10 +95,25 @@ const createOrder = async (req, res) => {
 
     const io = req.app.get("io");
 
-    io.emit(
-      "NEW_ORDER",
-      order
-    );
+    if (isWaterOnly) {
+
+      io.emit(
+        "ORDER_READY",
+        order
+      );
+    
+      io.emit(
+        "DISPLAY_REFRESH"
+      );
+    
+    } else {
+    
+      io.emit(
+        "NEW_ORDER",
+        order
+      );
+    
+    }
 
     res.status(201).json(order);
 

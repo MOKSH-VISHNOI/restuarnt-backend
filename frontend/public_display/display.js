@@ -34,26 +34,55 @@ function render(data) {
 
     preparingOrders.forEach(order => {
 
-        const token = document.createElement("div");
-
-        token.className = "token";
-
-        token.textContent = order.tokenNumber;
-
-        preparingDiv.appendChild(token);
+        const token =
+            document.createElement("div");
+    
+        token.className =
+            "token";
+    
+        token.textContent =
+            order.tokenNumber;
+    
+        if (
+            preparingOrders.length > 12
+        ) {
+            token.classList.add(
+                "compact"
+            );
+        }
+    
+        preparingDiv.appendChild(
+            token
+        );
+    
     });
 
     readyOrders.forEach(order => {
 
-        const token = document.createElement("div");
-
-        token.className = "token ready-token";
-
-        token.id = `token-${order.tokenNumber}`;
-
-        token.textContent = order.tokenNumber;
-
-        readyDiv.appendChild(token);
+        const token =
+            document.createElement("div");
+    
+        token.className =
+            "token ready-token";
+    
+        token.id =
+            `token-${order.tokenNumber}`;
+    
+        token.textContent =
+            order.tokenNumber;
+    
+        if (
+            readyOrders.length > 12
+        ) {
+            token.classList.add(
+                "compact"
+            );
+        }
+    
+        readyDiv.appendChild(
+            token
+        );
+    
     });
 }
 

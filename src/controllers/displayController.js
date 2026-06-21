@@ -23,7 +23,7 @@ const getDisplayData = async (req, res) => {
         tokenNumber: true
       },
       orderBy: {
-        tokenNumber: "asc"
+        readyAt: "asc"
       }
     });
 
