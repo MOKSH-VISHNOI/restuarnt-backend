@@ -67,3 +67,12 @@ enum OrderStatus {
   READY
   COLLECTED
 }
+
+model DailyTokenCounter {
+
+  id          Int      @id @default(autoincrement())
+
+  counterDate DateTime @unique
+
+  lastToken   Int
+}

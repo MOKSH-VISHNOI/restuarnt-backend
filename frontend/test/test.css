@@ -1,0 +1,46 @@
+body{
+
+    background:#121212;
+
+    color:white;
+
+    font-family:Arial;
+
+    text-align:center;
+
+    padding:40px;
+}
+
+h1{
+
+    margin-bottom:40px;
+}
+
+.buttons{
+
+    margin-bottom:25px;
+}
+
+button{
+
+    padding:20px 30px;
+
+    margin:10px;
+
+    border:none;
+
+    border-radius:12px;
+
+    font-size:22px;
+
+    cursor:pointer;
+}
+
+#status{
+
+    margin-top:40px;
+
+    font-size:24px;
+
+    font-weight:bold;
+}

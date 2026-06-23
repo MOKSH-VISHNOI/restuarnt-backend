@@ -38,32 +38,52 @@ const createOrder = async (req, res) => {
 
     const today = new Date();
 
-    today.setHours(
-      0,
-      0,
-      0,
-      0
-    );
-    
-    const lastOrder =
-      await prisma.order.findFirst({
-    
-        where: {
-          createdAt: {
-            gte: today
-          }
-        },
-    
-        orderBy: {
-          tokenNumber: "desc"
-        }
-    
-      });
-    
-    const tokenNumber =
-      lastOrder
-        ? lastOrder.tokenNumber + 1
-        : 101;
+today.setHours(
+  0,
+  0,
+  0,
+  0
+);
+
+let counter =
+  await prisma.dailyTokenCounter.findUnique({
+
+    where: {
+      counterDate: today
+    }
+
+  });
+
+if (!counter) {
+
+  counter =
+    await prisma.dailyTokenCounter.create({
+
+      data: {
+        counterDate: today,
+        lastToken: 100
+      }
+
+    });
+}
+
+counter =
+  await prisma.dailyTokenCounter.update({
+
+    where: {
+      id: counter.id
+    },
+
+    data: {
+      lastToken: {
+        increment: 1
+      }
+    }
+
+  });
+
+const tokenNumber =
+  counter.lastToken;
 
     // Create order
     const order = await prisma.order.create({

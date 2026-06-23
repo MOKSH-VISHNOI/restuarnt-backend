@@ -1,4 +1,8 @@
+const transitioningOrders =
+    new Set();
+
 const socket = io("http://localhost:5000");
+
 
 const placedOrders =
     document.getElementById("placedOrders");
@@ -181,6 +185,14 @@ function renderOrders(orders) {
 
     orders.forEach(order => {
 
+        if (
+            transitioningOrders.has(
+                order.id
+            )
+        ) {
+            return;
+        }
+
         const card =
             document.createElement("div");
 
@@ -252,10 +264,9 @@ function renderOrders(orders) {
 
             card.onclick = () => {
 
-                card.classList.remove("placed");
-                card.classList.add("preparing");
+                transitioningOrders.add(order.id);
 
-                preparingOrders.prepend(card);
+                card.remove();
 
                 startPreparing(order.id);
             };
@@ -268,10 +279,6 @@ function renderOrders(orders) {
                 token.classList.add(
                     "token-glow"
                 );
-
-                notificationSound
-                    .play()
-                    .catch(() => {});
 
                 setTimeout(() => {
 
@@ -348,6 +355,8 @@ function renderOrders(orders) {
 
 async function startPreparing(id) {
 
+    transitioningOrders.add(id);
+
     try {
 
         await fetch(
@@ -356,11 +365,22 @@ async function startPreparing(id) {
                 method: "PATCH"
             }
         );
+        
+        setTimeout(() => {
+        
+            transitioningOrders.delete(id);
+        
+        }, 500);
 
     } catch (error) {
 
-        console.error(error);
+        setTimeout(() => {
 
+            transitioningOrders.delete(id);
+        
+        }, 500);
+        
+        console.error(error);
     }
 
 }
@@ -374,6 +394,7 @@ async function markReady(
     id,
     card
 ) {
+    transitioningOrders.add(id);
 
     card.className =
         "order-card ready ready-card";
@@ -391,21 +412,33 @@ async function markReady(
     setTimeout(async () => {
 
         try {
-
+    
             await fetch(
                 `http://localhost:5000/kitchen/orders/${id}/ready`,
                 {
                     method: "PATCH"
                 }
             );
+    
+            setTimeout(() => {
 
+                transitioningOrders.delete(id);
+            
+            }, 500);
+    
         } catch (error) {
 
+            setTimeout(() => {
+        
+                transitioningOrders.delete(id);
+        
+            }, 500);
+        
             console.error(error);
-
+        
         }
-
-    }, 2000);
+    
+    }, 200);
 
 }
 
@@ -421,7 +454,8 @@ socket.on(
 
 socket.on(
     "ORDER_READY",
-    loadOrders
+    () => {
+    }
 );
 
 socket.on(

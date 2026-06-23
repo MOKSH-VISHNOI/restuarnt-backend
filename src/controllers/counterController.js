@@ -88,10 +88,6 @@ const collectOrder = async (req, res) => {
             order
         );
 
-        io.emit(
-            "COUNTER_REFRESH"
-        );
-
         res.json(order);
 
     } catch (error) {

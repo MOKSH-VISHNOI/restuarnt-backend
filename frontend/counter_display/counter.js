@@ -1,3 +1,5 @@
+const transitioningOrders = new Set();
+
 const socket = io("http://localhost:5000");
 
 const readyOrders =
@@ -140,6 +142,14 @@ function renderOrders(orders) {
 
     orders.forEach(order => {
 
+        if (
+            transitioningOrders.has(
+                order.id
+            )
+        ) {
+            return;
+        }
+
         const card =
             document.createElement("div");
 
@@ -188,16 +198,22 @@ function renderOrders(orders) {
             </button>
         `;
 
+
         const collectBtn =
             card.querySelector(
                 ".collect-btn"
             );
 
-        collectBtn.onclick =
-            (e) => {
-
+            card.onclick = () =>
+                markCollected(
+                    order.id,
+                    card
+                );
+            
+            collectBtn.onclick = (e) => {
+            
                 e.stopPropagation();
-
+            
                 markCollected(
                     order.id,
                     card
@@ -238,6 +254,8 @@ async function markCollected(
     card
 ) {
 
+    transitioningOrders.add(id);
+
     card.className =
         "order-card completed completed-card";
 
@@ -262,7 +280,19 @@ async function markCollected(
                 }
             );
 
+            setTimeout(() => {
+
+                transitioningOrders.delete(id);
+
+            }, 1500);
+
         } catch (error) {
+
+            setTimeout(() => {
+
+                transitioningOrders.delete(id);
+
+            }, 1500);
 
             console.error(error);
 
@@ -271,7 +301,6 @@ async function markCollected(
     }, 1000);
 
 }
-
 
 // =====================
 // SOCKET EVENTS
@@ -284,16 +313,6 @@ socket.on(
 
 socket.on(
     "ORDER_COLLECTED",
-    loadOrders
-);
-
-socket.on(
-    "COUNTER_REFRESH",
-    loadOrders
-);
-
-socket.on(
-    "ORDER_STATUS_UPDATED",
     loadOrders
 );
 
