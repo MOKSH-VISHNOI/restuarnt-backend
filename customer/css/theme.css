@@ -1,0 +1,441 @@
+/* ==========================================
+   GLOBAL RESET
+========================================== */
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+}
+
+html{
+
+    scroll-behavior:smooth;
+
+    -webkit-tap-highlight-color:transparent;
+
+}
+
+body{
+
+    font-family:var(--font-family);
+
+    background:var(--bg);
+
+    color:var(--text);
+
+    transition:
+
+        background .35s ease,
+
+        color .35s ease;
+
+    min-height:100vh;
+
+    overflow-x:hidden;
+
+}
+
+
+
+/* ==========================================
+   TYPOGRAPHY
+========================================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6{
+
+    font-weight:var(--weight-bold);
+
+    color:var(--text);
+
+}
+
+p{
+
+    color:var(--text-secondary);
+
+    line-height:1.6;
+
+}
+
+a{
+
+    text-decoration:none;
+
+    color:inherit;
+
+}
+
+button{
+
+    font-family:inherit;
+
+    border:none;
+
+    outline:none;
+
+    cursor:pointer;
+
+}
+
+input{
+
+    font-family:inherit;
+
+    outline:none;
+
+}
+
+
+
+/* ==========================================
+   IMAGES
+========================================== */
+
+img{
+
+    max-width:100%;
+
+    display:block;
+
+    user-select:none;
+
+    -webkit-user-drag:none;
+
+}
+
+
+
+/* ==========================================
+   LISTS
+========================================== */
+
+ul{
+
+    list-style:none;
+
+}
+
+
+
+/* ==========================================
+   SELECTION
+========================================== */
+
+::selection{
+
+    background:var(--accent);
+
+    color:white;
+
+}
+
+
+
+/* ==========================================
+   SCROLLBAR
+========================================== */
+
+::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:transparent;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:var(--accent);
+
+    border-radius:999px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:var(--accent-hover);
+
+}
+
+
+
+/* ==========================================
+   GLOBAL TRANSITIONS
+========================================== */
+
+body,
+button,
+div,
+section,
+article,
+header,
+footer,
+input,
+img,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p{
+
+    transition:
+
+        background-color .35s ease,
+
+        color .35s ease,
+
+        border-color .35s ease,
+
+        box-shadow .35s ease,
+
+        transform .20s ease,
+
+        opacity .25s ease,
+
+        filter .35s ease;
+
+}
+
+
+
+/* ==========================================
+   COMMON UTILITIES
+========================================== */
+
+.hidden{
+
+    display:none !important;
+
+}
+
+.flex{
+
+    display:flex;
+
+}
+
+.center{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.round{
+
+    border-radius:var(--card-radius);
+
+}
+
+.shadow{
+
+    box-shadow:var(--shadow-sm);
+
+}
+
+.glow{
+
+    box-shadow:var(--combo-glow);
+
+}
+
+
+
+/* ==========================================
+   CONTAINER
+========================================== */
+
+.container{
+
+    width:min(100%,540px);
+
+    margin:auto;
+
+    padding:
+
+        var(--space-lg)
+
+        var(--space-lg)
+
+        calc(var(--cart-height)+40px);
+
+}
+
+
+
+/* ==========================================
+   FOCUS STATES
+========================================== */
+
+button:focus-visible{
+
+    outline:3px solid var(--accent);
+
+    outline-offset:4px;
+
+}
+
+
+
+/* ==========================================
+   DISABLE SELECT
+========================================== */
+
+.logo,
+button,
+img{
+
+    user-select:none;
+
+}
+
+
+
+/* ==========================================
+   SAFE AREA SUPPORT
+========================================== */
+
+body{
+
+    padding-bottom:
+
+        env(safe-area-inset-bottom);
+
+}
+
+
+
+/* ==========================================
+   MOBILE OPTIMIZATION
+========================================== */
+
+@media(max-width:480px){
+
+    .container{
+
+        padding:
+
+            var(--space-md)
+
+            var(--space-sm)
+
+            calc(var(--cart-height)+24px);
+
+    }
+
+}
+
+
+
+/* ==========================================
+   DESKTOP ENHANCEMENTS
+========================================== */
+
+@media(min-width:768px){
+
+    body{
+
+        display:flex;
+
+        justify-content:center;
+
+        background:
+
+            radial-gradient(
+
+                circle,
+
+                var(--bg),
+
+                #f4ece1
+
+            );
+
+    }
+
+    [data-theme="dark"] body{
+
+        background:
+
+            radial-gradient(
+
+                circle,
+
+                #121212,
+
+                #050505
+
+            );
+
+    }
+
+    .container{
+
+        margin:
+
+            30px auto;
+
+    }
+
+}
+
+
+/* ==========================================
+   THEME OVERLAY
+========================================== */
+
+#themeOverlay{
+
+    position:fixed;
+
+    inset:0;
+
+    pointer-events:none;
+
+    opacity:0;
+
+    background:
+
+        radial-gradient(
+
+            circle,
+
+            rgba(245,166,35,.10),
+
+            transparent 70%
+
+        );
+
+    transition:
+
+        opacity .45s ease;
+
+    z-index:9999;
+
+}
+
+#themeOverlay.active{
+
+    opacity:1;
+
+}

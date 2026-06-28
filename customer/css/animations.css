@@ -1,0 +1,560 @@
+/* ==========================================
+   YATHARTH ANIMATION SYSTEM
+   Version 1.0
+========================================== */
+
+
+/* ==========================================
+   FADE IN
+========================================== */
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+    }
+
+    to{
+
+        opacity:1;
+
+    }
+
+}
+
+
+/* ==========================================
+   FADE UP
+========================================== */
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:
+
+            translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+
+            translateY(0);
+
+    }
+
+}
+
+
+/* ==========================================
+   FADE DOWN
+========================================== */
+
+@keyframes fadeDown{
+
+    from{
+
+        opacity:0;
+
+        transform:
+
+            translateY(-20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+
+            translateY(0);
+
+    }
+
+}
+
+
+/* ==========================================
+   SCALE IN
+========================================== */
+
+@keyframes scaleIn{
+
+    from{
+
+        opacity:0;
+
+        transform:
+
+            scale(.92);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+
+            scale(1);
+
+    }
+
+}
+
+
+/* ==========================================
+   FLOAT
+========================================== */
+
+@keyframes floating{
+
+    0%{
+
+        transform:
+
+            translateY(0);
+
+    }
+
+    50%{
+
+        transform:
+
+            translateY(-5px);
+
+    }
+
+    100%{
+
+        transform:
+
+            translateY(0);
+
+    }
+
+}
+
+
+/* ==========================================
+   GLOW
+========================================== */
+
+@keyframes glow{
+
+    0%{
+
+        box-shadow:
+
+            0 0 0 rgba(245,166,35,.15);
+
+    }
+
+    50%{
+
+        box-shadow:
+
+            0 0 25px rgba(245,166,35,.35);
+
+    }
+
+    100%{
+
+        box-shadow:
+
+            0 0 0 rgba(245,166,35,.15);
+
+    }
+
+}
+
+
+/* ==========================================
+   CART BOUNCE
+========================================== */
+
+@keyframes cartBounce{
+
+    0%{
+
+        transform:
+
+            scale(1);
+
+    }
+
+    30%{
+
+        transform:
+
+            scale(1.08);
+
+    }
+
+    60%{
+
+        transform:
+
+            scale(.97);
+
+    }
+
+    100%{
+
+        transform:
+
+            scale(1);
+
+    }
+
+}
+
+
+/* ==========================================
+   BUTTON PRESS
+========================================== */
+
+@keyframes buttonPress{
+
+    0%{
+
+        transform:
+
+            scale(1);
+
+    }
+
+    50%{
+
+        transform:
+
+            scale(.95);
+
+    }
+
+    100%{
+
+        transform:
+
+            scale(1);
+
+    }
+
+}
+
+
+/* ==========================================
+   QUANTITY APPEAR
+========================================== */
+
+@keyframes quantityAppear{
+
+    from{
+
+        opacity:0;
+
+        transform:
+
+            scale(.8);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+
+            scale(1);
+
+    }
+
+}
+
+
+/* ==========================================
+   BOTTOM SHEET
+========================================== */
+
+@keyframes slideUp{
+
+    from{
+
+        transform:
+
+            translateY(100%);
+
+    }
+
+    to{
+
+        transform:
+
+            translateY(0);
+
+    }
+
+}
+
+
+@keyframes slideDown{
+
+    from{
+
+        transform:
+
+            translateY(0);
+
+    }
+
+    to{
+
+        transform:
+
+            translateY(100%);
+
+    }
+
+}
+
+
+/* ==========================================
+   THEME SWITCH
+========================================== */
+
+@keyframes rotateTheme{
+
+    from{
+
+        transform:
+
+            rotate(0deg);
+
+    }
+
+    to{
+
+        transform:
+
+            rotate(180deg);
+
+    }
+
+}
+
+
+/* ==========================================
+   RIPPLE
+========================================== */
+
+@keyframes ripple{
+
+    from{
+
+        transform:
+
+            scale(0);
+
+        opacity:.4;
+
+    }
+
+    to{
+
+        transform:
+
+            scale(4);
+
+        opacity:0;
+
+    }
+
+}
+
+
+/* ==========================================
+   PAGE LOAD
+========================================== */
+
+.page-load{
+
+    animation:
+
+        fadeUp .5s ease;
+
+}
+
+
+/* ==========================================
+   CARD
+========================================== */
+
+.card-load{
+
+    animation:
+
+        fadeUp .45s ease;
+
+}
+
+
+/* ==========================================
+   COMBO
+========================================== */
+
+.combo-load{
+
+    animation:
+
+        scaleIn .5s ease;
+
+}
+
+
+/* ==========================================
+   FLOATING CART
+========================================== */
+
+.cart-bump{
+
+    animation:
+
+        cartBounce .35s;
+
+}
+
+
+/* ==========================================
+   BUTTON CLICK
+========================================== */
+
+.btn-click{
+
+    animation:
+
+        buttonPress .2s;
+
+}
+
+
+/* ==========================================
+   QUANTITY
+========================================== */
+
+.quantity-show{
+
+    animation:
+
+        quantityAppear .25s ease;
+
+}
+
+
+/* ==========================================
+   BOTTOM SHEET
+========================================== */
+
+.sheet-open{
+
+    animation:
+
+        slideUp .3s ease forwards;
+
+}
+
+.sheet-close{
+
+    animation:
+
+        slideDown .3s ease forwards;
+
+}
+
+
+/* ==========================================
+   GLOW EFFECT
+========================================== */
+
+.combo-highlight{
+
+    animation:
+
+        glow 2.5s infinite;
+
+}
+
+
+/* ==========================================
+   THEME TOGGLE
+========================================== */
+
+.theme-spin{
+
+    animation:
+
+        rotateTheme .35s ease;
+
+}
+
+
+/* ==========================================
+   DESKTOP HOVER
+========================================== */
+
+@media(hover:hover){
+
+    .hover-lift:hover{
+
+        transform:
+
+            translateY(-4px);
+
+    }
+
+}
+
+/* ==========================================
+   STAGGER
+========================================== */
+
+.stagger{
+
+    opacity:0;
+
+    transform:translateY(18px);
+
+}
+
+.stagger.show{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+    transition:
+
+        opacity .45s ease,
+
+        transform .45s ease;
+
+}
+
+
+/* ==========================================
+   HIDDEN
+========================================== */
+
+.hidden{
+
+    display:none;
+
+}
