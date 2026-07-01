@@ -29,52 +29,7 @@ const recommendationList =
 
 // Later fetched from backend
 
-const menu = [
-
-    {
-
-        id:1,
-
-        name:"Sandwich",
-
-        price:80,
-
-        image:"./images/sandwich.png",
-
-        readyTime:"~3 mins"
-
-    },
-
-    {
-
-        id:2,
-
-        name:"Cold Coffee",
-
-        price:60,
-
-        image:"./images/coffee.png",
-
-        readyTime:"~2 mins"
-
-    },
-
-    {
-
-        id:3,
-
-        name:"Water Bottle",
-
-        price:20,
-
-        image:"./images/water.png",
-
-        readyTime:"Instant"
-
-    }
-
-];
-
+let menu = [];
 
 
 // ==========================================
@@ -83,7 +38,7 @@ const menu = [
 
 function init(){
 
-    renderMenu();
+    loadMenu();
 
 }
 
@@ -95,33 +50,95 @@ document.addEventListener(
 
 );
 
+
+// =====================
+// LOAD MENU
+// =====================
+
+// ==========================================
+// LOAD MENU
+// ==========================================
+
+async function loadMenu(){
+
+    try{
+
+        menu = await getMenu();
+
+        menu.sort((a,b)=>{
+
+            if(
+                a.name.includes("Combo")
+            ) return -1;
+
+            if(
+                b.name.includes("Combo")
+            ) return 1;
+
+            return a.id-b.id;
+
+        });
+
+        renderMenu();
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+
 // renderMenu()
 
 function renderMenu(){
 
     menuList.innerHTML="";
 
-    menu.forEach(
+    menu
+    .filter(item => !item.name.includes("Combo"))
+    .forEach((item,index)=>{
 
-        (item,index)=>{
+        menuList.appendChild(
 
-            menuList.appendChild(
+            createMenuCard(
 
-                createMenuCard(
+                item,
 
-                    item,
+                index
 
-                    index
+            )
 
-                )
+        );
 
-            );
-
-        }
-
-    );
-
-}
+    });
+    
+    document
+    
+        .querySelectorAll(".stagger")
+    
+        .forEach(
+    
+            (card,index)=>{
+    
+                setTimeout(()=>{
+    
+                    card.classList.add(
+    
+                        "show"
+    
+                    );
+    
+                },index*CONFIG.staggerDelay);
+    
+            }
+    
+        );
+    
+    }
 
 // createMenuCard()
 
@@ -143,55 +160,214 @@ function createMenuCard(
         "menu-card stagger";
 
     card.style.animationDelay =
-        `${index*60}ms`;
+        `${index * 60}ms`;
 
-    card.innerHTML =
+    card.innerHTML = `
 
-    `
+        <div class="menu-image">
 
-    <div class="menu-image">
+            <img
 
-        <img
+                src="/images/${item.imageUrl}"
 
-            src="${item.image}"
+                alt="${item.name}"
 
-            alt="${item.name}"
+                class="food-image"
 
-            class="food-image"
+                onerror="this.src='/images/placeholder.png'"
 
-        >
-
-    </div>
-
-
-
-    <div class="menu-info">
-
-        <h3>
-
-            ${item.name}
-
-        </h3>
-
-        <div class="menu-price">
-
-            ₹${item.price}
+            >
 
         </div>
 
-        <div class="menu-footer">
+        <div class="menu-info">
 
-            <span class="ready-chip">
+            <h3>
 
-                ${item.readyTime}
+                ${item.name}
 
-            </span>
+            </h3>
+
+            <div class="menu-price">
+
+                ₹${item.price}
+
+            </div>
+
+            <div class="menu-footer">
+
+                <span class="ready-chip">
+
+                    ${
+                        item.preparationTime === 0
+                            ? "⚡ Ready Now"
+                            : `🕒 Ready in ${item.preparationTime} min`
+                    }
+
+                </span>
+
+                <div
+
+                    class="menu-cart-control"
+
+                    data-id="${item.id}"
+
+                >
+
+                    ${renderMenuControl(item)}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    const control =
+
+        card.querySelector(
+            ".menu-cart-control"
+        );
+
+    bindMenuControl(
+
+        control,
+
+        item
+
+    );
+
+    return card;
+
+}
+
+
+// ==========================================
+// BIND MENU CONTROL
+// ==========================================
+
+function bindMenuControl(
+
+    control,
+
+    item
+
+){
+
+    const addButton =
+
+        control.querySelector(
+            ".add-btn"
+        );
+
+    if(addButton){
+
+        addButton.addEventListener(
+
+            "click",
+
+            () => {
+
+                addToCart(item);
+
+            }
+
+        );
+
+        return;
+
+    }
+
+    const increaseButton =
+    control.querySelector(".increase");
+
+    const decreaseButton =
+    control.querySelector(".decrease");
+
+    increaseButton?.addEventListener(
+
+        "click",
+
+        () => {
+
+            increaseQuantity(item.id);
+
+        }
+
+    );
+
+    decreaseButton?.addEventListener(
+
+        "click",
+
+        () => {
+
+            decreaseQuantity(item.id);
+
+        }
+
+    );
+
+}
+
+
+// ==========================================
+// REFRESH MENU CONTROLS
+// ==========================================
+
+function refreshMenuControls(){
+
+    menu.forEach(item => {
+
+        const control =
+
+            document.querySelector(
+
+                `.menu-cart-control[data-id="${item.id}"]`
+
+            );
+
+        if(!control){
+
+            return;
+
+        }
+
+        control.innerHTML =
+
+            renderMenuControl(item);
+
+        bindMenuControl(
+
+            control,
+
+            item
+
+        );
+
+    });
+
+}
+
+
+// ==========================================
+// MENU CONTROL
+// ==========================================
+
+function renderMenuControl(item){
+
+    const cartItem =
+
+        findItem(item.id);
+
+    if(!cartItem){
+
+        return `
 
             <button
 
                 class="add-btn ripple"
-
-                data-id="${item.id}"
 
             >
 
@@ -199,12 +375,34 @@ function createMenuCard(
 
             </button>
 
-        </div>
+        `;
 
-    </div>
+    }
+
+    return `
+
+        <div class="quantity">
+
+    <button class="decrease">
+
+        −
+
+    </button>
+
+    <span class="quantity-value">
+
+        ${cartItem.quantity}
+
+    </span>
+
+    <button class="increase">
+
+        +
+
+    </button>
+
+</div>
 
     `;
-
-    return card;
 
 }

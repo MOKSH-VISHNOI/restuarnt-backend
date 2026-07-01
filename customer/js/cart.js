@@ -40,8 +40,13 @@ const sheetTotal =
         "sheetTotal"
     );
 
+const sheetCheckoutButton =
+    document.getElementById(
+        "sheetCheckoutButton"
+    );
 
-    // ==========================================
+
+// ==========================================
 // OPEN CART
 // ==========================================
 
@@ -285,8 +290,6 @@ function updateFloatingCart(){
     cartCount.textContent =
         items;
 
-    cartTotal.textContent =
-        `${CONFIG.currency}${total}`;
 
     if(items===0){
 
@@ -364,6 +367,26 @@ function updateCart(){
 
     renderBottomSheet();
 
+    if(
+
+        typeof refreshMenuControls === "function"
+    
+    ){
+    
+        refreshMenuControls();
+    
+    }
+    
+    if(
+    
+        typeof updateCheckout === "function"
+    
+    ){
+    
+        updateCheckout();
+    
+    }
+
     animateBadge();
 
     saveCart();
@@ -376,6 +399,56 @@ function updateCart(){
 
 function renderBottomSheet(){
 
+    cartItemsContainer.innerHTML = "";
+
+    if(cart.length===0){
+
+        cartItemsContainer.innerHTML = `
+    
+            <div class="empty-state">
+    
+                <div class="empty-cart-icon">
+    
+                    🛒
+    
+                </div>
+    
+                <h3>
+    
+                    Your cart is empty
+    
+                </h3>
+    
+                <p>
+    
+                    Add something delicious to get started.
+    
+                </p>
+    
+            </div>
+    
+        `;
+    
+    }
+
+    else{
+
+        cart.forEach(item => {
+
+            cartItemsContainer.appendChild(
+
+                createCartItem(item)
+
+            );
+
+        });
+
+    }
+
+    sheetTotal.textContent =
+
+        `${CONFIG.currency}${totalPrice()}`;
+
 }
 
 
@@ -384,6 +457,74 @@ function renderBottomSheet(){
 // ==========================================
 
 function createCartItem(item){
+
+    const card =
+
+        document.createElement("div");
+
+    card.className =
+
+        "cart-item";
+
+    card.innerHTML = `
+
+        <div class="cart-item-info">
+
+            <h3>
+
+                ${item.name}
+
+            </h3>
+
+            <p>
+
+                ${CONFIG.currency}${item.price} × ${item.quantity}
+
+            </p>
+
+        </div>
+
+        <div class="line-total">
+
+            ${CONFIG.currency}${item.price * item.quantity}
+
+        </div>
+
+        <div class="cart-item-actions">
+
+            <button
+                class="qty-btn"
+
+                onclick="decreaseQuantity(${item.id})"
+
+            >
+
+                −
+
+            </button>
+
+            <span>
+
+                ${item.quantity}
+
+            </span>
+
+            <button
+                class="qty-btn"
+
+                onclick="increaseQuantity(${item.id})"
+
+            >
+
+                +
+
+            </button>
+
+        </div>
+
+    `;
+
+    return card;
 
 }
 
@@ -411,3 +552,21 @@ cartBar.onclick = () => {
     openCart();
 
 };
+
+if(sheetCheckoutButton){
+
+    sheetCheckoutButton.addEventListener(
+
+        "click",
+
+        () => {
+
+            closeCart();
+
+            openCheckout();
+
+        }
+
+    );
+
+}

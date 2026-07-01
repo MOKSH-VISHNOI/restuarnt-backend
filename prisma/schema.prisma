@@ -32,6 +32,7 @@ model MenuItem {
   categoryId      Int
   createdAt       DateTime     @default(now())
   description     String?
+  imageUrl        String?
   preparationTime Int          @default(10)
   category        MenuCategory @relation(fields: [categoryId], references: [id])
   orderItems      OrderItem[]

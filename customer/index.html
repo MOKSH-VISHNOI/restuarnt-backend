@@ -52,6 +52,11 @@
 
     <link
         rel="stylesheet"
+        href="./css/checkout.css"
+    >
+
+    <link
+        rel="stylesheet"
         href="./css/animations.css"
     >
 
@@ -190,7 +195,7 @@
         </span>
 
         <img
-            src="./images/coffee.png"
+            src="./images/cold_coffee.png"
             alt=""
         >
 
@@ -341,7 +346,7 @@
     </div>
 
     <button
-        id="checkoutBtn"
+        id="cartCheckoutBtn"
         class="checkout-btn"
     >
 
@@ -384,7 +389,7 @@
         </div>
 
         <button
-            id="checkoutBtn"
+            id="sheetCheckoutButton"
             class="primary-btn"
         >
             Proceed to Pay
@@ -394,6 +399,138 @@
 
 </div>
 
+
+<!-- ========================= -->
+<!-- CHECKOUT -->
+<!-- ========================= -->
+
+<div
+    id="checkoutOverlay"
+    class="checkout-overlay hidden"
+>
+
+    <div
+        id="checkoutSheet"
+        class="checkout-sheet"
+    >
+
+        <div class="sheet-handle"></div>
+
+        <div class="checkout-header">
+
+            <h2 class="checkout-title">
+
+                Review
+                <span> Order</span>
+
+            </h2>
+
+            <button
+                id="closeCheckoutButton"
+                class="close-sheet"
+            >
+
+                ✕
+
+            </button>
+
+        </div>
+
+        <div
+            id="checkoutItems"
+            class="checkout-items"
+        >
+
+        </div>
+
+        <button
+            id="addMoreButton"
+            class="text-button"
+        >
+
+            ← Add More Items
+
+        </button>
+
+        <div class="summary">
+
+            <div class="summary-row">
+
+                <span>Subtotal</span>
+
+                <span id="checkoutSubtotal">
+
+                    ₹0
+
+                </span>
+
+            </div>
+
+            <div class="summary-row">
+
+                <span>Tax</span>
+
+                <span id="checkoutTax">
+
+                    ₹0
+
+                </span>
+
+            </div>
+
+            <div
+                class="summary-row summary-total"
+            >
+
+                <span>Total</span>
+
+                <span id="checkoutTotal">
+
+                    ₹0
+
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="estimate-card">
+
+            <div class="estimate-label">
+
+                Estimated Time
+
+            </div>
+
+            <div
+                id="estimatedTime"
+                class="estimate-value"
+            >
+
+                0
+
+            </div>
+
+            <div class="estimate-unit">
+
+                min
+
+            </div>
+
+        </div>
+
+        <button
+            id="placeOrderButton"
+            class="place-order"
+        >
+
+            Place Order →
+
+        </button>
+
+    </div>
+
+</div>
 
 
 <!-- ========================= -->
@@ -408,7 +545,13 @@
 
 <script src="./js/cart.js"></script>
 
+<script src="./js/api.js"></script>
+
 <script src="./js/app.js"></script>
+
+<script src="./js/checkout.js"></script>
+
+<script src="./js/order.js"></script>
 
 </body>
 

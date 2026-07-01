@@ -22,7 +22,18 @@ const createMenuItem = async (req, res) => {
 
 const getMenuItems = async (req, res) => {
   try {
-    const menuItems = await prisma.menuItem.findMany();
+    const menuItems =
+    await prisma.menuItem.findMany({
+
+        where: {
+            available: true
+        },
+
+        orderBy: {
+            id: "asc"
+        }
+
+    });
 
     res.json(menuItems);
   } catch (error) {
@@ -31,36 +42,64 @@ const getMenuItems = async (req, res) => {
 };
 
 const updateMenuItem = async (req, res) => {
+
   try {
+
     const id = parseInt(req.params.id);
 
     const {
+
       name,
+
       price,
+
       available,
-      preparationTime
+
+      preparationTime,
+
+      imageUrl,
+
+      description
+
     } = req.body;
 
     const menuItem = await prisma.menuItem.update({
+
       where: { id },
+
       data: {
+
         name,
+
         price,
+
         available,
-        preparationTime
+
+        preparationTime,
+
+        imageUrl,
+
+        description
+
       }
+
     });
 
     res.json(menuItem);
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: "Failed to update menu item"
-    });
-  }
-};
 
+    console.error(error);
+
+    res.status(500).json({
+
+      error: "Failed to update menu item"
+
+    });
+
+  }
+
+};
 const deleteMenuItem = async (req, res) => {
   try {
 

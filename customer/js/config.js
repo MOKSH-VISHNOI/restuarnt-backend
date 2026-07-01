@@ -1,7 +1,3 @@
-// ==========================================
-// YATHARTH CONFIGURATION
-// ==========================================
-
 const CONFIG = {
 
     // Restaurant
@@ -18,6 +14,11 @@ const CONFIG = {
 
     cartStorageKey:
         "yatharth_cart",
+
+    // API
+
+    apiBaseUrl:
+        "http://localhost:5000",
 
     // Theme
 
