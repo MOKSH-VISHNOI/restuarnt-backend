@@ -43,11 +43,6 @@ const checkoutTotal =
         "checkoutTotal"
     );
 
-const estimatedTime =
-
-    document.getElementById(
-        "estimatedTime"
-    );
 
 
 
@@ -130,8 +125,6 @@ function renderCheckout(){
 
     updateCheckoutTotals();
 
-    updateEstimatedTime();
-
 }
 
 
@@ -187,31 +180,6 @@ function updateCheckoutTotals(){
 }
 
 
-// ==========================================
-// ESTIMATED TIME
-// ==========================================
-
-function updateEstimatedTime(){
-
-    let maxTime = 0;
-
-    cart.forEach(item=>{
-
-        maxTime = Math.max(
-
-            maxTime,
-
-            item.preparationTime
-
-        );
-
-    });
-
-    estimatedTime.textContent =
-
-        `${maxTime} min`;
-
-}
 
 
 // ==========================================

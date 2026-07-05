@@ -3,7 +3,16 @@
 // ==========================================
 
 // DOM
+const comboCard =
+    document.getElementById(
+        "comboCard"
+    );
 
+const comboImages =
+    document.getElementById(
+        "comboImages"
+    );
+    
 const menuList =
     document.getElementById(
         "menuList"
@@ -19,6 +28,11 @@ const recommendationList =
         "recommendationList"
     );
 
+const comboControl =
+    document.getElementById(
+        "comboControl"
+    );
+
 
 
 // ==========================================
@@ -30,6 +44,7 @@ const recommendationList =
 // Later fetched from backend
 
 let menu = [];
+let comboItem = null;
 
 
 // ==========================================
@@ -50,11 +65,6 @@ document.addEventListener(
 
 );
 
-
-// =====================
-// LOAD MENU
-// =====================
-
 // ==========================================
 // LOAD MENU
 // ==========================================
@@ -65,21 +75,20 @@ async function loadMenu(){
 
         menu = await getMenu();
 
-        menu.sort((a,b)=>{
+        comboItem = menu.find(
 
-            if(
-                a.name.includes("Combo")
-            ) return -1;
+            item => item.name.includes("Combo")
+        
+        );
 
-            if(
-                b.name.includes("Combo")
-            ) return 1;
+        menu.sort(
 
-            return a.id-b.id;
-
-        });
+            (a,b)=>a.id-b.id
+        
+        );
 
         renderMenu();
+        refreshComboControl();
 
     }
 
@@ -90,6 +99,7 @@ async function loadMenu(){
     }
 
 }
+
 
 
 // renderMenu()
@@ -159,9 +169,6 @@ function createMenuCard(
     card.className =
         "menu-card stagger";
 
-    card.style.animationDelay =
-        `${index * 60}ms`;
-
     card.innerHTML = `
 
         <div class="menu-image">
@@ -196,29 +203,19 @@ function createMenuCard(
 
             <div class="menu-footer">
 
-                <span class="ready-chip">
+    <div
 
-                    ${
-                        item.preparationTime === 0
-                            ? "⚡ Ready Now"
-                            : `🕒 Ready in ${item.preparationTime} min`
-                    }
+        class="menu-cart-control"
 
-                </span>
+        data-id="${item.id}"
 
-                <div
+    >
 
-                    class="menu-cart-control"
+        ${renderMenuControl(item)}
 
-                    data-id="${item.id}"
+    </div>
 
-                >
-
-                    ${renderMenuControl(item)}
-
-                </div>
-
-            </div>
+</div>
 
         </div>
 
@@ -352,6 +349,218 @@ function refreshMenuControls(){
 
 
 // ==========================================
+// REFRESH COMBO CONTROL
+// ==========================================
+
+function refreshComboControl(){
+
+    if(!comboItem){
+
+        comboControl.innerHTML = "";
+
+        return;
+
+    }
+
+    comboImages.innerHTML =
+
+        renderComboImages();
+
+    comboControl.innerHTML =
+
+        renderComboControl(comboItem);
+
+    bindComboControl(
+
+        comboControl,
+
+        comboItem
+
+    );
+
+    comboCard?.classList.toggle(
+
+        "has-items",
+
+        !!findItem(comboItem.id)
+
+    );
+
+}
+
+
+// ==========================================
+// COMBO CONTROL
+// ==========================================
+
+function renderComboControl(item){
+
+    const cartItem =
+
+        findItem(item.id);
+
+    if(!cartItem){
+
+        return `
+
+            <button
+
+                class="primary-btn combo-add-btn ripple"
+
+            >
+
+                Add Combo
+
+            </button>
+
+        `;
+
+    }
+
+    return `
+
+        <div class="quantity">
+
+            <button
+
+                class="decrease"
+
+            >
+
+                −
+
+            </button>
+
+            <span
+
+                class="quantity-value"
+
+            >
+
+                ${cartItem.quantity}
+
+            </span>
+
+            <button
+
+                class="increase"
+
+            >
+
+                +
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+// ==========================================
+// BIND COMBO CONTROL
+// ==========================================
+
+function bindComboControl(
+
+    control,
+
+    item
+
+){
+    const comboImages = document.getElementById("comboImages");
+
+if(comboImages){
+
+    comboImages.innerHTML =
+
+        renderComboImages(comboItem);
+
+}
+
+    const addButton =
+
+        control.querySelector(
+
+            ".combo-add-btn"
+
+        );
+
+    if(addButton){
+
+        addButton.addEventListener(
+
+            "click",
+
+            ()=>{
+
+                addToCart(item);
+
+            }
+
+        );
+
+        return;
+
+    }
+
+    control.querySelector(".increase")
+
+        ?.addEventListener(
+
+            "click",
+
+            ()=>increaseQuantity(item.id)
+
+        );
+
+    control.querySelector(".decrease")
+
+        ?.addEventListener(
+
+            "click",
+
+            ()=>decreaseQuantity(item.id)
+
+        );
+
+}
+
+
+// ==========================================
+// COMBO IMAGES
+// ==========================================
+
+function renderComboImages(){
+
+    return `
+
+        <img
+
+            src="/images/sandwich.png"
+
+            alt="Sandwich"
+
+        >
+
+        <span>
+
+            +
+
+        </span>
+
+        <img
+
+            src="/images/cold_coffee.png"
+
+            alt="Cold Coffee"
+
+        >
+
+    `;
+
+}
+
+// ==========================================
 // MENU CONTROL
 // ==========================================
 
@@ -405,4 +614,4 @@ function renderMenuControl(item){
 
     `;
 
-}
+}   

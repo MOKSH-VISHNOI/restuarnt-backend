@@ -60,9 +60,41 @@ main{
    COMBO
 ========================================== */
 
-.combo-card{
+.combo-control{
 
-    margin-bottom:32px;
+    margin-top:24px;
+
+    display:flex;
+
+    justify-content:center;
+
+}
+
+.combo-control .quantity{
+
+    width:100%;
+
+    justify-content:space-between;
+
+}
+
+.combo-add-btn{
+
+    width:100%;
+
+}
+
+.combo-card.has-items{
+
+    border-color:var(--accent);
+
+    box-shadow:
+
+        0 0 0 1px rgba(255,170,0,.2),
+
+        0 12px 34px rgba(255,170,0,.18);
+
+        transform:translateY(-2px);
 
 }
 

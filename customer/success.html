@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+
+        Order Confirmed
+
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="./css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./css/success.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- ========================================== -->
+    <!-- SUCCESS PAGE -->
+    <!-- ========================================== -->
+
+    <main
+        id="successContainer"
+        class="success-container"
+    >
+
+        <!-- Logo -->
+
+        <header
+            class="success-header"
+        >
+
+            <img
+
+                src="./images/logo.png"
+
+                alt="Yatharth"
+
+                class="success-logo"
+
+            >
+
+            <h2>
+
+                YATHARTH
+
+            </h2>
+
+            <span>
+
+                CAFÉ
+
+            </span>
+
+        </header>
+
+
+        <!-- Success Icon -->
+
+        <section
+            class="success-icon-section"
+        >
+
+        <div
+
+        id="successIcon"
+    
+        class="success-icon"
+    
+    >
+    
+        <svg
+    
+            class="checkmark-svg"
+    
+            viewBox="0 0 52 52"
+    
+            xmlns="http://www.w3.org/2000/svg"
+    
+        >
+    
+            <circle
+    
+                class="checkmark-circle"
+    
+                cx="26"
+    
+                cy="26"
+    
+                r="24"
+    
+                fill="none"
+    
+            />
+    
+            <path
+    
+                class="checkmark-path"
+    
+                fill="none"
+    
+                d="M14 27l7 7 17-17"
+    
+            />
+    
+        </svg>
+    
+    </div>
+
+        </section>
+
+
+        <!-- Heading -->
+
+        <section
+            class="success-message"
+        >
+
+            <h1
+                id="successTitle"
+            >
+
+                Order Confirmed
+
+            </h1>
+
+            <p
+                id="successSubtitle"
+            >
+
+            Your order has been placed.
+            We'll keep you updated here.
+
+            </p>
+
+        </section>
+
+
+        <!-- Token Card -->
+
+        <section class="token-card">
+
+            <p class="token-label">
+        
+                YOUR TOKEN
+        
+            </p>
+        
+            <h1
+                id="tokenNumber"
+                class="token-number"
+            >
+        
+                108
+        
+            </h1>
+        
+            <p class="token-note">
+        
+                Show this token at the counter
+        
+            </p>
+        
+        </section>
+
+
+<!-- ========================================== -->
+<!-- ORDER STATUS -->
+<!-- ========================================== -->
+
+<section
+
+class="status-card"
+
+>
+
+<h3>
+
+    Order Status
+
+</h3>
+
+<div
+
+    id="progressContainer"
+
+    class="progress-container"
+
+>
+
+    <!-- SVG inserted by success.js -->
+
+</div>
+
+<h2
+
+    id="statusTitle"
+
+>
+
+    Order Received
+
+</h2>
+
+<p
+
+    id="statusMessage"
+
+>
+
+    Your order has reached the kitchen.
+
+</p>
+
+</section>
+
+        <!-- Notification Card -->
+
+        <section
+            class="notification-card"
+        >
+
+            <div
+                class="notification-icon"
+            >
+
+                🔔
+
+            </div>
+
+            <p>
+
+                We'll notify you when
+                your order is ready.
+
+            </p>
+
+        </section>
+
+
+    </main>
+
+
+    <script src="./js/config.js"></script>
+
+    <script src="./js/api.js"></script>
+
+    <script src="./js/success.js"></script>
+
+</body>
+
+</html>

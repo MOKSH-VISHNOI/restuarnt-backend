@@ -83,11 +83,6 @@ async function placeOrder(){
             order
         );
 
-        // Phase 2
-        // Success Screen
-
-        // showSuccessScreen(order);
-
         // Clear cart
 
         cart = [];
@@ -96,13 +91,21 @@ async function placeOrder(){
 
         updateCart();
 
-        // Close checkout
+        // Save current order
 
-        if(typeof closeCheckout==="function"){
+        localStorage.setItem(
 
-            closeCheckout();
+            "currentOrder",
 
-        }
+            JSON.stringify(order)
+
+        );
+
+        // Redirect
+
+        window.location.href =
+
+            "success.html";
 
     }
 
@@ -131,7 +134,6 @@ async function placeOrder(){
     }
 
 }
-
 
 // ==========================================
 // BUILD ORDER PAYLOAD

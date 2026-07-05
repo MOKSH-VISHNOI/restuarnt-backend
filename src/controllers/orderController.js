@@ -1,149 +1,263 @@
 const prisma = require("../config/prisma");
 
 const createOrder = async (req, res) => {
+
   try {
+
     const { branchId, items } = req.body;
 
     let totalAmount = 0;
 
-    // Fetch menu items from database
+    // ==========================================
+    // FETCH MENU ITEMS
+    // ==========================================
+
     const menuItems = await prisma.menuItem.findMany({
+
       where: {
+
         id: {
-          in: items.map(item => item.menuItemId)
+
+          in: items.map(
+
+            item => item.menuItemId
+
+          )
+
         }
+
       }
+
     });
 
-    // Water Only decision
+    // ==========================================
+    // WATER ONLY CHECK
+    // ==========================================
+
     const isWaterOnly = menuItems.every(
+
       item =>
+
         item.name
+
           .toLowerCase()
+
           .includes("water")
+
     );
 
-    // Calculate total
+    // ==========================================
+    // TOTAL AMOUNT
+    // ==========================================
+
     items.forEach(item => {
+
       const menuItem = menuItems.find(
+
         m => m.id === item.menuItemId
+
       );
 
-      if (menuItem) {
-        totalAmount += menuItem.price * item.quantity;
+      if(menuItem){
+
+        totalAmount +=
+
+          menuItem.price *
+
+          item.quantity;
+
       }
+
     });
 
-    // Generate daily token number
+    // ==========================================
+    // DAILY TOKEN
+    // ==========================================
 
     const today = new Date();
 
-today.setHours(
-  0,
-  0,
-  0,
-  0
-);
+    today.setHours(
 
-let counter =
-  await prisma.dailyTokenCounter.findUnique({
+      0,
 
-    where: {
-      counterDate: today
-    }
+      0,
 
-  });
+      0,
 
-if (!counter) {
+      0
 
-  counter =
-    await prisma.dailyTokenCounter.create({
+    );
 
-      data: {
-        counterDate: today,
-        lastToken: 100
-      }
+    let counter =
 
-    });
-}
+      await prisma.dailyTokenCounter.findUnique({
 
-counter =
-  await prisma.dailyTokenCounter.update({
+        where:{
 
-    where: {
-      id: counter.id
-    },
+          counterDate:today
 
-    data: {
-      lastToken: {
-        increment: 1
-      }
-    }
-
-  });
-
-const tokenNumber =
-  counter.lastToken;
-
-    // Create order
-    const order = await prisma.order.create({
-      data: {
-        branchId,
-        tokenNumber,
-        totalAmount,
-    
-        status: isWaterOnly
-          ? "READY"
-          : "PLACED",
-    
-        readyAt: isWaterOnly
-          ? new Date()
-          : null,
-    
-        items: {
-          create: items.map(item => ({
-            quantity: item.quantity,
-            menuItemId: item.menuItemId
-          }))
         }
-      },
-    
-      include: {
-        items: true
-      }
-    });
 
-    const io = req.app.get("io");
+      });
 
-    if (isWaterOnly) {
+    if(!counter){
 
-      io.emit(
-        "ORDER_READY",
-        order
-      );
-    
-      io.emit(
-        "DISPLAY_REFRESH"
-      );
-    
-    } else {
-    
-      io.emit(
-        "NEW_ORDER",
-        order
-      );
-    
+      counter =
+
+        await prisma.dailyTokenCounter.create({
+
+          data:{
+
+            counterDate:today,
+
+            lastToken:100
+
+          }
+
+        });
+
     }
+
+    counter =
+
+      await prisma.dailyTokenCounter.update({
+
+        where:{
+
+          id:counter.id
+
+        },
+
+        data:{
+
+          lastToken:{
+
+            increment:1
+
+          }
+
+        }
+
+      });
+
+    const tokenNumber =
+
+      counter.lastToken;
+
+    // ==========================================
+    // CREATE ORDER
+    // ==========================================
+
+    const order =
+
+      await prisma.order.create({
+
+        data:{
+
+          branchId,
+
+          tokenNumber,
+
+          totalAmount,
+
+          status:isWaterOnly
+
+            ? "READY"
+
+            : "PLACED",
+
+          readyAt:isWaterOnly
+
+            ? new Date()
+
+            : null,
+
+          items:{
+
+            create:
+
+              items.map(
+
+                item => ({
+
+                  quantity:item.quantity,
+
+                  menuItemId:item.menuItemId
+
+                })
+
+              )
+
+          }
+
+        },
+
+        include:{
+
+          items:true
+
+        }
+
+      });
+
+    // ==========================================
+    // SOCKET EVENTS
+    // ==========================================
+
+    const io =
+
+      req.app.get("io");
+
+    if(isWaterOnly){
+
+      io.emit(
+
+        "ORDER_READY",
+
+        order
+
+      );
+
+      io.emit(
+
+        "DISPLAY_REFRESH"
+
+      );
+
+    }
+
+    else{
+
+      io.emit(
+
+        "NEW_ORDER",
+
+        order
+
+      );
+
+    }
+
+    // ==========================================
+    // RESPONSE
+    // ==========================================
 
     res.status(201).json(order);
 
-  } catch (error) {
+  }
+
+  catch(error){
+
     console.error(error);
 
     res.status(500).json({
-      error: "Failed to create order"
+
+      error:"Failed to create order"
+
     });
+
   }
+
 };
 
 

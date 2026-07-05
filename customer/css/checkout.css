@@ -261,68 +261,6 @@
 }
 
 
-/* ==========================================
-   ESTIMATED TIME
-========================================== */
-
-.estimate-card{
-
-    margin:28px 0;
-
-    padding:26px;
-
-    border-radius:28px;
-
-    background:
-
-        linear-gradient(
-
-            135deg,
-
-            #FFD36A,
-
-            #F5A623
-
-        );
-
-    color:white;
-
-    text-align:center;
-
-    box-shadow:
-
-        0 16px 34px rgba(245,166,35,.25);
-
-}
-
-.estimate-label{
-
-    font-size:15px;
-
-    opacity:.95;
-
-    letter-spacing:.4px;
-
-}
-
-.estimate-value{
-
-    font-size:54px;
-
-    font-weight:800;
-
-    margin:6px 0;
-
-}
-
-.estimate-unit{
-
-    font-size:20px;
-
-    font-weight:600;
-
-}
-
 
 /* ==========================================
    BILL SUMMARY
@@ -336,7 +274,7 @@
 
     gap:14px;
 
-    margin-bottom:30px;
+    margin-bottom:36px;
 
 }
 

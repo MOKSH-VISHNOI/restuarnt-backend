@@ -156,7 +156,9 @@ function addToCart(item){
 
         });
 
+
     }
+    
 
 
 
@@ -363,6 +365,8 @@ function animateBadge(){
 
 function updateCart(){
 
+    
+
     updateFloatingCart();
 
     renderBottomSheet();
@@ -374,6 +378,16 @@ function updateCart(){
     ){
     
         refreshMenuControls();
+
+        if(
+
+            typeof refreshComboControl === "function"
+        
+        ){
+        
+            refreshComboControl();
+        
+        }
     
     }
     
