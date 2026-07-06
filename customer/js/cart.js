@@ -45,6 +45,11 @@ const sheetCheckoutButton =
         "sheetCheckoutButton"
     );
 
+const cartInfo =
+    document.getElementById(
+        "cartInfo"
+    );
+
 
 // ==========================================
 // OPEN CART
@@ -555,7 +560,7 @@ function restoreCart(){
 
 restoreCart();
 
-cartBar.onclick = () => {
+cartInfo.onclick = () => {
 
     if(totalItems()===0){
 
@@ -564,6 +569,18 @@ cartBar.onclick = () => {
     }
 
     openCart();
+
+};
+
+cartCheckoutBtn.onclick = () => {
+
+    if(totalItems()===0){
+
+        return;
+
+    }
+
+    openCheckout();
 
 };
 
