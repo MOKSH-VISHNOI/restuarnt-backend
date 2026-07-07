@@ -331,7 +331,7 @@
         class="checkout-btn"
     >
 
-        Place Order ->
+        Place Order
 
     </button>
 
@@ -373,7 +373,7 @@
             id="sheetCheckoutButton"
             class="primary-btn"
         >
-            Proceed to Pay
+            Place Order
         </button>
 
     </div>
@@ -401,94 +401,88 @@
 
             <h2 class="checkout-title">
 
-                Review
-                <span> Order</span>
+                Review <span>Order</span>
 
             </h2>
 
-            <button
-                id="closeCheckoutButton"
-                class="checkout-close"
+        </div>
+
+        <!-- NEW CONTENT WRAPPER -->
+
+        <div class="checkout-content">
+
+            <div
+                id="checkoutItems"
+                class="checkout-items"
             >
 
-                ✕
+            </div>
+
+            <button
+                id="addMoreButton"
+                class="add-more"
+            >
+
+                + Add More Items
 
             </button>
 
-        </div>
+            <div class="summary">
 
-        <div
-            id="checkoutItems"
-            class="checkout-items"
-        >
+                <div class="summary-row">
 
-        </div>
+                    <span>Subtotal</span>
 
-        <button
-            id="addMoreButton"
-            class="add-more"
-        >
+                    <span id="checkoutSubtotal">
 
-            ← Add More Items
+                        ₹0
 
-        </button>
+                    </span>
 
-        <div class="summary">
+                </div>
 
-            <div class="summary-row">
+                <div class="summary-row">
 
-                <span>Subtotal</span>
+                    <span>Tax</span>
 
-                <span id="checkoutSubtotal">
+                    <span id="checkoutTax">
 
-                    ₹0
+                        ₹0
 
-                </span>
+                    </span>
 
-            </div>
+                </div>
 
-            <div class="summary-row">
+                <div class="summary-row summary-total">
 
-                <span>Tax</span>
+                    <span>Total</span>
 
-                <span id="checkoutTax">
+                    <span id="checkoutTotal">
 
-                    ₹0
+                        ₹0
 
-                </span>
+                    </span>
 
-            </div>
-
-            <div
-                class="summary-row summary-total"
-            >
-
-                <span>Total</span>
-
-                <span id="checkoutTotal">
-
-                    ₹0
-
-                </span>
+                </div>
 
             </div>
 
         </div>
 
+        <!-- END CONTENT WRAPPER -->
 
         <button
             id="placeOrderButton"
-            class="place-order"
+            class="primary-btn place-order"
         >
 
-            Place Order →
+            Place Order
 
         </button>
 
     </div>
 
 </div>
-
 
 <!-- ========================= -->
 

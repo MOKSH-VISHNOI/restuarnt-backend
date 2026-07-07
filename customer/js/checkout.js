@@ -43,6 +43,33 @@ const checkoutTotal =
         "checkoutTotal"
     );
 
+const addMoreBtn =
+    document.getElementById(
+        "addMoreButton"
+    );
+
+
+// ==========================================
+// EVENT LISTENERS
+// ==========================================
+
+addMoreButton?.addEventListener(
+
+    "click",
+
+    closeCheckout
+
+);
+
+checkoutOverlay.onclick = (event)=>{
+
+    if(event.target===checkoutOverlay){
+
+        closeCheckout();
+
+    }
+
+};
 
 
 
@@ -90,30 +117,86 @@ function closeCheckout(){
 }
 
 
-checkoutOverlay.onclick = (event)=>{
-
-    if(
-
-        event.target===checkoutOverlay
-
-    ){
-
-        closeCheckout();
-
-    }
-
-};
-
-
 // ==========================================
 // RENDER CHECKOUT
 // ==========================================
 
 function renderCheckout(){
 
-    checkoutItems.innerHTML="";
+    checkoutItems.innerHTML = "";
 
-    cart.forEach(item=>{
+    if(cart.length === 0){
+
+        checkoutItems.innerHTML = `
+
+            <div class="empty-state">
+
+                <div class="empty-cart-icon">
+
+                    🛒
+
+                </div>
+
+                <h3>
+
+                    Your cart is empty
+
+                </h3>
+
+                <p>
+
+                    Add something delicious to get started.
+
+                </p>
+
+                <button
+                    id="emptyCheckoutButton"
+                    class="primary-btn"
+                >
+
+                    Add Items
+
+                </button>
+
+            </div>
+
+        `;
+
+        document
+            .getElementById("emptyCheckoutButton")
+            .addEventListener(
+
+                "click",
+
+                closeCheckout
+
+            );
+
+        document.querySelector(".summary").style.display = "none";
+
+        document.getElementById(
+            "placeOrderButton"
+        ).style.display = "none";
+
+        document.getElementById(
+            "addMoreButton"
+        ).style.display = "none";
+
+        return;
+
+    }
+
+    document.querySelector(".summary").style.display = "";
+
+    document.getElementById(
+        "placeOrderButton"
+    ).style.display = "";
+
+    document.getElementById(
+        "addMoreButton"
+    ).style.display = "";
+
+    for(const item of cart){
 
         checkoutItems.appendChild(
 
@@ -121,7 +204,7 @@ function renderCheckout(){
 
         );
 
-    });
+    }
 
     updateCheckoutTotals();
 
@@ -137,17 +220,17 @@ function updateCheckout(){
     if(
 
         checkoutOverlay.classList.contains(
-
+    
             "hidden"
-
+    
         )
-
+    
     ){
-
+    
         return;
-
+    
     }
-
+    
     renderCheckout();
 
 }
@@ -198,13 +281,13 @@ function createCheckoutItem(item){
 
         "checkout-item";
 
-    card.innerHTML = `
+        card.innerHTML = `
+
+    <div class="cart-item-image">
 
         <img
 
             src="/images/${item.imageUrl}"
-
-            class="checkout-image"
 
             alt="${item.name}"
 
@@ -212,49 +295,47 @@ function createCheckoutItem(item){
 
         >
 
-        <div class="checkout-info">
+    </div>
 
-            <h3>
+    <div class="cart-item-info">
 
-                ${item.name}
+        <h3>
 
-            </h3>
+            ${item.name}
 
-            <div class="checkout-price">
+        </h3>
 
-                ${CONFIG.currency}${item.price}
+        <p>
 
-            </div>
+            ${CONFIG.currency}${item.price} each
+
+        </p>
+
+    </div>
+
+    <div class="cart-item-right">
+
+        <div class="line-total">
+
+            ${CONFIG.currency}${item.price * item.quantity}
 
         </div>
 
         <div class="checkout-quantity">
 
-            <button
-
-                class="checkout-decrease"
-
-            >
+            <button class="checkout-decrease">
 
                 −
 
             </button>
 
-            <span
-
-                class="checkout-quantity-value"
-
-            >
+            <span class="checkout-quantity-value">
 
                 ${item.quantity}
 
             </span>
 
-            <button
-
-                class="checkout-increase"
-
-            >
+            <button class="checkout-increase">
 
                 +
 
@@ -262,16 +343,17 @@ function createCheckoutItem(item){
 
         </div>
 
-    `;
+    </div>
+
+`;
+
 
     const increaseButton =
-
         card.querySelector(
             ".checkout-increase"
         );
 
     const decreaseButton =
-
         card.querySelector(
             ".checkout-decrease"
         );
@@ -303,16 +385,5 @@ function createCheckoutItem(item){
     );
 
     return card;
-
-}
-
-
-// ==========================================
-// ADD MORE ITEMS
-// ==========================================
-
-function continueShopping(){
-
-    closeCheckout();
 
 }

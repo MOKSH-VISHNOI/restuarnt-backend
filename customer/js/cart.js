@@ -477,15 +477,25 @@ function renderBottomSheet(){
 
 function createCartItem(item){
 
-    const card =
+    const card = document.createElement("div");
 
-        document.createElement("div");
-
-    card.className =
-
-        "cart-item";
+    card.className = "cart-item";
 
     card.innerHTML = `
+
+        <div class="cart-item-image">
+
+            <img
+
+                src="/images/${item.imageUrl}"
+
+                alt="${item.name}"
+
+                onerror="this.src='/images/placeholder.png'"
+
+            >
+
+        </div>
 
         <div class="cart-item-info">
 
@@ -497,47 +507,53 @@ function createCartItem(item){
 
             <p>
 
-                ${CONFIG.currency}${item.price} × ${item.quantity}
+                ${CONFIG.currency}${item.price} each
 
             </p>
 
         </div>
 
-        <div class="line-total">
+        <div class="cart-item-right">
 
-            ${CONFIG.currency}${item.price * item.quantity}
+            <div class="line-total">
 
-        </div>
+                ${CONFIG.currency}${item.price * item.quantity}
 
-        <div class="cart-item-actions">
+            </div>
 
-            <button
-                class="qty-btn"
+            <div class="cart-item-actions">
 
-                onclick="decreaseQuantity(${item.id})"
+                <button
 
-            >
+                    class="qty-btn"
 
-                −
+                    onclick="decreaseQuantity(${item.id})"
 
-            </button>
+                >
 
-            <span>
+                    −
 
-                ${item.quantity}
+                </button>
 
-            </span>
+                <span class="qty-value">
 
-            <button
-                class="qty-btn"
+                    ${item.quantity}
 
-                onclick="increaseQuantity(${item.id})"
+                </span>
 
-            >
+                <button
 
-                +
+                    class="qty-btn"
 
-            </button>
+                    onclick="increaseQuantity(${item.id})"
+
+                >
+
+                    +
+
+                </button>
+
+            </div>
 
         </div>
 
