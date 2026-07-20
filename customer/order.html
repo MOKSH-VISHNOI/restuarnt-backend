@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+
+        Your Order
+
+    </title>
+
+    <!-- CSS -->
+
+<link
+rel="stylesheet"
+href="./css/variables.css"
+>
+
+<link
+rel="stylesheet"
+href="./css/theme.css"
+>
+
+<link
+rel="stylesheet"
+href="./css/components.css"
+>
+
+<link
+rel="stylesheet"
+href="./css/animations.css"
+>
+
+<link
+rel="stylesheet"
+href="./css/order-status.css"
+>
+
+</head>
+
+<body>
+
+    <!-- ========================================== -->
+    <!-- SUCCESS PAGE -->
+    <!-- ========================================== -->
+
+    <main
+        id="successContainer"
+        class="success-container"
+    >
+
+        <!-- Success Icon -->
+
+        <section
+            class="success-icon-section"
+        >
+
+        <div
+
+        id="successIcon"
+    
+        class="success-icon"
+    
+    >
+    
+        <svg
+    
+            class="checkmark-svg"
+    
+            viewBox="0 0 52 52"
+    
+            xmlns="http://www.w3.org/2000/svg"
+    
+        >
+    
+            <circle
+    
+                class="checkmark-circle"
+    
+                cx="26"
+    
+                cy="26"
+    
+                r="24"
+    
+                fill="none"
+    
+            />
+    
+            <path
+    
+                class="checkmark-path"
+    
+                fill="none"
+    
+                d="M14 27l7 7 17-17"
+    
+            />
+    
+        </svg>
+    
+    </div>
+
+        </section>
+
+
+        <!-- Heading -->
+
+        <section
+            class="success-message"
+        >
+
+            <h1
+                id="successTitle"
+            >
+
+                Order Confirmed
+
+            </h1>
+
+            <p
+                id="successSubtitle"
+            >
+
+            Your order has been placed.
+            We'll keep you updated here.
+
+            </p>
+
+        </section>
+
+<!-- Token Card -->
+
+<section class="token-card">
+
+    <p class="token-label">
+
+        YOUR TOKEN
+
+    </p>
+
+    <h1
+        id="tokenNumber"
+        class="token-number"
+    >
+
+        108
+
+    </h1>
+
+    <p class="token-note">
+
+        Show this token at the counter
+
+    </p>
+
+</section>
+
+<!-- ========================================== -->
+<!-- ORDER STATUS -->
+<!-- ========================================== -->
+
+<section
+
+class="status-card"
+
+>
+
+<h3>
+
+    Order Status
+
+</h3>
+
+<div
+
+    id="progressContainer"
+
+    class="progress-container"
+
+>
+
+    <!-- SVG inserted by success.js -->
+
+</div>
+
+<h2
+
+    id="statusTitle"
+
+>
+
+    Order Received
+
+</h2>
+
+<p
+
+    id="statusMessage"
+
+>
+
+    Your order has reached the kitchen.
+
+</p>
+
+</section>
+
+
+<!-- ========================================== -->
+<!-- RATE US -->
+<!-- ========================================== -->
+
+    <article
+        class="action-card rating-card"
+        id="ratingCard"
+    >
+
+        <div class="action-content">
+
+            <div class="action-icon">
+
+                <span>
+                    ⭐
+                </span>
+
+            </div>
+
+            <div class="action-body">
+
+                <h3>
+                    Rate Us
+                </h3>
+
+                <p>
+                    How was your experience?
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="rating-options"
+            id="ratingOptions"
+        >
+
+            <button
+                class="rating-option"
+                data-rating="5"
+                type="button"
+                aria-label="Excellent"
+            >
+                😄
+            </button>
+
+            <button
+                class="rating-option"
+                data-rating="4"
+                type="button"
+                aria-label="Good"
+            >
+                🙂
+            </button>
+
+            <button
+                class="rating-option"
+                data-rating="3"
+                type="button"
+                aria-label="Average"
+            >
+                😐
+            </button>
+
+            <button
+                class="rating-option"
+                data-rating="2"
+                type="button"
+                aria-label="Poor"
+            >
+                🙁
+            </button>
+
+            <button
+                class="rating-option"
+                data-rating="1"
+                type="button"
+                aria-label="Very poor"
+            >
+                😣
+            </button>
+
+        </div>
+
+    </article>
+
+
+<!-- ========================================== -->
+<!-- ORDERS GRID -->
+<!-- ========================================== -->
+
+<section class="orders-grid">
+
+    <!-- ========================================== -->
+    <!-- CURRENT ORDER -->
+    <!-- ========================================== -->
+
+    <article
+        class="action-card"
+        id="currentOrderCard"
+    >
+
+        <div class="action-content">
+
+            <div class="action-icon">
+
+                <span>
+                    📦
+                </span>
+
+            </div>
+
+            <div class="action-body">
+
+                <h3>
+                    Current Order
+                </h3>
+
+                <p id="currentOrderSummary">
+                    3 Items • ₹420
+                </p>
+
+                <button
+                    id="viewBillButton"
+                    class="action-link"
+                >
+                    View Bill →
+                </button>
+
+            </div>
+
+        </div>
+
+    </article>
+
+
+
+
+
+<!-- ========================================== -->
+<!-- OTHER ORDERS -->
+<!-- ========================================== -->
+
+<section class="other-orders-card">
+
+    <span class="other-orders-icon">
+        🧾
+    </span>
+
+    <div class="other-orders-header">
+
+        <div class="other-orders-title">
+
+            <h3>
+                Other Orders
+            </h3>
+
+            <span id="otherOrdersCount">
+                (0)
+            </span>
+
+        </div>
+
+    </div>
+
+    <div id="otherOrdersList">
+
+        <div class="other-orders-empty">
+
+            <span class="empty-orders-text">
+                No other active orders
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+</section>
+
+
+<!-- ========================================== -->
+<!-- PLACE ANOTHER ORDER -->
+<!-- ========================================== -->
+
+<button
+    id="placeAnotherOrder"
+    class="primary-btn place-another-order"
+>
+    Place Another Order
+</button>
+
+
+</main>
+
+
+<!-- ========================================== -->
+<!-- CURRENT ORDER SHEET -->
+<!-- ========================================== -->
+
+<div
+    id="orderSheetOverlay"
+    class="order-sheet-overlay hidden"
+>
+
+    <section
+        id="orderSheet"
+        class="order-sheet"
+        aria-labelledby="orderSheetTitle"
+    >
+
+        <div class="order-sheet-content">
+
+            <!-- Header -->
+
+            <div class="order-sheet-header">
+
+                <h2
+                    id="orderSheetTitle"
+                    class="order-sheet-title"
+                >
+                    Current <span>Order</span>
+                </h2>
+
+            </div>
+
+
+            <!-- Order Items -->
+
+            <div
+                id="orderSheetItems"
+                class="order-sheet-items"
+            >
+
+                <!-- Rendered by order-status.js -->
+
+            </div>
+
+
+            <!-- Order Summary -->
+
+            <div class="summary">
+
+                <div class="summary-row">
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <span id="orderSheetSubtotal">
+                        ₹0
+                    </span>
+
+                </div>
+
+                <div class="summary-row">
+
+                    <span>
+                        Tax
+                    </span>
+
+                    <span id="orderSheetTax">
+                        ₹0
+                    </span>
+
+                </div>
+
+                <div class="summary-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <span id="orderSheetTotal">
+                        ₹0
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Close -->
+
+            <button
+                id="closeOrderSheetButton"
+                class="primary-btn order-sheet-close"
+                type="button"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+
+    <script src="./js/config.js"></script>
+
+    <script src="./js/api.js"></script>
+
+    <script src="./js/theme.js"></script>
+
+    <script src="./js/order-status.js"></script>
+
+</body>
+
+</html>

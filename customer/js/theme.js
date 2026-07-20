@@ -47,53 +47,55 @@ updateThemeIcon();
 // TOGGLE
 // =========================
 
-themeBtn.onclick = () => {
+if(themeBtn){
 
-    overlay.classList.add(
-        "active"
-    );
+    themeBtn.onclick = () => {
 
-    themeBtn.classList.add(
-        "theme-spin"
-    );
+        overlay.classList.add(
+            "active"
+        );
 
-    const nextTheme =
+        themeBtn.classList.add(
+            "theme-spin"
+        );
 
-        html.dataset.theme === "dark"
+        const nextTheme =
 
-            ? "light"
+            html.dataset.theme === "dark"
 
-            : "dark";
+                ? "light"
 
-    setTimeout(() => {
+                : "dark";
 
-        html.dataset.theme =
-            nextTheme;
+        setTimeout(() => {
+
+            html.dataset.theme =
+                nextTheme;
 
             localStorage.setItem(
                 CONFIG.themeStorageKey,
                 nextTheme
             );
 
-        updateThemeIcon();
+            updateThemeIcon();
 
-    }, 120);
+        },120);
 
-    setTimeout(() => {
+        setTimeout(() => {
 
-        overlay.classList.remove(
-            "active"
-        );
+            overlay.classList.remove(
+                "active"
+            );
 
-        themeBtn.classList.remove(
-            "theme-spin"
-        );
+            themeBtn.classList.remove(
+                "theme-spin"
+            );
 
-    }, 450);
+        },450);
 
-};
+    };
 
-
+}
 
 // =========================
 // ICON
@@ -101,9 +103,15 @@ themeBtn.onclick = () => {
 
 function updateThemeIcon(){
 
-    themeBtn.textContent=
+    if(!themeBtn){
 
-        html.dataset.theme==="dark"
+        return;
+
+    }
+
+    themeBtn.textContent =
+
+        html.dataset.theme === "dark"
 
             ? "☀️"
 

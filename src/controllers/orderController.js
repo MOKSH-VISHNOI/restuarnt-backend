@@ -194,10 +194,17 @@ const createOrder = async (req, res) => {
 
         include:{
 
-          items:true
-
-        }
-
+          items:{
+      
+              include:{
+      
+                  menuItem:true
+      
+              }
+      
+          }
+      
+      }
       });
 
     // ==========================================
@@ -264,9 +271,19 @@ const createOrder = async (req, res) => {
 const getOrders = async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
-      include: {
-        items: true
-      }
+      include:{
+
+        items:{
+    
+            include:{
+    
+                menuItem:true
+    
+            }
+    
+        }
+    
+    }
     });
 
     res.json(orders);
@@ -284,9 +301,19 @@ const getOrderById = async (req, res) => {
       where: {
         id: Number(req.params.id),
       },
-      include: {
-        items: true,
-      },
+      include:{
+
+        items:{
+    
+            include:{
+    
+                menuItem:true
+    
+            }
+    
+        }
+    
+    },
     });
 
     if (!order) {

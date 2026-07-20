@@ -185,8 +185,6 @@
 
 .place-order{
 
-    width:100%;
-
     height:76px;
 
     margin:20px auto 18px;
@@ -203,83 +201,3 @@
 
 }
 
-/* ==========================================
-   BILL SUMMARY
-========================================== */
-
-.summary{
-
-    display:flex;
-
-    flex-direction:column;
-
-    margin-top:12px;
-
-    margin-bottom:24px;
-
-    padding-top:18px;
-
-    border-top:1px solid var(--border);
-
-
-}
-
-.summary-row{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:8px 0;
-
-    font-size:16px;
-
-    color:var(--text-secondary);
-
-}
-
-.summary-row span:last-child{
-
-    font-weight:700;
-
-    color:var(--text);
-
-}
-
-.summary-total{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    margin-top:10px;
-
-    padding-top:16px;
-
-    border-top:1px solid var(--border);
-
-}
-
-.summary-total span:first-child{
-
-    font-size:22px;
-
-    font-weight:800;
-
-    color:var(--text);
-
-}
-
-.summary-total span:last-child{
-
-    font-size:28px;
-
-    font-weight:900;
-
-    color:var(--accent);
-
-}

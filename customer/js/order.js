@@ -91,7 +91,16 @@ async function placeOrder(){
 
         updateCart();
 
-        // Save current order
+    // ==========================================
+    // SAVE CUSTOMER ORDER
+    // ==========================================
+
+        saveCustomerOrder(order);
+
+
+    // ==========================================
+    // SAVE CURRENT ORDER
+    // ==========================================
 
         localStorage.setItem(
 
@@ -101,13 +110,12 @@ async function placeOrder(){
 
         );
 
-        // Redirect
+        // Success overlay will be opened here later
 
         window.location.href =
+            "./order.html";
 
-            "success.html";
-
-    }
+        }
 
     catch(error){
 
@@ -134,6 +142,95 @@ async function placeOrder(){
     }
 
 }
+
+
+// ==========================================
+// SAVE CUSTOMER ORDER
+// ==========================================
+
+function saveCustomerOrder(order){
+
+    const storedOrders =
+
+        localStorage.getItem(
+
+            "customerOrders"
+
+        );
+
+
+    let customerOrders = [];
+
+
+    if(storedOrders){
+
+        try{
+
+            customerOrders =
+
+                JSON.parse(
+
+                    storedOrders
+
+                );
+
+        }
+
+        catch(error){
+
+            console.error(
+
+                "Failed to load customer orders:",
+
+                error
+
+            );
+
+            customerOrders = [];
+
+        }
+
+    }
+
+
+    // Prevent duplicate orders
+
+    const orderExists =
+
+        customerOrders.some(
+
+            existingOrder =>
+
+                existingOrder.id === order.id
+
+        );
+
+
+    if(!orderExists){
+
+        customerOrders.unshift(
+
+            order
+
+        );
+
+    }
+
+
+    localStorage.setItem(
+
+        "customerOrders",
+
+        JSON.stringify(
+
+            customerOrders
+
+        )
+
+    );
+
+}
+
 
 // ==========================================
 // BUILD ORDER PAYLOAD

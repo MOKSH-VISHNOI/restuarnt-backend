@@ -53,13 +53,11 @@ const addMoreBtn =
 // EVENT LISTENERS
 // ==========================================
 
-addMoreButton?.addEventListener(
-
+addMoreBtn?.addEventListener(
     "click",
-
     closeCheckout
-
 );
+
 
 checkoutOverlay.onclick = (event)=>{
 
