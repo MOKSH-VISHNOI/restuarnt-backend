@@ -143,9 +143,20 @@ let customerOrders = [];
 
 let polling = null;
 
-let readyNotificationSent = false;
+// ==========================================
+// READY NOTIFICATION STATE
+// ==========================================
+
+const notifiedReadyOrders = new Set();
+
 
 let previousStatus = null;
+
+// ==========================================
+// UI STATE
+// ==========================================
+
+let selectedOrder = null;
 
 
 // ==========================================
@@ -153,36 +164,19 @@ let previousStatus = null;
 // ==========================================
 async function initializeSuccess(){
 
+    createProgressBar();
+
     if(!loadOrder()){
-
         return;
-
     }
-
 
     loadCustomerOrders();
 
-
-    createProgressBar();
-
-
-    // Render immediately using localStorage.
-    // This avoids waiting for the API.
-
-    updateStatus();
-
     renderOtherOrders();
-
-
-    // Fetch fresh statuses from backend.
 
     await syncCustomerOrders();
 
-
-    // Refresh main tracker after sync.
-
     updateStatus();
-
 
     startPolling();
 
@@ -209,27 +203,27 @@ function loadOrder(){
         
         }
 
-    currentOrder =
+        currentOrder =
 
         JSON.parse(
-
+    
             storedOrder
-
+    
         );
+    
+    
+    // Initially the UI follows
+    // the current order
+    
+    selectedOrder = currentOrder;
 
-    updateCurrentOrderSummary();
-
-    tokenNumber.textContent =
-
-        currentOrder.tokenNumber;
-
-    previousStatus =
-
-        currentOrder.status;
-
+    previousStatus = selectedOrder.status;
+    
+    renderSelectedOrder();
+    
     return true;
-
 }
+
 
 // ==========================================
 // LOAD CUSTOMER ORDERS
@@ -642,6 +636,13 @@ function createProgressBar(){
 
 function updateStatus(){
 
+
+    if(!selectedOrder){
+
+        return;
+
+    }
+
     const nodeReceived =
 
         document.getElementById(
@@ -686,9 +687,15 @@ function updateStatus(){
 
     statusCard.classList.remove("ready");
 
+    activeLine.setAttribute(
 
+        "x2",
+    
+        "55"
+    
+    );
 
-    switch(currentOrder.status){
+    switch(selectedOrder.status){
 
         // ======================================
         // ORDER RECEIVED
@@ -820,14 +827,24 @@ function updateStatus(){
 
             if(
 
-                !readyNotificationSent
-
+                currentOrder &&
+            
+                !notifiedReadyOrders.has(
+            
+                    currentOrder.id
+            
+                )
+            
             ){
-
-                readyNotificationSent = true;
-
+            
+                notifiedReadyOrders.add(
+            
+                    currentOrder.id
+            
+                );
+            
                 notifyReady();
-
+            
             }
 
             break;
@@ -1031,6 +1048,10 @@ async function syncCustomerOrders(){
         }
 
 
+        const wasViewingCurrentOrder =
+
+            selectedOrder?.id === currentOrder?.id;
+
         // ==========================================
         // CURRENT ORDER STILL ACTIVE
         // ==========================================
@@ -1038,9 +1059,17 @@ async function syncCustomerOrders(){
         if(currentOrderStillActive){
 
             currentOrder =
-
+        
                 currentOrderStillActive;
-
+        
+            if(wasViewingCurrentOrder){
+        
+                selectedOrder =
+        
+                    currentOrder;
+        
+            }
+        
         }
 
 
@@ -1056,43 +1085,36 @@ async function syncCustomerOrders(){
                 customerOrders[0];
 
 
-            // Reset status-specific state
-            // for the newly promoted order
+        // New current order becomes
+        // the default viewed order
 
-            previousStatus = null;
+        selectedOrder = currentOrder;
 
-            readyNotificationSent = false;
+        previousStatus = currentOrder.status;
 
-        }
+        
+    }
 
+    localStorage.setItem(
 
-        // ==========================================
-        // SAVE CURRENT ORDER
-        // ==========================================
+        "currentOrder",
 
-        localStorage.setItem(
+        JSON.stringify(
 
-            "currentOrder",
+            currentOrder
 
-            JSON.stringify(
+        )
 
-                currentOrder
-
-            )
-
-        );
+    );
 
 
-        // ==========================================
-        // REFRESH UI
-        // ==========================================
+    // ==========================================
+    // REFRESH UI
+    // ==========================================
 
-        updateStatus();
+    renderSelectedOrder();
 
-        updateCurrentOrderSummary();
-
-        renderOtherOrders();
-
+    renderOtherOrders();
     }
 
     catch(error){
@@ -1149,7 +1171,11 @@ function handleNoActiveOrders(){
 
     currentOrder = null;
 
+    selectedOrder = null;
+    
     customerOrders = [];
+    
+    notifiedReadyOrders.clear();
 
 
     // Return to customer landing page
@@ -1160,31 +1186,7 @@ function handleNoActiveOrders(){
 
 }
 
-
-
-// ==========================================
-// FINISH ORDER
-// ==========================================
-function finishOrder(){
-
-    clearInterval(
-
-        polling
-
-    );
-
-    localStorage.removeItem(
-
-        "currentOrder"
-
-    );
-
-    window.location.href =
-
-        "index.html";
-
-}
-
+ 
 
 
 // ==========================================
@@ -1197,7 +1199,7 @@ async function notifyReady(){
 
     vibratePhone();
 
-    showBrowserNotification();
+    await showBrowserNotification();
 
 }
 
@@ -1316,7 +1318,7 @@ async function showBrowserNotification(){
 function openOrderSheet(){
 
     if(
-        !currentOrder ||
+        !selectedOrder ||
         !orderSheetOverlay
     ){
 
@@ -1375,7 +1377,7 @@ function closeOrderSheet(){
 function renderCurrentOrder(){
 
     if(
-        !currentOrder ||
+        !selectedOrder ||
         !orderSheetItems
     ){
 
@@ -1387,7 +1389,7 @@ function renderCurrentOrder(){
 
     let subtotal = 0;
 
-    currentOrder.items.forEach(item => {
+    selectedOrder.items.forEach(item => {
 
         const menuItem =
             item.menuItem;
@@ -1470,7 +1472,7 @@ function renderCurrentOrder(){
 function updateCurrentOrderSummary(){
 
     if(
-        !currentOrder ||
+        !selectedOrder ||
         !currentOrderSummary
     ){
 
@@ -1479,14 +1481,14 @@ function updateCurrentOrderSummary(){
     }
 
     const totalItems =
-        currentOrder.items.reduce(
+        selectedOrder.items.reduce(
             (total, item) =>
                 total + item.quantity,
             0
         );
 
     const totalAmount =
-        currentOrder.totalAmount ?? 0;
+        selectedOrder.totalAmount ?? 0;
 
     currentOrderSummary.textContent =
         `${totalItems} ${
@@ -1494,6 +1496,31 @@ function updateCurrentOrderSummary(){
                 ? "Item"
                 : "Items"
         } • ₹${totalAmount}`;
+
+}
+
+
+// ==========================================
+// RENDER SELECTED ORDER
+// ==========================================
+
+function renderSelectedOrder(){
+
+    if(!selectedOrder){
+
+        return;
+
+    }
+
+    tokenNumber.textContent =
+
+        selectedOrder.tokenNumber;
+
+    updateStatus();
+
+    updateCurrentOrderSummary();
+
+    renderCurrentOrder();
 
 }
 
@@ -1509,7 +1536,6 @@ document.addEventListener(
     initializeSuccess
 
 );
-
 
 
 
