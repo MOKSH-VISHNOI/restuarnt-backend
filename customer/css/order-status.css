@@ -1047,25 +1047,32 @@
 
 
 /* ==========================================
-   OTHER ORDER ROW
+   OTHER ORDERS LIST
 ========================================== */
 
 #otherOrdersList{
 
     grid-column:2;
-
     grid-row:2;
 
     display:flex;
 
-    align-items:center;
+    flex-direction:column;
 
-    justify-content:center;
+    align-items:stretch;
+
+    justify-content:flex-start;
+
+    width:100%;
 
     min-width:0;
 
 }
 
+
+/* ==========================================
+   OTHER ORDER ROW
+========================================== */
 
 .other-order-item{
 
@@ -1075,13 +1082,21 @@
 
     justify-content:space-between;
 
+    gap:18px;
+
     width:100%;
 
-    padding:18px 0;
+    padding:14px 4px;
 
     border-bottom:1px solid var(--border);
 
     box-sizing:border-box;
+
+    cursor:pointer;
+
+    transition:
+        background var(--fast),
+        transform var(--fast);
 
 }
 
@@ -1093,13 +1108,29 @@
 }
 
 
+.other-order-item:hover{
+
+    background:rgba(255,255,255,.025);
+
+}
+
+
+.other-order-item:active{
+
+    transform:scale(.98);
+
+}
+
+
 .other-order-token{
 
     font-size:18px;
 
-    font-weight:600;
+    font-weight:700;
 
     color:var(--text);
+
+    white-space:nowrap;
 
 }
 
@@ -1144,6 +1175,60 @@
     color:var(--text-secondary);
 
     background:rgba(255,255,255,.06);
+
+}
+
+
+/* ==========================================
+   OTHER ORDER RIGHT SIDE
+========================================== */
+
+.other-order-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    flex-shrink:0;
+
+}
+
+
+/* ==========================================
+   OTHER ORDER CHEVRON
+========================================== */
+
+.other-order-chevron{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:28px;
+
+    line-height:1;
+
+    font-weight:400;
+
+    color:var(--text-secondary);
+
+    transition:
+        transform var(--fast),
+        color var(--fast);
+
+}
+
+
+.other-order-item:hover
+.other-order-chevron{
+
+    transform:translateX(3px);
+
+    color:var(--accent);
 
 }
 

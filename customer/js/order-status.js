@@ -315,17 +315,15 @@ function renderOtherOrders(){
     // Exclude the order currently shown
     // in the main status tracker
 
-    const otherOrders =
+   const otherOrders =
 
-        customerOrders.filter(
+    customerOrders.filter(
 
-            order =>
+        order =>
 
-                order.id !==
+            order.id !== selectedOrder?.id
 
-                currentOrder?.id
-
-        );
+    );
 
 
     // Update count
@@ -405,28 +403,83 @@ function renderOtherOrders(){
                 "other-order-item";
 
 
-            orderItem.innerHTML = `
+                    orderItem.setAttribute(
+            "role",
+            "button"
+        );
 
-                <span class="other-order-token">
+        orderItem.setAttribute(
+            "tabindex",
+            "0"
+        );
 
-                    Token ${order.tokenNumber}
 
-                </span>
+        orderItem.addEventListener(
+
+            "click",
+
+            () => {
+
+                selectOrder(order.id);
+
+            }
+
+        );
 
 
-                <span
-                    class="other-order-status ${order.status.toLowerCase()}"
-                >
+            orderItem.addEventListener(
 
-                    ${formatOrderStatus(
+            "keydown",
 
-                        order.status
+            event => {
 
-                    )}
+                if(
+                    event.key === "Enter" ||
+                    event.key === " "
+                ){
 
-                </span>
+                    event.preventDefault();
 
-            `;
+                    selectOrder(order.id);
+
+                }
+
+            }
+
+        );
+
+           orderItem.innerHTML = `
+
+    <span class="other-order-token">
+
+        Token ${order.tokenNumber}
+
+    </span>
+
+
+    <div class="other-order-right">
+
+        <span
+            class="other-order-status ${order.status.toLowerCase()}"
+        >
+
+            ${formatOrderStatus(order.status)}
+
+        </span>
+
+
+        <span
+            class="other-order-chevron"
+            aria-hidden="true"
+        >
+
+            ›
+
+        </span>
+
+    </div>
+
+    `;
 
 
             otherOrdersList.appendChild(
@@ -438,6 +491,34 @@ function renderOtherOrders(){
         }
 
     );
+
+}
+
+
+
+// ==========================================
+// SELECT ORDER
+// ==========================================
+
+function selectOrder(orderId){
+
+    const order = customerOrders.find(
+
+        order => order.id === orderId
+
+    );
+
+    if(!order){
+
+        return;
+
+    }
+
+    selectedOrder = order;
+
+    renderSelectedOrder();
+
+    renderOtherOrders();
 
 }
 
@@ -1013,6 +1094,40 @@ async function syncCustomerOrders(){
 
             activeOrders;
 
+        // ==========================================
+// REFRESH SELECTED ORDER REFERENCE
+// ==========================================
+
+if(selectedOrder){
+
+    const refreshedSelectedOrder =
+
+        customerOrders.find(
+
+            order =>
+
+                order.id === selectedOrder.id
+
+        );
+
+
+    if(refreshedSelectedOrder){
+
+        selectedOrder =
+
+            refreshedSelectedOrder;
+
+    }
+
+    else{
+
+        selectedOrder =
+
+            currentOrder;
+
+    }
+
+}
 
         // ==========================================
         // SAVE ACTIVE CUSTOMER ORDERS
