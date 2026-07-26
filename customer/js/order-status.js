@@ -100,6 +100,415 @@ const otherOrdersCount =
         "otherOrdersCount"
 
     );
+
+
+// ==========================================
+// FEEDBACK ELEMENTS
+// ==========================================
+
+const ratingOptions =
+document.querySelectorAll(
+    ".rating-option"
+);
+
+let selectedRating = null;
+
+let feedbackSubmitted = false;
+
+// ==========================================
+// FEEDBACK SHEET ELEMENTS
+// ==========================================
+
+const feedbackSheetOverlay =
+    document.getElementById(
+        "feedbackSheetOverlay"
+    );
+
+const feedbackSelectedEmoji =
+    document.getElementById(
+        "feedbackSelectedEmoji"
+    );
+
+const feedbackSelectedLabel =
+    document.getElementById(
+        "feedbackSelectedLabel"
+    );
+
+const feedbackComment =
+    document.getElementById(
+        "feedbackComment"
+    );
+
+const feedbackCharacterCount =
+    document.getElementById(
+        "feedbackCharacterCount"
+    );
+
+const skipFeedbackButton =
+    document.getElementById(
+        "skipFeedbackButton"
+    );
+
+const submitFeedbackButton =
+    document.getElementById(
+        "submitFeedbackButton"
+    );
+
+const ratingCard =
+    document.getElementById(
+        "ratingCard"
+    );
+
+const originalRatingCardHTML =
+    ratingCard
+        ? ratingCard.innerHTML
+        : "";
+
+
+// ==========================================
+// PLACE ANOTHER ORDER DOM
+// ==========================================
+
+const placeAnotherOrder =
+    document.getElementById(
+        "placeAnotherOrder"
+    );
+
+
+// ==========================================
+// RATING CONFIG
+// ==========================================
+
+const ratingConfig = {
+
+    5:{
+        emoji:"😄",
+        label:"Excellent"
+    },
+
+    4:{
+        emoji:"🙂",
+        label:"Good"
+    },
+
+    3:{
+        emoji:"😐",
+        label:"Average"
+    },
+
+    2:{
+        emoji:"🙁",
+        label:"Poor"
+    },
+
+    1:{
+        emoji:"😣",
+        label:"Very Poor"
+    }
+
+};
+
+
+// ==========================================
+// PLACE ANOTHER ORDER
+// ==========================================
+
+if(placeAnotherOrder){
+
+    placeAnotherOrder.addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "./index.html";
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// OPEN FEEDBACK SHEET
+// ==========================================
+
+function openFeedbackSheet(){
+
+    if(
+        !selectedRating ||
+        !feedbackSheetOverlay
+    ){
+
+        return;
+
+    }
+
+    const config =
+        ratingConfig[selectedRating];
+
+    feedbackSelectedEmoji.textContent =
+        config.emoji;
+
+    feedbackSelectedLabel.textContent =
+        config.label;
+
+    feedbackComment.value = "";
+
+    feedbackCharacterCount.textContent =
+        "0 / 500";
+
+    feedbackSheetOverlay.classList.remove(
+            "hidden"
+        );
+        
+    requestAnimationFrame(() => {
+        
+            feedbackSheetOverlay.classList.add(
+                "show"
+            );
+        
+        });
+
+}
+
+
+// ==========================================
+// FEEDBACK CHARACTER COUNT
+// ==========================================
+
+if(
+    feedbackComment &&
+    feedbackCharacterCount
+){
+
+    feedbackComment.addEventListener(
+        "input",
+        () => {
+
+            const length =
+                feedbackComment.value.length;
+
+            feedbackCharacterCount.textContent =
+                `${length} / 500`;
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// CLOSE FEEDBACK SHEET
+// ==========================================
+
+function closeFeedbackSheet(){
+
+    if(!feedbackSheetOverlay){
+
+        return;
+
+    }
+
+    feedbackSheetOverlay.classList.remove(
+        "show"
+    );
+
+    setTimeout(() => {
+
+        feedbackSheetOverlay.classList.add(
+            "hidden"
+        );
+
+    }, 300);
+
+}
+
+
+
+// ==========================================
+// SKIP WRITTEN FEEDBACK
+// ==========================================
+
+if(skipFeedbackButton){
+
+    skipFeedbackButton.addEventListener(
+        "click",
+        async () => {
+
+            if(
+                !selectedRating ||
+                feedbackSubmitted
+            ){
+
+                return;
+
+            }
+
+            const feedback = {
+
+                rating: selectedRating,
+
+                comment: "",
+
+                orderId:
+                    selectedOrder?.id ?? null
+
+            };
+
+
+            // Immediately update UI
+
+            feedbackSubmitted = true;
+
+            closeFeedbackSheet();
+
+            renderFeedbackThankYou();
+
+
+            // Save in background
+
+            try{
+
+                await submitFeedback(
+                    feedback
+                );
+
+                console.log(
+                    "Rating saved:",
+                    feedback
+                );
+
+            }
+
+            catch(error){
+
+                console.error(
+                    "Failed to save rating:",
+                    error
+                );
+
+                feedbackSubmitted = false;
+
+            }
+
+        }
+    );
+
+}
+
+
+
+
+
+// ==========================================
+// RENDER FEEDBACK THANK YOU
+// ==========================================
+
+function renderFeedbackThankYou(){
+
+    const ratingCard =
+        document.getElementById(
+            "ratingCard"
+        );
+
+    if(
+        !ratingCard ||
+        !selectedRating
+    ){
+
+        return;
+
+    }
+
+    const config =
+        ratingConfig[selectedRating];
+
+    ratingCard.innerHTML = `
+
+        <div class="feedback-thank-you">
+
+            <div class="feedback-thank-you-emoji">
+
+                ${config.emoji}
+
+            </div>
+
+            <div class="feedback-thank-you-content">
+
+                <h3>
+                    Thank You! 🩷
+                </h3>
+
+                <p>
+                    Your feedback helps us improve.
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================
+// RESTORE FEEDBACK STATE
+// ==========================================
+
+function restoreFeedbackState(){
+
+    if(!selectedOrder){
+
+        return;
+
+    }
+
+    if(selectedOrder.feedback){
+
+        selectedRating =
+            selectedOrder.feedback.rating;
+
+        feedbackSubmitted = true;
+
+        renderFeedbackThankYou();
+
+    }
+
+    else{
+
+        selectedRating = null;
+
+        feedbackSubmitted = false;
+
+        restoreRatingCard();
+
+    }
+
+}
+
+
+
+// ==========================================
+// RESTORE RATING CARD
+// ==========================================
+
+function restoreRatingCard(){
+
+    if(!ratingCard){
+
+        return;
+
+    }
+
+    ratingCard.innerHTML =
+        originalRatingCardHTML;
+
+    bindRatingOptions();
+
+}
+
+
   
 // ==========================================
 // EVENT LISTENERS 
@@ -131,6 +540,61 @@ orderSheetOverlay?.addEventListener(
     }
 );
 
+
+
+// ==========================================
+// BIND RATING OPTIONS
+// ==========================================
+
+function bindRatingOptions(){
+
+    const options =
+        document.querySelectorAll(
+            ".rating-option"
+        );
+
+    options.forEach(option => {
+
+        option.addEventListener(
+            "click",
+            () => {
+
+                if(feedbackSubmitted){
+
+                    return;
+
+                }
+
+                selectedRating =
+                    Number(
+                        option.dataset.rating
+                    );
+
+                options.forEach(button => {
+
+                    button.classList.remove(
+                        "selected"
+                    );
+
+                });
+
+                option.classList.add(
+                    "selected"
+                );
+
+                console.log(
+                    "Selected rating:",
+                    selectedRating
+                );
+
+                openFeedbackSheet();
+
+            }
+        );
+
+    });
+
+}
 
 
 // ==========================================
@@ -493,7 +957,6 @@ function renderOtherOrders(){
     );
 
 }
-
 
 
 // ==========================================
@@ -1094,7 +1557,7 @@ async function syncCustomerOrders(){
 
             activeOrders;
 
-        // ==========================================
+// ==========================================
 // REFRESH SELECTED ORDER REFERENCE
 // ==========================================
 
@@ -1637,6 +2100,8 @@ function renderSelectedOrder(){
 
     renderCurrentOrder();
 
+    restoreFeedbackState();
+
 }
 
 
@@ -1651,6 +2116,5 @@ document.addEventListener(
     initializeSuccess
 
 );
-
 
 

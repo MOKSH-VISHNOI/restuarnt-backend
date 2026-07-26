@@ -14,6 +14,7 @@ model Branch {
   createdAt  DateTime       @default(now())
   categories MenuCategory[]
   orders     Order[]
+  feedbacks  Feedback[]
 }
 
 model MenuCategory {
@@ -44,13 +45,14 @@ model Order {
   totalAmount Float
   createdAt   DateTime    @default(now())
   branchId    Int
-  tokenNumber Int        
+  tokenNumber Int
   collectedAt DateTime?
   notes       String?
   readyAt     DateTime?
   startedAt   DateTime?
   branch      Branch      @relation(fields: [branchId], references: [id])
   items       OrderItem[]
+  feedback    Feedback?
 }
 
 model OrderItem {
@@ -62,6 +64,19 @@ model OrderItem {
   order      Order    @relation(fields: [orderId], references: [id])
 }
 
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  comment   String?
+  orderId   Int      @unique
+  branchId  Int
+  source    String   @default("CUSTOMER")
+  createdAt DateTime @default(now())
+
+  order  Order  @relation(fields: [orderId], references: [id])
+  branch Branch @relation(fields: [branchId], references: [id])
+}
+
 enum OrderStatus {
   PLACED
   PREPARING
@@ -70,10 +85,9 @@ enum OrderStatus {
 }
 
 model DailyTokenCounter {
-
-  id          Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   counterDate DateTime @unique
 
-  lastToken   Int
+  lastToken Int
 }

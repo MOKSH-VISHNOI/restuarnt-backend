@@ -1616,6 +1616,511 @@
 }
 
 
+
+/* ==========================================
+   FEEDBACK SHEET OVERLAY
+========================================== */
+
+.feedback-sheet-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    z-index:1000;
+
+    display:flex;
+
+    align-items:flex-end;
+
+    justify-content:center;
+
+    background:rgba(0,0,0,.45);
+
+    opacity:0;
+
+    transition:opacity var(--normal);
+
+}
+
+
+.feedback-sheet-overlay.show{
+
+    opacity:1;
+
+}
+
+
+.feedback-sheet-overlay.hidden{
+
+    display:none;
+
+}
+
+
+/* ==========================================
+   FEEDBACK SHEET
+========================================== */
+
+.feedback-sheet{
+
+    width:100%;
+
+    max-width:560px;
+
+    background:var(--surface);
+
+    border:1px solid var(--border);
+
+    border-radius:24px 24px 0 0;
+
+    transform:translateY(100%);
+
+    transition:transform var(--normal);
+
+}
+
+
+.feedback-sheet-overlay.show
+.feedback-sheet{
+
+    transform:translateY(0);
+
+}
+
+
+.feedback-sheet-content{
+
+    padding:28px 24px 24px;
+
+}
+
+
+/* ==========================================
+   FEEDBACK HEADER
+========================================== */
+
+.feedback-sheet-header{
+
+    text-align:center;
+
+    margin-bottom:22px;
+
+}
+
+
+.feedback-sheet-title{
+
+    margin:0;
+
+    font-size:26px;
+
+    font-weight:800;
+
+    color:var(--text);
+
+}
+
+
+.feedback-sheet-title span{
+
+    color:var(--accent);
+
+}
+
+
+.feedback-sheet-header p{
+
+    margin:8px 0 0;
+
+    font-size:15px;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* ==========================================
+   SELECTED RATING
+========================================== */
+
+.feedback-selected-rating{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:6px;
+
+    margin-bottom:24px;
+
+}
+
+
+#feedbackSelectedEmoji{
+
+    font-size:42px;
+
+    line-height:1;
+
+}
+
+
+#feedbackSelectedLabel{
+
+    font-size:16px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+/* ==========================================
+   FEEDBACK INPUT
+========================================== */
+
+.feedback-input-wrapper{
+
+    display:flex;
+
+    flex-direction:column;
+
+    width:100%;
+
+}
+
+
+.feedback-label{
+
+    margin-bottom:9px;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    color:var(--text);
+
+}
+
+
+.feedback-comment{
+
+    width:100%;
+
+    min-height:110px;
+
+    padding:14px 16px;
+
+    box-sizing:border-box;
+
+    resize:none;
+
+    border:1px solid var(--border);
+
+    border-radius:14px;
+
+    outline:none;
+
+    background:var(--background);
+
+    color:var(--text);
+
+    font:inherit;
+
+    line-height:1.5;
+
+    transition:
+        border-color var(--fast),
+        box-shadow var(--fast);
+
+}
+
+
+.feedback-comment::placeholder{
+
+    color:var(--text-secondary);
+
+}
+
+
+.feedback-comment:focus{
+
+    border-color:var(--accent);
+
+    box-shadow:
+        0 0 0 3px var(--accent-light);
+
+}
+
+
+.feedback-character-count{
+
+    align-self:flex-end;
+
+    margin-top:7px;
+
+    font-size:12px;
+
+    color:var(--text-secondary);
+
+}
+
+
+/* ==========================================
+   FEEDBACK ACTIONS
+========================================== */
+
+.feedback-actions{
+
+    display:grid;
+
+    grid-template-columns:.65fr 1.35fr;
+
+    gap:12px;
+
+    margin-top:22px;
+
+}
+
+
+.feedback-skip-btn,
+.feedback-submit-btn{
+
+    min-height:48px;
+
+    border-radius:14px;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+}
+
+.feedback-submit-btn:disabled{
+
+    opacity:0.7;
+
+    cursor:not-allowed;
+
+    transform:none;
+
+    box-shadow:none;
+
+}
+
+
+.feedback-skip-btn{
+
+    border:1px solid var(--border);
+
+    background:transparent;
+
+    color:var(--text-secondary);
+
+    transition:
+        background var(--fast),
+        color var(--fast);
+
+}
+
+
+.feedback-skip-btn:hover{
+
+    background:var(--accent-light);
+
+    color:var(--accent);
+
+    border-color:var(--accent);
+
+}
+
+
+.feedback-skip-btn:active{
+
+    transform:scale(.97);
+
+}
+
+
+.feedback-submit-btn{
+
+    width:100%;
+
+}
+
+
+.button-spinner{
+
+    width:18px;
+    height:18px;
+
+    border:2px solid rgba(255,255,255,.35);
+
+    border-top-color:white;
+
+    border-radius:50%;
+
+    animation:spin .8s linear infinite;
+
+}
+
+.feedback-submit-btn{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+}
+
+
+@keyframes spin{
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media(max-width:520px){
+
+    .feedback-sheet-content{
+
+        padding:
+            24px
+            18px
+            20px;
+
+    }
+
+
+    .feedback-sheet-title{
+
+        font-size:23px;
+
+    }
+
+
+    #feedbackSelectedEmoji{
+
+        font-size:38px;
+
+    }
+
+
+    .feedback-actions{
+
+        grid-template-columns:1fr 1.5fr;
+
+    }
+
+}
+
+
+.rating-option.selected{
+
+    transform:scale(1.12);
+
+    outline:2px solid var(--accent);
+
+    background:var(--accent-light);
+
+}
+
+
+
+/* ==========================================
+   FEEDBACK THANK YOU
+========================================== */
+
+.feedback-thank-you{
+
+    width:100%;
+
+    min-height:120px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:18px;
+
+    text-align:left;
+
+}
+
+
+.feedback-thank-you-emoji{
+
+    width:64px;
+
+    height:64px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+
+    border-radius:50%;
+
+    background:var(--accent-light);
+
+    font-size:32px;
+
+}
+
+
+.feedback-thank-you-content h3{
+
+    margin:0;
+
+    font-size:21px;
+
+    font-weight:700;
+
+    color:var(--text);
+
+}
+
+
+.feedback-thank-you-content p{
+
+    margin:6px 0 0;
+
+    font-size:15px;
+
+    color:var(--text-secondary);
+
+}
+
+
+
 /* ==========================================
    CLOSE BUTTON
 ========================================== */

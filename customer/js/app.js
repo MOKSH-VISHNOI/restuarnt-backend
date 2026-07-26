@@ -175,13 +175,13 @@ function createMenuCard(
 
             <img
 
-                src="/images/${item.imageUrl}"
+                src="./images/${item.imageUrl}"
 
                 alt="${item.name}"
 
                 class="food-image"
 
-                onerror="this.src='/images/placeholder.png'"
+                onerror="this.onerror=null; this.src='./images/placeholder.png'"
 
             >
 
@@ -535,25 +535,17 @@ function renderComboImages(){
     return `
 
         <img
-
-            src="/images/sandwich.png"
-
+            src="./images/sandwich.png"
             alt="Sandwich"
-
         >
 
         <span>
-
             +
-
         </span>
 
         <img
-
-            src="/images/cold_coffee.png"
-
+            src="./images/cold_coffee.png"
             alt="Cold Coffee"
-
         >
 
     `;

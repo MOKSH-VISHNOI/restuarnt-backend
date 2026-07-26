@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Feedback" ADD COLUMN     "source" TEXT NOT NULL DEFAULT 'CUSTOMER';

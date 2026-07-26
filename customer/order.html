@@ -52,6 +52,7 @@ href="./css/order-status.css"
     <!-- SUCCESS PAGE -->
     <!-- ========================================== -->
 
+
     <main
         id="successContainer"
         class="success-container"
@@ -136,6 +137,8 @@ href="./css/order-status.css"
             </p>
 
         </section>
+
+
 
 <!-- Token Card -->
 
@@ -510,6 +513,127 @@ class="status-card"
             >
                 Close
             </button>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+
+<!-- ========================================== -->
+<!-- FEEDBACK SHEET -->
+<!-- ========================================== -->
+
+<div
+    id="feedbackSheetOverlay"
+    class="feedback-sheet-overlay hidden"
+>
+
+    <section
+        id="feedbackSheet"
+        class="feedback-sheet"
+        aria-labelledby="feedbackSheetTitle"
+    >
+
+        <div class="feedback-sheet-content">
+
+
+            <!-- ========================================== -->
+            <!-- HEADER -->
+            <!-- ========================================== -->
+
+            <div class="feedback-sheet-header">
+
+                <h2
+                    id="feedbackSheetTitle"
+                    class="feedback-sheet-title"
+                >
+                    Help Us <span>Improve</span>
+                </h2>
+
+                <p id="feedbackSheetMessage">
+                    Tell us a little more about your experience.
+                </p>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- SELECTED RATING -->
+            <!-- ========================================== -->
+
+            <div
+                id="feedbackSelectedRating"
+                class="feedback-selected-rating"
+            >
+
+                <span id="feedbackSelectedEmoji">
+                    😐
+                </span>
+
+                <span id="feedbackSelectedLabel">
+                    Average
+                </span>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- WRITTEN FEEDBACK -->
+            <!-- ========================================== -->
+
+            <div class="feedback-input-wrapper">
+
+                <label
+                    for="feedbackComment"
+                    class="feedback-label"
+                >
+                    Anything you'd like us to know?
+                </label>
+
+                <textarea
+                    id="feedbackComment"
+                    class="feedback-comment"
+                    rows="4"
+                    maxlength="500"
+                    placeholder="Write your feedback here..."
+                ></textarea>
+
+                <span
+                    id="feedbackCharacterCount"
+                    class="feedback-character-count"
+                >
+                    0 / 500
+                </span>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- ACTIONS -->
+            <!-- ========================================== -->
+
+            <div class="feedback-actions">
+
+                <button
+                    id="skipFeedbackButton"
+                    class="feedback-skip-btn"
+                    type="button"
+                >
+                    Skip
+                </button>
+
+                <button
+                    id="submitFeedbackButton"
+                    class="primary-btn feedback-submit-btn"
+                    type="button"
+                >
+                    Submit Feedback
+                </button>
+
+            </div>
 
         </div>
 

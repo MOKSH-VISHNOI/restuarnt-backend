@@ -133,6 +133,38 @@ async function createOrder(
 
 
 // ==========================================
+// SUBMIT FEEDBACK
+// ==========================================
+
+async function submitFeedback(
+
+    feedbackData
+
+){
+
+    return await request(
+
+        "/feedback",
+
+        {
+
+            method:"POST",
+
+            body:JSON.stringify(
+
+                feedbackData
+
+            )
+
+        }
+
+    );
+
+}
+
+
+
+// ==========================================
 // GET ORDER
 // ==========================================
 

@@ -487,11 +487,11 @@ function createCartItem(item){
 
             <img
 
-                src="/images/${item.imageUrl}"
+                src="./images/${item.imageUrl}"
 
                 alt="${item.name}"
 
-                onerror="this.src='/images/placeholder.png'"
+                onerror="this.onerror=null; this.src='./images/placeholder.png'"
 
             >
 

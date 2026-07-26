@@ -21,6 +21,8 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const branchRoutes = require("./routes/branchRoutes");
 const counterRoutes = require("./routes/counterRoutes");
 const menuItemRoutes = require("./routes/menuItemRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes");
+
 
 app.use("/orders", orderRoutes);
 app.use("/kitchen", kitchenRoutes);
@@ -29,5 +31,7 @@ app.use("/categories", categoryRoutes);
 app.use("/branches", branchRoutes);
 app.use("/counter",counterRoutes);
 app.use("/menu-items", menuItemRoutes);
+app.use("/menu-items", menuItemRoutes);
+app.use("/feedback",feedbackRoutes);
 
 module.exports = app;
