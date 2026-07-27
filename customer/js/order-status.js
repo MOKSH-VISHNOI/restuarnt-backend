@@ -110,6 +110,8 @@ let selectedRating = null;
 
 let feedbackSubmitted = false;
 
+let feedbackSubmittedOrderId = null;
+
 // ==========================================
 // FEEDBACK SHEET ELEMENTS
 // ==========================================
@@ -164,6 +166,11 @@ const successContainer =
             "successContainer"
         );
 
+const closeFeedbackButton =
+    document.getElementById(
+        "closeFeedbackButton"
+    );
+
 
 // ==========================================
 // PLACE ANOTHER ORDER DOM
@@ -185,22 +192,42 @@ async function initializeSuccess(){
 
     createProgressBar();
 
+
     if(!loadOrder()){
+
         return;
+
     }
+
+
+    // Load all locally known orders first
 
     loadCustomerOrders();
 
+
+    // Decide which order should be viewed
+    // BEFORE rendering anything
+
+    restoreViewedOrder();
+
+
+    // First render
+
+    renderSelectedOrder();
+
     renderOtherOrders();
 
+
+    // Fetch fresh server state
+
     await syncCustomerOrders();
+
 
     updateStatus();
 
     startPolling();
 
 }
-
 
 
 // ==========================================
@@ -391,6 +418,9 @@ if(skipFeedbackButton){
 
             feedbackSubmitted = true;
 
+            feedbackSubmittedOrderId =
+                selectedOrder?.id ?? null;
+
             closeFeedbackSheet();
 
             renderFeedbackThankYou();
@@ -555,6 +585,9 @@ if(submitFeedbackButton){
 
                 feedbackSubmitted = true;
 
+                feedbackSubmittedOrderId =
+                    selectedOrder?.id ?? null;
+
                 closeFeedbackSheet();
 
                 renderFeedbackThankYou();
@@ -654,9 +687,9 @@ function restoreFeedbackState(){
     }
 
 
-// ==========================================
-// ORDER ALREADY HAS FEEDBACK
-// ==========================================
+    // ==========================================
+    // ORDER ALREADY HAS FEEDBACK
+    // ==========================================
 
     if(selectedOrder.feedback){
 
@@ -665,80 +698,84 @@ function restoreFeedbackState(){
 
         feedbackSubmitted = true;
 
-
-        const thankYou =
-            ratingCard?.querySelector(
-                ".feedback-thank-you"
-            );
+        feedbackSubmittedOrderId =
+            selectedOrder.id;
 
 
-        if(!thankYou){
+        // Always render the feedback state
+        // belonging to the selected order.
 
-            renderFeedbackThankYou();
-
-        }
-
+        renderFeedbackThankYou();
 
         return;
 
     }
 
 
-    
-// ==========================================
-// ORDER HAS NO FEEDBACK
-// ==========================================
+    // ==========================================
+    // ORDER HAS NO FEEDBACK
+    // ==========================================
 
-// Customer is currently interacting
-// with the feedback sheet.
-//
-// Polling must NOT reset selectedRating
-// while the sheet is open.
+    // Customer is currently interacting
+    // with the feedback sheet.
+    // Polling must not reset their selection.
 
-if(
-    feedbackSheetOverlay?.classList.contains(
-        "show"
-    )
-){
+    if(
+        feedbackSheetOverlay?.classList.contains(
+            "show"
+        )
+    ){
 
-    return;
+        return;
 
-}
+    }
 
 
-// Feedback may have just been submitted.
-// A polling response can briefly contain
-// stale order data.
+    // Feedback may have just been submitted
+    // for THIS order while server data is stale.
 
-if(feedbackSubmitted){
+    if(
+        feedbackSubmitted &&
+        feedbackSubmittedOrderId ===
+            selectedOrder.id
+    ){
 
-    return;
+        return;
 
-}
-
-
-selectedRating = null;
-
-feedbackSubmitted = false;
+    }
 
 
-const existingRatingOptions =
-    ratingCard?.querySelectorAll(
-        ".rating-option"
-    );
+    // Any feedback state left over from
+    // another order must be cleared.
+
+    feedbackSubmitted = false;
+
+    feedbackSubmittedOrderId = null;
+
+    selectedRating = null;
 
 
-if(
-    existingRatingOptions &&
-    existingRatingOptions.length > 0
-){
+    // ==========================================
+    // RESTORE RATE US CARD IF NEEDED
+    // ==========================================
 
-    return;
+    const existingRatingOptions =
+        ratingCard?.querySelectorAll(
+            ".rating-option"
+        );
 
-}
+
+    if(
+        existingRatingOptions &&
+        existingRatingOptions.length > 0
+    ){
+
+        return;
+
+    }
 
 
-restoreRatingCard();
+    restoreRatingCard();
 
 }
 
@@ -857,7 +894,29 @@ function bindRatingOptions(){
 
 function initializeInteractions(){
 
+    // ==========================================
+    // RATING OPTIONS
+    // ==========================================
+
     bindRatingOptions();
+
+
+    // ==========================================
+    // CLOSE FEEDBACK BUTTON
+    // ==========================================
+
+    if(closeFeedbackButton){
+
+        closeFeedbackButton.addEventListener(
+            "click",
+            () => {
+
+                closeFeedbackSheet();
+
+            }
+        );
+
+    }
 
 }
 
@@ -891,8 +950,6 @@ let selectedOrder = null;
 
 
 
-
-
 // ==========================================
 // LOAD ORDER
 // ==========================================
@@ -900,38 +957,45 @@ let selectedOrder = null;
 function loadOrder(){
 
     const storedOrder =
-
         localStorage.getItem(
-
             "currentOrder"
-
         );
 
-        if(!storedOrder){
 
-            return false;
-        
-        }
+    if(!storedOrder){
+
+        return false;
+
+    }
+
+
+    try{
 
         currentOrder =
+            JSON.parse(
+                storedOrder
+            );
 
-        JSON.parse(
-    
-            storedOrder
-    
+    }
+
+    catch(error){
+
+        console.error(
+            "Failed to load current order:",
+            error
         );
-    
-    
-    // Initially the UI follows
-    // the current order
-    
-    selectedOrder = currentOrder;
 
-    previousStatus = selectedOrder.status;
-    
-    renderSelectedOrder();
-    
+        return false;
+
+    }
+
+
+    // Do NOT select or render here.
+    // Initialization will decide which
+    // order should be displayed.
+
     return true;
+
 }
 
 
@@ -999,6 +1063,61 @@ function loadCustomerOrders(){
         customerOrders = [];
 
     }
+
+}
+
+
+// ==========================================
+// RESTORE VIEWED ORDER
+// ==========================================
+
+function restoreViewedOrder(){
+
+    const viewedOrderId =
+        Number(
+            sessionStorage.getItem(
+                "viewedOrderId"
+            )
+        );
+
+
+    // Try restoring the order the
+    // customer was viewing.
+
+    if(viewedOrderId){
+
+        const viewedOrder =
+            customerOrders.find(
+
+                order =>
+                    order.id === viewedOrderId
+
+            );
+
+
+        if(viewedOrder){
+
+            selectedOrder =
+                viewedOrder;
+
+        }
+
+    }
+
+
+    // If nothing could be restored,
+    // use the normal current order.
+
+    if(!selectedOrder){
+
+        selectedOrder =
+            currentOrder;
+
+    }
+
+
+    previousStatus =
+        selectedOrder.status;
 
 }
 
@@ -1233,17 +1352,25 @@ function selectOrder(orderId){
     if(!successContainer){
 
         selectedOrder = order;
-
+    
+        sessionStorage.setItem(
+            "viewedOrderId",
+            String(order.id)
+        );
+    
         renderSelectedOrder();
-
         renderOtherOrders();
-
+    
         return;
-
     }
 
 
     // Fade current order out
+
+    console.log(
+        "SWITCH CLICK:",
+        performance.now()
+    );
 
     successContainer.classList.add(
         "order-switch-out"
@@ -1254,48 +1381,57 @@ function selectOrder(orderId){
 
         // Change order only after
         // fade-out finishes
-
+    
         selectedOrder = order;
-
+    
+    
+        // Remember the order being viewed
+    
+        sessionStorage.setItem(
+            "viewedOrderId",
+            String(order.id)
+        );
+    
+    
+        // Render the newly selected order NOW
+    
         renderSelectedOrder();
-
+    
         renderOtherOrders();
-
-
+    
+    
         // Prepare new content
-
+    
         successContainer.classList.remove(
             "order-switch-out"
         );
-
+    
         successContainer.classList.remove(
             "order-switch-in"
         );
-
-
+    
+    
         // Restart entrance animation
-
+    
         void successContainer.offsetWidth;
-
+    
         successContainer.classList.add(
             "order-switch-in"
         );
-
-
+    
+    
         setTimeout(() => {
-
+    
             successContainer.classList.remove(
                 "order-switch-in"
             );
-
+    
         }, 220);
-
-
+    
+    
     }, 160);
 
 }
-
-
 
 // ==========================================
 // FORMAT ORDER STATUS
@@ -1681,20 +1817,14 @@ function updateStatus(){
 
             if(
 
-                currentOrder &&
-            
                 !notifiedReadyOrders.has(
-            
-                    currentOrder.id
-            
+                    selectedOrder.id
                 )
             
             ){
             
                 notifiedReadyOrders.add(
-            
-                    currentOrder.id
-            
+                    selectedOrder.id
                 );
             
                 notifyReady();

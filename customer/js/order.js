@@ -50,7 +50,8 @@ async function placeOrder(){
 
     }
 
-    if(cart.length===0){
+
+    if(cart.length === 0){
 
         alert(
             "Your cart is empty."
@@ -60,6 +61,7 @@ async function placeOrder(){
 
     }
 
+
     isPlacingOrder = true;
 
     placeOrderButton.disabled = true;
@@ -67,23 +69,28 @@ async function placeOrder(){
     placeOrderButton.textContent =
         "Placing Order...";
 
+
     const orderData =
         buildOrderPayload();
+
 
     try{
 
         const order =
-
             await createOrder(
                 orderData
             );
+
 
         console.log(
             "Order Created:",
             order
         );
 
-        // Clear cart
+
+        // ==========================================
+        // CLEAR CART
+        // ==========================================
 
         cart = [];
 
@@ -91,31 +98,54 @@ async function placeOrder(){
 
         updateCart();
 
-    // ==========================================
-    // SAVE CUSTOMER ORDER
-    // ==========================================
 
-        saveCustomerOrder(order);
+        // ==========================================
+        // SAVE CUSTOMER ORDER
+        // ==========================================
+
+        saveCustomerOrder(
+            order
+        );
 
 
-    // ==========================================
-    // SAVE CURRENT ORDER
-    // ==========================================
+        // ==========================================
+        // SAVE CURRENT ORDER
+        // ==========================================
 
         localStorage.setItem(
 
             "currentOrder",
 
-            JSON.stringify(order)
+            JSON.stringify(
+                order
+            )
 
         );
 
-        // Success overlay will be opened here later
+
+        // ==========================================
+        // MAKE NEW ORDER THE VIEWED ORDER
+        // ==========================================
+
+        sessionStorage.setItem(
+
+            "viewedOrderId",
+
+            String(
+                order.id
+            )
+
+        );
+
+
+        // ==========================================
+        // OPEN ORDER STATUS PAGE
+        // ==========================================
 
         window.location.href =
             "./order.html";
 
-        }
+    }
 
     catch(error){
 
@@ -123,6 +153,7 @@ async function placeOrder(){
             "Order Failed:",
             error
         );
+
 
         alert(
             "Failed to place order. Please try again."
