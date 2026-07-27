@@ -1639,6 +1639,8 @@
 
     opacity:0;
 
+    pointer-events:none;
+
     transition:opacity var(--normal);
 
 }
@@ -1647,6 +1649,8 @@
 .feedback-sheet-overlay.show{
 
     opacity:1;
+
+    pointer-events:auto;
 
 }
 
@@ -2163,5 +2167,56 @@
     font-weight:700;
 
     box-sizing:border-box;
+
+}
+
+
+/* ==========================================
+   ORDER SWITCH TRANSITION
+========================================== */
+
+.success-container{
+
+    transition:
+        opacity 160ms ease,
+        transform 160ms ease;
+
+}
+
+
+.success-container.order-switch-out{
+
+    opacity:0;
+
+    transform:translateY(6px);
+
+}
+
+
+.success-container.order-switch-in{
+
+    animation:
+        orderSwitchIn 220ms ease;
+
+}
+
+
+@keyframes orderSwitchIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(6px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
 
 }

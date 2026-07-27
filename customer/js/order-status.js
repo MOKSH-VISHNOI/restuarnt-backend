@@ -106,11 +106,6 @@ const otherOrdersCount =
 // FEEDBACK ELEMENTS
 // ==========================================
 
-const ratingOptions =
-document.querySelectorAll(
-    ".rating-option"
-);
-
 let selectedRating = null;
 
 let feedbackSubmitted = false;
@@ -164,6 +159,11 @@ const originalRatingCardHTML =
         ? ratingCard.innerHTML
         : "";
 
+const successContainer =
+        document.getElementById(
+            "successContainer"
+        );
+
 
 // ==========================================
 // PLACE ANOTHER ORDER DOM
@@ -173,6 +173,34 @@ const placeAnotherOrder =
     document.getElementById(
         "placeAnotherOrder"
     );
+
+
+// ==========================================
+// INITIALIZE
+// ==========================================
+
+async function initializeSuccess(){
+
+    initializeInteractions();
+
+    createProgressBar();
+
+    if(!loadOrder()){
+        return;
+    }
+
+    loadCustomerOrders();
+
+    renderOtherOrders();
+
+    await syncCustomerOrders();
+
+    updateStatus();
+
+    startPolling();
+
+}
+
 
 
 // ==========================================
@@ -344,6 +372,7 @@ if(skipFeedbackButton){
 
             }
 
+
             const feedback = {
 
                 rating: selectedRating,
@@ -356,7 +385,9 @@ if(skipFeedbackButton){
             };
 
 
-            // Immediately update UI
+            // ==========================================
+            // IMMEDIATELY UPDATE UI
+            // ==========================================
 
             feedbackSubmitted = true;
 
@@ -365,17 +396,87 @@ if(skipFeedbackButton){
             renderFeedbackThankYou();
 
 
-            // Save in background
+            // ==========================================
+            // SAVE FEEDBACK
+            // ==========================================
 
             try{
 
-                await submitFeedback(
-                    feedback
-                );
+                const savedFeedback =
+                    await submitFeedback(
+                        feedback
+                    );
+
+
+                // ==========================================
+                // UPDATE SELECTED ORDER
+                // ==========================================
+
+                selectedOrder.feedback =
+                    savedFeedback;
+
+
+                // ==========================================
+                // UPDATE CURRENT ORDER CACHE
+                // ==========================================
+
+                if(
+                    currentOrder &&
+                    currentOrder.id ===
+                        selectedOrder.id
+                ){
+
+                    currentOrder.feedback =
+                        savedFeedback;
+
+
+                    localStorage.setItem(
+                        "currentOrder",
+                        JSON.stringify(
+                            currentOrder
+                        )
+                    );
+
+                }
+
+
+                // ==========================================
+                // UPDATE CUSTOMER ORDERS CACHE
+                // ==========================================
+
+                const customerOrderIndex =
+                    customerOrders.findIndex(
+
+                        order =>
+                            order.id ===
+                            selectedOrder.id
+
+                    );
+
+
+                if(
+                    customerOrderIndex !== -1
+                ){
+
+                    customerOrders[
+                        customerOrderIndex
+                    ].feedback =
+                        savedFeedback;
+
+
+                    localStorage.setItem(
+                        "customerOrders",
+                        JSON.stringify(
+                            customerOrders
+                        )
+                    );
+
+                }
+
 
                 console.log(
                     "Rating saved:",
-                    feedback
+                    savedFeedback
                 );
 
             }
@@ -387,7 +488,9 @@ if(skipFeedbackButton){
                     error
                 );
 
-                feedbackSubmitted = false;
+
+                feedbackSubmitted =
+                    false;
 
             }
 
@@ -397,7 +500,93 @@ if(skipFeedbackButton){
 }
 
 
+// ==========================================
+// SUBMIT WRITTEN FEEDBACK
+// ==========================================
 
+if(submitFeedbackButton){
+
+    submitFeedbackButton.addEventListener(
+        "click",
+        async () => {
+
+            if(
+                !selectedRating ||
+                feedbackSubmitted
+            ){
+
+                return;
+
+            }
+
+
+            const comment =
+                feedbackComment
+                    ?.value
+                    .trim() || "";
+
+
+            const feedback = {
+
+                rating:
+                    selectedRating,
+
+                comment:
+                    comment,
+
+                orderId:
+                    selectedOrder?.id ?? null
+
+            };
+
+
+            // Prevent double submission
+
+            submitFeedbackButton.disabled =
+                true;
+
+
+            try{
+
+                await submitFeedback(
+                    feedback
+                );
+
+
+                feedbackSubmitted = true;
+
+                closeFeedbackSheet();
+
+                renderFeedbackThankYou();
+
+
+                console.log(
+                    "Feedback saved:",
+                    feedback
+                );
+
+            }
+
+            catch(error){
+
+                console.error(
+                    "Failed to save feedback:",
+                    error
+                );
+
+            }
+
+            finally{
+
+                submitFeedbackButton.disabled =
+                    false;
+
+            }
+
+        }
+    );
+
+}
 
 
 // ==========================================
@@ -464,6 +653,11 @@ function restoreFeedbackState(){
 
     }
 
+
+// ==========================================
+// ORDER ALREADY HAS FEEDBACK
+// ==========================================
+
     if(selectedOrder.feedback){
 
         selectedRating =
@@ -471,22 +665,82 @@ function restoreFeedbackState(){
 
         feedbackSubmitted = true;
 
-        renderFeedbackThankYou();
+
+        const thankYou =
+            ratingCard?.querySelector(
+                ".feedback-thank-you"
+            );
+
+
+        if(!thankYou){
+
+            renderFeedbackThankYou();
+
+        }
+
+
+        return;
 
     }
 
-    else{
 
-        selectedRating = null;
+    
+// ==========================================
+// ORDER HAS NO FEEDBACK
+// ==========================================
 
-        feedbackSubmitted = false;
+// Customer is currently interacting
+// with the feedback sheet.
+//
+// Polling must NOT reset selectedRating
+// while the sheet is open.
 
-        restoreRatingCard();
+if(
+    feedbackSheetOverlay?.classList.contains(
+        "show"
+    )
+){
 
-    }
+    return;
 
 }
 
+
+// Feedback may have just been submitted.
+// A polling response can briefly contain
+// stale order data.
+
+if(feedbackSubmitted){
+
+    return;
+
+}
+
+
+selectedRating = null;
+
+feedbackSubmitted = false;
+
+
+const existingRatingOptions =
+    ratingCard?.querySelectorAll(
+        ".rating-option"
+    );
+
+
+if(
+    existingRatingOptions &&
+    existingRatingOptions.length > 0
+){
+
+    return;
+
+}
+
+
+restoreRatingCard();
+
+}
 
 
 // ==========================================
@@ -598,6 +852,18 @@ function bindRatingOptions(){
 
 
 // ==========================================
+// INITIALIZE INTERACTIONS
+// ==========================================
+
+function initializeInteractions(){
+
+    bindRatingOptions();
+
+}
+
+
+
+// ==========================================
 // STATE
 // ==========================================
 
@@ -623,28 +889,8 @@ let previousStatus = null;
 let selectedOrder = null;
 
 
-// ==========================================
-// INITIALIZE
-// ==========================================
-async function initializeSuccess(){
 
-    createProgressBar();
 
-    if(!loadOrder()){
-        return;
-    }
-
-    loadCustomerOrders();
-
-    renderOtherOrders();
-
-    await syncCustomerOrders();
-
-    updateStatus();
-
-    startPolling();
-
-}
 
 
 // ==========================================
@@ -971,17 +1217,81 @@ function selectOrder(orderId){
 
     );
 
-    if(!order){
+    if(
+        !order ||
+        order.id === selectedOrder?.id
+    ){
 
         return;
 
     }
 
-    selectedOrder = order;
 
-    renderSelectedOrder();
+    // No container available:
+    // fall back to normal switching
 
-    renderOtherOrders();
+    if(!successContainer){
+
+        selectedOrder = order;
+
+        renderSelectedOrder();
+
+        renderOtherOrders();
+
+        return;
+
+    }
+
+
+    // Fade current order out
+
+    successContainer.classList.add(
+        "order-switch-out"
+    );
+
+
+    setTimeout(() => {
+
+        // Change order only after
+        // fade-out finishes
+
+        selectedOrder = order;
+
+        renderSelectedOrder();
+
+        renderOtherOrders();
+
+
+        // Prepare new content
+
+        successContainer.classList.remove(
+            "order-switch-out"
+        );
+
+        successContainer.classList.remove(
+            "order-switch-in"
+        );
+
+
+        // Restart entrance animation
+
+        void successContainer.offsetWidth;
+
+        successContainer.classList.add(
+            "order-switch-in"
+        );
+
+
+        setTimeout(() => {
+
+            successContainer.classList.remove(
+                "order-switch-in"
+            );
+
+        }, 220);
+
+
+    }, 160);
 
 }
 
@@ -1454,6 +1764,8 @@ function startPolling(){
 // ==========================================
 
 async function syncCustomerOrders(){
+
+
 
     if(
 
