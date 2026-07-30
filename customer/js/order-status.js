@@ -2230,9 +2230,7 @@ async function notifyReady(){
 function playNotificationSound(){
 
     const audio = new Audio(
-
-        "./sounds/order-ready.mp3"
-
+    "./sounds/ding.wav"
     );
 
     audio.play().catch(
@@ -2240,11 +2238,8 @@ function playNotificationSound(){
         error =>
 
             console.log(
-
                 "Sound blocked:",
-
                 error
-
             )
 
     );

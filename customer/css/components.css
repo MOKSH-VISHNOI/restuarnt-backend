@@ -604,8 +604,14 @@
     align-items:center;
 
     flex-shrink:0;
+    
+    align-self: flex-start;
 
+    margin-top: 4px;
+    
 }
+
+
 .menu-image img{
 
     width:92%;
@@ -678,6 +684,8 @@
 
 
 
+
+
 /* ==========================================
    READY CHIP
 ========================================== */
@@ -721,15 +729,13 @@
 ========================================== */
 
 .menu-footer{
-
     display:flex;
 
-    justify-content:space-between;
+    justify-content:flex-end;
 
     align-items:center;
 
-    margin-top:auto;
-
+    margin-top:0;
 }
 
 
@@ -772,53 +778,347 @@
 
 @media(max-width:480px){
 
-    .combo-card{
 
-        padding:22px;
+    /* ======================================
+       HEADER
+    ====================================== */
 
-    }
+    .header{
 
-    .combo-images img{
+        padding:
+            14px
+            4px;
 
-        width:95px;
-
-        height:95px;
-
-    }
-
-    .combo-info h3{
-
-        font-size:28px;
+        margin-bottom:18px;
 
     }
 
-    .combo-info .price{
+    .logo-section{
 
-        font-size:36px;
-
-    }
-
-    .menu-image{
-
-        width:82px;
-
-        height:82px;
+        gap:10px;
 
     }
 
-    .menu-image img{
+    .logo{
 
-        width:72px;
+        width:46px;
+        height:46px;
 
-        height:72px;
+    }
+
+    .logo-section h1{
+
+        font-size:20px;
 
     }
 
-    .menu-info h3{
+    .logo-section p{
 
-        font-size:22px;
+        font-size:11px;
+        letter-spacing:3px;
 
     }
+
+    .theme-toggle{
+
+        width:46px;
+        height:46px;
+        font-size:20px;
+
+    }
+
+
+    /* ======================================
+       HERO
+    ====================================== */
+
+    .hero{
+
+        margin-bottom:28px;
+
+    }
+
+    .hero h2{
+
+        font-size:32px;
+        line-height:1.12;
+
+    }
+
+    .hero-line{
+
+        margin:14px 0;
+
+    }
+
+    .hero p{
+
+        font-size:16px;
+        line-height:1.5;
+
+    }
+/* ======================================
+   POPULAR BADGE
+====================================== */
+
+.popular-badge{
+
+    margin-bottom:16px;
+
+    padding:7px 14px;
+
+    gap:6px;
+
+    font-size:12px;
+
+}
+
+/* ======================================
+   COMBO
+====================================== */
+
+.combo-card{
+
+    width:calc(100% - 24px);
+
+    margin-left:auto;
+    margin-right:auto;
+
+    padding:18px;
+
+    border-radius:24px;
+
+    margin-bottom:26px;
+
+}
+
+.combo-images{
+
+    gap:12px;
+
+    margin-bottom:10px;
+
+}
+
+.combo-images img{
+
+    width:88px;
+    height:88px;
+
+    padding:6px;
+
+    border-radius:14px;
+
+}
+
+.combo-images span{
+
+    font-size:24px;
+
+}
+
+.combo-info h3{
+
+    font-size:24px;
+
+    line-height:1.1;
+
+    margin-bottom:4px;
+
+}
+
+.combo-info h4{
+
+    font-size:17px;
+
+    margin-bottom:6px;
+
+}
+
+.combo-info .price{
+
+    font-size:32px;
+
+    margin-bottom:10px;
+
+}
+
+.combo-card .primary-btn{
+
+    height:44px;
+
+    font-size:16px;
+
+}
+
+/* ======================================
+   MENU CARD
+====================================== */
+
+.menu-card{
+    display:flex;
+    align-items:center;
+
+    gap:18px;
+
+    padding:20px 22px;
+
+    min-height:150px;
+
+    border-radius:28px;
+
+    background:var(--surface);
+
+    box-shadow:var(--shadow-sm);
+}
+
+.menu-card:hover{
+    transform:translateY(-2px);
+    box-shadow:var(--shadow-md);
+}
+
+
+/* ======================================
+   MENU IMAGE
+====================================== */
+
+.menu-image{
+
+    width:112px;
+    height:112px;
+
+    border-radius:22px;
+
+    background:#fff;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    flex-shrink:0;
+
+    overflow:hidden;
+}
+
+.menu-image img{
+
+    width:88%;
+
+    height:88%;
+
+    object-fit:contain;
+}
+
+
+
+/* ======================================
+   MENU INFO
+====================================== */
+
+.menu-info{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    height:112px;
+
+    min-width:0;
+}
+
+.menu-info h3{
+
+    font-size:27px;
+
+    font-weight:700;
+
+    line-height:1.1;
+
+    margin:0;
+
+    margin-top:10px;
+
+    margin-bottom:6px;
+}
+
+
+.menu-price{
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:var(--accent);
+
+    margin:0;
+}
+
+.menu-footer{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    margin-top:-38px;
+}
+
+.menu-cart-control{
+
+    margin-left:auto;
+
+    display:flex;
+
+    align-items:center;
+}
+
+
+
+/* ======================================
+   BUTTON
+====================================== */
+
+.add-btn{
+
+    width:96px;
+
+    height:46px;
+
+    border-radius:999px;
+
+    font-size:18px;
+
+    font-weight:700;
+}
+
+
+/* ======================================
+   QUANTITY
+====================================== */
+
+.quantity{
+
+    width:104px;
+
+    height:46px;
+}
+
+.quantity button{
+
+    width:30px;
+
+    height:30px;
+}
+
+.quantity-value{
+
+    font-size:17px;
+}
 
 }
 
@@ -879,17 +1179,17 @@
 
 .add-btn{
 
-    width:136px;
+    width:96px;
 
-    height:50px;
+    height:46px;
 
     border-radius:999px;
 
     background:var(--accent);
 
-    color:white;
+    color:#fff;
 
-    font-size:16px;
+    font-size:17px;
 
     font-weight:700;
 
@@ -899,11 +1199,7 @@
 
     align-items:center;
 
-    cursor:pointer;
-
     transition:all .25s ease;
-
-    overflow:hidden;
 
 }
 
@@ -912,13 +1208,6 @@
     transform:translateY(-2px);
 
 }
-
-.add-btn:active{
-
-    transform:scale(.96);
-
-}
-
 
 
 /* ==========================================
