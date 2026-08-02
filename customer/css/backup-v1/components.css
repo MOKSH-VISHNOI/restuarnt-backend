@@ -11,11 +11,13 @@
     align-items:center;
 
     padding:
-        clamp(14px, 2vw, 22px)
-        clamp(12px, 3vw, 24px);
+
+        var(--space-lg)
+        var(--space-md);
 
     margin-bottom:
-        var(--space-xl)
+
+        var(--space-xl);
 
 }
 
@@ -33,9 +35,9 @@
 
 .logo{
 
-    width:clamp(46px, 6vw, 60px);
+    width:58px;
 
-    height:auto;
+    height:58px;
 
     object-fit:contain;
 
@@ -43,7 +45,9 @@
 
 .logo-section h1{
 
-    font-size:clamp(20px, 3vw, 32px);
+    font-size:
+
+        var(--text-xl);
 
     font-weight:
 
@@ -63,13 +67,15 @@
 
     margin-top:4px;
 
-    font-size:clamp(11px, 1.4vw, 14px);
+    font-size:
+
+        var(--text-sm);
 
     font-weight:
 
         var(--weight-semibold);
 
-    letter-spacing:clamp(2px, 0.35vw, 4px);
+    letter-spacing:4px;
 
     color:
 
@@ -85,9 +91,9 @@
 
 .theme-toggle{
 
-    width:clamp(46px, 6vw, 56px);
+    width:54px;
 
-    height:clamp(46px, 6vw, 56px);
+    height:54px;
 
     border-radius:50%;
 
@@ -99,7 +105,7 @@
 
         var(--text);
 
-    font-size:clamp(20px, 2vw, 24px);
+    font-size:24px;
 
     display:flex;
 
@@ -149,7 +155,7 @@
 
     margin-bottom:
 
-        28px;
+        36px;
 
 }
 
@@ -185,26 +191,33 @@
 
 .hero-line{
 
-    width:36px;
+    width:42px;
 
-    height:4px;
+    height:5px;
 
     border-radius:999px;
 
-    background:var(--accent);
+    background:
 
-    margin:14px 0;
+        var(--accent);
+
+    margin:
+
+        18px 0;
 
 }
 
-
 .hero p{
 
-    font-size:var(--text-lg);
+    font-size:
 
-    color:var(--text-secondary);
+        var(--text-lg);
 
-    line-height:1.45;
+    color:
+
+        var(--text-secondary);
+
+    line-height:1.6;
 
 }
 
@@ -770,6 +783,15 @@
        HEADER
     ====================================== */
 
+    .header{
+
+        padding:
+            14px
+            4px;
+
+        margin-bottom:18px;
+
+    }
 
     .logo-section{
 
@@ -777,25 +799,61 @@
 
     }
 
+    .logo{
+
+        width:46px;
+        height:46px;
+
+    }
+
+    .logo-section h1{
+
+        font-size:20px;
+
+    }
+
+    .logo-section p{
+
+        font-size:11px;
+        letter-spacing:3px;
+
+    }
+
+    .theme-toggle{
+
+        width:46px;
+        height:46px;
+        font-size:20px;
+
+    }
 
 
     /* ======================================
        HERO
     ====================================== */
 
-    
+    .hero{
+
+        margin-bottom:28px;
+
+    }
 
     .hero h2{
 
         font-size:32px;
-        line-height:1.05;
+        line-height:1.12;
 
     }
 
+    .hero-line{
+
+        margin:14px 0;
+
+    }
 
     .hero p{
 
-        font-size:var(--text-md)
+        font-size:16px;
         line-height:1.5;
 
     }
@@ -826,26 +884,26 @@
     margin-left:auto;
     margin-right:auto;
 
-    padding: 10px;
+    padding:18px;
 
     border-radius:24px;
 
-    margin-bottom:22px;
+    margin-bottom:26px;
 
 }
 
 .combo-images{
 
-    gap:14px;
+    gap:12px;
 
-    margin-bottom:8px;
+    margin-bottom:10px;
 
 }
 
 .combo-images img{
 
-    width:84px;
-    height:84px;
+    width:88px;
+    height:88px;
 
     padding:6px;
 
@@ -855,45 +913,39 @@
 
 .combo-images span{
 
-    font-size:22px;
+    font-size:24px;
 
 }
 
 .combo-info h3{
 
-    font-size:22px;
+    font-size:24px;
 
-    line-height:1.05;
-
-    margin-bottom:2px;
-
-}
-
-.combo-info h4{
-
-    font-size:16px;
+    line-height:1.1;
 
     margin-bottom:4px;
 
 }
 
+.combo-info h4{
+
+    font-size:17px;
+
+    margin-bottom:6px;
+
+}
+
 .combo-info .price{
 
-    font-size:30px;
+    font-size:32px;
 
-    margin-bottom:8px;
+    margin-bottom:10px;
 
 }
 
 .combo-card .primary-btn{
 
-    max-width: 300px;
-
-    width: 86%;
-
-    margin:0 auto;
-
-    height:40px;
+    height:44px;
 
     font-size:16px;
 
@@ -909,11 +961,11 @@
 
     gap:18px;
 
-    padding:16px 18px;
+    padding:20px 22px;
 
-    min-height:128px;
+    min-height:150px;
 
-    border-radius:22px;
+    border-radius:28px;
 
     background:var(--surface);
 
@@ -932,10 +984,10 @@
 
 .menu-image{
 
-    width:96px;
-    height:96px;
+    width:112px;
+    height:112px;
 
-    border-radius:18px;
+    border-radius:22px;
 
     background:#fff;
 
@@ -973,14 +1025,14 @@
 
     justify-content:center;
 
-    height:96px;
+    height:112px;
 
     min-width:0;
 }
 
 .menu-info h3{
 
-    font-size:24px;
+    font-size:27px;
 
     font-weight:700;
 
@@ -988,21 +1040,21 @@
 
     margin:0;
 
-    margin-top:2px;
+    margin-top:10px;
 
-    margin-bottom:2px;
+    margin-bottom:6px;
 }
 
 
 .menu-price{
 
-    font-size:21px;
+    font-size:24px;
 
     font-weight:700;
 
     color:var(--accent);
 
-    margin:2px 0 0;
+    margin:0;
 }
 
 .menu-footer{
@@ -1013,7 +1065,7 @@
 
     align-items:center;
 
-    margin-top:-22px;
+    margin-top:-38px;
 }
 
 .menu-cart-control{
@@ -1033,13 +1085,13 @@
 
 .add-btn{
 
-    width:92px;
+    width:96px;
 
-    height:42px;
-
-    font-size:16px;
+    height:46px;
 
     border-radius:999px;
+
+    font-size:18px;
 
     font-weight:700;
 }
@@ -1053,7 +1105,7 @@
 
     width:104px;
 
-    height:42px;
+    height:46px;
 }
 
 .quantity button{
@@ -1065,7 +1117,7 @@
 
 .quantity-value{
 
-    font-size:16px;
+    font-size:17px;
 }
 
 }
@@ -1147,10 +1199,7 @@
 
     align-items:center;
 
-    transition:
-    background-color .25s ease,
-    color .25s ease,
-    transform .25s ease;
+    transition:all .25s ease;
 
 }
 

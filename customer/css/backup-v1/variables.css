@@ -1,0 +1,243 @@
+/* =======================================
+   YATHARTH DESIGN SYSTEM v1.0
+   ======================================= */
+
+   :root {
+
+    /* ===========================
+       BRAND COLORS
+    =========================== */
+
+    --accent: #F5A623;
+    --accent-hover: #E29608;
+    --accent-light: #FFF1D5;
+
+    --success: #22C55E;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+
+    /* ===========================
+       LIGHT THEME
+    =========================== */
+
+    --bg: #FFF8F0;
+
+    --surface: #FFFFFF;
+
+    --surface-2: #FFFDF9;
+
+    --text: #222222;
+
+    --text-secondary: #666666;
+
+    --text-light: #888888;
+
+    --border: #EFE5D8;
+
+    /* ===========================
+       COMBO CARD
+    =========================== */
+
+    --combo-bg:
+        linear-gradient(
+            135deg,
+            #FFFDF7,
+            #FFF4D8
+        );
+
+    --combo-border: #F5D27A;
+
+    /* ===========================
+       SHADOWS
+    =========================== */
+
+    --shadow-xs:
+        0 2px 8px rgba(0,0,0,.04);
+
+    --shadow-sm:
+        0 6px 18px rgba(0,0,0,.06);
+
+    --shadow-md:
+        0 12px 30px rgba(0,0,0,.08);
+
+    --shadow-lg:
+        0 18px 40px rgba(0,0,0,.10);
+
+    --combo-glow:
+        0 0 20px rgba(245,166,35,.12);
+
+    /* ===========================
+       BORDER RADIUS
+    =========================== */
+
+    --radius-sm: 14px;
+
+    --radius-md: 18px;
+
+    --radius-lg: 24px;
+
+    --radius-xl: 30px;
+
+    --radius-pill: 999px;
+
+    /* ===========================
+       SPACING
+    =========================== */
+
+    --space-xs: 6px;
+
+    --space-sm: 12px;
+
+    --space-md: 18px;
+
+    --space-lg: 24px;
+
+    --space-xl: 32px;
+
+    --space-2xl: 42px;
+
+    /* ===========================
+       TYPOGRAPHY
+    =========================== */
+
+    --font-family:
+        "Poppins",
+        sans-serif;
+
+    --text-xs: 12px;
+
+    --text-sm: 14px;
+
+    --text-md: 16px;
+
+    --text-lg: 18px;
+
+    --text-xl: 22px;
+
+    --text-2xl: 30px;
+
+    --text-3xl: 42px;
+
+    /* ===========================
+       FONT WEIGHTS
+    =========================== */
+
+    --weight-light: 300;
+
+    --weight-normal: 400;
+
+    --weight-medium: 500;
+
+    --weight-semibold: 600;
+
+    --weight-bold: 700;
+
+    --weight-black: 800;
+
+    /* ===========================
+       BUTTONS
+    =========================== */
+
+    --button-height: 54px;
+
+    --button-radius: 18px;
+
+    /* ===========================
+       CARDS
+    =========================== */
+
+    --card-radius: 24px;
+
+    --card-padding: 20px;
+
+    /* ===========================
+       HEADER
+    =========================== */
+
+    --header-height: 82px;
+
+    /* ===========================
+       CART
+    =========================== */
+
+    --cart-height: 90px;
+
+    /* ===========================
+       TRANSITIONS
+    =========================== */
+
+    --fast: 180ms ease;
+
+    --normal: 280ms ease;
+
+    --slow: 420ms ease;
+
+    /* ===========================
+       SCALE
+    =========================== */
+
+    --hover-scale: 1.02;
+
+    --click-scale: .96;
+
+    /* ===========================
+       Z INDEX
+    =========================== */
+
+    --z-header: 100;
+
+    --z-cart: 200;
+
+    --z-sheet: 500;
+
+    --z-overlay: 600;
+
+}
+
+    /* ----- DARK THEME ----- */
+    
+[data-theme="dark"] {
+
+    /* ===========================
+       DARK THEME
+    =========================== */
+
+    --bg: #0E0E0E;
+
+    --surface: #171717;
+
+    --surface-2: #1F1F1F;
+
+    --text: #FFFFFF;
+
+    --text-secondary: #C7C7C7;
+
+    --text-light: #A0A0A0;
+
+    --border: #2A2A2A;
+
+    --combo-bg:
+        linear-gradient(
+            135deg,
+            #1B1B1B,
+            #242018
+        );
+
+    --combo-border: #F5A623;
+
+    --shadow-xs:
+        0 2px 8px rgba(0,0,0,.25);
+
+    --shadow-sm:
+        0 8px 20px rgba(0,0,0,.35);
+
+    --shadow-md:
+        0 12px 28px rgba(0,0,0,.45);
+
+    --shadow-lg:
+        0 20px 45px rgba(0,0,0,.55);
+
+    --combo-glow:
+        0 0 28px rgba(245,166,35,.16);
+
+}

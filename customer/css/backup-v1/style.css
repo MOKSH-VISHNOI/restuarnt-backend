@@ -58,11 +58,9 @@
 
 .search-wrapper{
 
-     margin-top:12px;
-     margin-bottom:20px;
-    
-}
+    margin-block:clamp(16px,2.5vw,24px);
 
+}
 
 .search-bar{
 
@@ -72,9 +70,9 @@
 
     gap:12px;
 
-    padding:12px 18px;
+    padding:14px 18px;
 
-    border-radius:16px;
+    border-radius:18px;
 
     background:var(--surface);
 
