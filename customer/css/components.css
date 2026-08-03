@@ -655,6 +655,16 @@
 
 }
 
+.menu-details{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+}
+
 .menu-price{
 
     font-size:26px;
@@ -711,19 +721,7 @@
 
 
 
-/* ==========================================
-   ITEM FOOTER
-========================================== */
 
-.menu-footer{
-    display:flex;
-
-    justify-content:flex-end;
-
-    align-items:center;
-
-    margin-top:0;
-}
 
 
 
@@ -907,13 +905,13 @@
     display:flex;
     align-items:center;
 
-    gap:18px;
+    gap:16px;
 
-    padding:16px 18px;
+    padding:14px 16px;
 
-    min-height:128px;
+    min-height:102px;
 
-    border-radius:22px;
+    border-radius:20px;
 
     background:var(--surface);
 
@@ -932,10 +930,10 @@
 
 .menu-image{
 
-    width:96px;
-    height:96px;
+    width:76px;
+    height:76px;
 
-    border-radius:18px;
+    border-radius:16px;
 
     background:#fff;
 
@@ -973,54 +971,67 @@
 
     justify-content:center;
 
-    height:96px;
+    min-height:96px;
 
     min-width:0;
+
 }
 
 .menu-info h3{
 
-    font-size:24px;
+    font-size:22px;
 
     font-weight:700;
 
-    line-height:1.1;
+    line-height:1.08;
 
-    margin:0;
+    margin:0 0 8px;
 
     margin-top:2px;
 
     margin-bottom:2px;
 }
 
+.menu-details{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:2px;
+
+}
+
 
 .menu-price{
 
-    font-size:21px;
+    font-size:20px;
 
     font-weight:700;
 
     color:var(--accent);
 
-    margin:2px 0 0;
+    margin:0;
 }
 
-.menu-footer{
+
+.menu-cart-control{
 
     display:flex;
+
+    margin:0;
 
     justify-content:flex-end;
 
     align-items:center;
 
-    margin-top:-22px;
 }
 
-.menu-cart-control{
-
-    margin-left:auto;
+.menu-bottom{
 
     display:flex;
+
+    justify-content:space-between;
 
     align-items:center;
 }
@@ -1033,11 +1044,11 @@
 
 .add-btn{
 
-    width:92px;
+    width:84px;
 
-    height:42px;
+    height:36px;
 
-    font-size:16px;
+    font-size:15px;
 
     border-radius:999px;
 
@@ -1050,22 +1061,49 @@
 ====================================== */
 
 .quantity{
+    width:82px;
+    height:36px;
 
-    width:104px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 
-    height:42px;
+    padding:0 8px;
+
+    background:transparent;
+    border:1px solid var(--accent);
+    border-radius:999px;
 }
 
 .quantity button{
+    width:auto;
+    height:auto;
 
-    width:30px;
+    padding:0;
 
-    height:30px;
+    background:none;
+    border:none;
+
+    color:var(--accent);
+
+    font-size:20px;
+    font-weight:700;
+    line-height:1;
+
+    cursor:pointer;
+
+    transition:.2s ease;
 }
 
 .quantity-value{
+    min-width:14px;
 
-    font-size:16px;
+    text-align:center;
+
+    font-size:15px;
+    font-weight:700;
+
+    color:var(--text);
 }
 
 }

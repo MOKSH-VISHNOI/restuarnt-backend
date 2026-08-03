@@ -186,38 +186,30 @@ function createMenuCard(
             >
 
         </div>
+<div class="menu-info">
 
-        <div class="menu-info">
+    <div class="menu-details">
 
-            <h3>
+    <h3>${item.name}</h3>
 
-                ${item.name}
+    <div class="menu-bottom">
 
-            </h3>
+        <div class="menu-price">
+            ₹${item.price}
+        </div>
 
-            <div class="menu-price">
-
-                ₹${item.price}
-
-            </div>
-
-            <div class="menu-footer">
-
-    <div
-
-        class="menu-cart-control"
-
-        data-id="${item.id}"
-
-    >
-
-        ${renderMenuControl(item)}
+        <div
+            class="menu-cart-control"
+            data-id="${item.id}"
+        >
+            ${renderMenuControl(item)}
+        </div>
 
     </div>
 
 </div>
 
-        </div>
+</div>
 
     `;
 
