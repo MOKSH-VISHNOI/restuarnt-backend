@@ -188,11 +188,9 @@ function createMenuCard(
         </div>
 <div class="menu-info">
 
-    <div class="menu-details">
-
     <h3>${item.name}</h3>
 
-    <div class="menu-bottom">
+    <div class="menu-footer">
 
         <div class="menu-price">
             ₹${item.price}
@@ -206,8 +204,6 @@ function createMenuCard(
         </div>
 
     </div>
-
-</div>
 
 </div>
 

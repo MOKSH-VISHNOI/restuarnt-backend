@@ -266,19 +266,17 @@ p{
 ========================================== */
 
 .container{
+    position:relative;
 
     width:min(100%,540px);
-
     margin:auto;
 
+    min-height:100vh;
+
     padding:
-
         var(--space-lg)
-
         var(--space-lg)
-
         calc(var(--cart-height)+40px);
-
 }
 
 
