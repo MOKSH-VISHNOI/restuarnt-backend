@@ -58,7 +58,7 @@
 
 .search-wrapper{
 
-    margin-top:12px;
+    margin-top: 0;
     margin-bottom:20px;
 }
 
@@ -71,7 +71,7 @@
 
     gap:12px;
 
-    padding:12px 18px;
+    padding:14px 18px;
 
     border-radius:16px;
 
@@ -197,14 +197,31 @@ main{
 
 .menu-heading{
 
-    margin:clamp(8px,1vw,12px) 0 clamp(14px,2vw,18px);
+    margin:0 0 16px;
 
-    font-size:1.3rem;
+    font-size:26px;
+
+    line-height: 1.1;
 
     font-weight:700;
 
+    color: var(--text);
+
+    position: relative;
+
+    display: inline-block;
+
 }
 
+.menu-heading::after{
+    content: " ";
+    display: block;
+    width: 76px;
+    height: 5px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: var(--accent);
+}
 
 /* ==========================================
    MENU

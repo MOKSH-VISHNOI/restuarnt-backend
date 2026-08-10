@@ -266,12 +266,9 @@ p{
 ========================================== */
 
 .container{
-    position:relative;
 
     width:min(100%,540px);
     margin:auto;
-
-    min-height:100vh;
 
     padding:
         var(--space-lg)
@@ -332,12 +329,9 @@ body{
     .container{
 
         padding:
-
             var(--space-md)
-
             var(--space-sm)
-
-            calc(var(--cart-height)+24px);
+            100px;
 
     }
 

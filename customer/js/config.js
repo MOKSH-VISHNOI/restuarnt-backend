@@ -19,7 +19,7 @@ const CONFIG = {
 
     
     apiBaseUrl:
-        "https://matthew-faq-pin-endangered.trycloudflare.com",  
+        "https://collectibles-absent-citizenship-replica.trycloudflare.com",  
  
 
     // Theme
