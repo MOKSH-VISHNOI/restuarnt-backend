@@ -6,7 +6,6 @@ const CONFIG = {
         "Yatharth Café",
 
     // Currency
-
     currency:
         "₹",
 
@@ -16,12 +15,10 @@ const CONFIG = {
         "yatharth_cart",
 
     // API
-
     
     apiBaseUrl:
-        "https://camera-cole-data-ccd.trycloudflare.com",  
- 
-
+        "https://strengths-careers-probe-tokyo.trycloudflare.com",
+        
     // Theme
 
     themeStorageKey:
