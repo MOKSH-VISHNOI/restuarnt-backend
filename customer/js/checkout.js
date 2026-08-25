@@ -77,6 +77,8 @@ checkoutOverlay.onclick = (event)=>{
 
 function openCheckout(){
 
+    lockPageScroll();
+
     renderCheckout();
 
     checkoutOverlay.classList.remove(
@@ -109,6 +111,8 @@ function closeCheckout(){
         checkoutOverlay.classList.add(
             "hidden"
         );
+
+        unlockPageScroll();
 
     },250);
 

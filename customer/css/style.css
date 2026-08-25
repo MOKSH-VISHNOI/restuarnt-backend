@@ -411,3 +411,23 @@ main{
     }
 
 } 
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* ==========================================
+   MODAL SCROLL LOCK
+========================================== */
+
+html.modal-open,
+body.modal-open {
+    overflow: hidden;
+}
+
+

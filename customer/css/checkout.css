@@ -40,44 +40,32 @@
    CHECKOUT SHEET
 ========================================== */
 
-.checkout-sheet{
+.checkout-sheet {
+    width: min(100%, 560px);
+    box-sizing: border-box;
 
-    width:min(100%,540px);
+    background: var(--surface);
 
-    background:var(--surface);
+    border-radius: 30px 30px 0 0;
 
-    border-radius:
+    padding: 28px;
 
-        30px 30px 0 0;
+    max-height: 92vh;
+    overflow-y: auto;
 
-    padding:
+    transform: translateY(100%);
+    transition: transform .35s ease;
 
-        28px 22px
-        calc(env(safe-area-inset-bottom)+24px);
+    box-shadow: 0 -12px 40px rgba(0,0,0,.16);
 
-    max-height:92vh;
-
-    overflow-y:auto;
-
-    transform:translateY(100%);
-
-    transition:transform .35s ease;
-
-    box-shadow:
-
-        0 -12px 40px rgba(0,0,0,.16);
-
-     scrollbar-width:none;
-
-    -ms-overflow-style:none;
-       
-
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
+
 
 .checkout-overlay.show .checkout-sheet{
 
     transform:translateY(0);
-
 }
 
 .checkout-sheet::-webkit-scrollbar{
@@ -93,16 +81,15 @@
    HEADER
 ========================================== */
 
-.checkout-header{
+.checkout-header {
+    display: flex;
 
-    display:flex;
+    justify-content: center;
 
-    justify-content:center;
+    align-items: center;
 
-    align-items:center;
-
-    margin-bottom:22px;
-
+    margin-bottom: 8px;
+    
 }
 
 .checkout-title{
@@ -157,7 +144,7 @@
 
     font-weight:600;
 
-    margin:12px 0 16px;
+    margin:12px 22px 16px;
 
     cursor:pointer;
 

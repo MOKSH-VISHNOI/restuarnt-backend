@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://strengths-careers-probe-tokyo.trycloudflare.com",
+        "https://here-both-eos-hospital.trycloudflare.com",
         
     // Theme
 

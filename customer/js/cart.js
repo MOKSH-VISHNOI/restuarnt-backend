@@ -52,10 +52,42 @@ const cartInfo =
 
 
 // ==========================================
+// BACKGROUND SCROLL LOCK
+// ==========================================
+
+function lockPageScroll(){
+
+    document.documentElement.classList.add(
+        "modal-open"
+    );
+
+    document.body.classList.add(
+        "modal-open"
+    );
+
+}
+
+
+function unlockPageScroll(){
+
+    document.documentElement.classList.remove(
+        "modal-open"
+    );
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+}
+
+
+// ==========================================
 // OPEN CART
 // ==========================================
 
 function openCart(){
+
+    lockPageScroll();
 
     cartOverlay.classList.remove(
         "hidden"
@@ -88,9 +120,12 @@ function closeCart(){
             "hidden"
         );
 
+        unlockPageScroll();
+
     },250);
 
 }
+
 
 cartOverlay.onclick = (event) => {
 
@@ -603,17 +638,24 @@ cartCheckoutBtn.onclick = () => {
 if(sheetCheckoutButton){
 
     sheetCheckoutButton.addEventListener(
-
         "click",
-
         () => {
 
-            closeCart();
+            cartOverlay.classList.remove(
+                "show"
+            );
 
-            openCheckout();
+            setTimeout(() => {
+
+                cartOverlay.classList.add(
+                    "hidden"
+                );
+
+                openCheckout();
+
+            },250);
 
         }
-
     );
 
 }
