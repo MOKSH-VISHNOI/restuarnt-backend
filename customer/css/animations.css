@@ -458,10 +458,10 @@
 
 }
 
-.sheet-close{
+.sheet-closing {
 
-    animation:
-
+    animation: 
+        
         slideDown .3s ease forwards;
 
 }

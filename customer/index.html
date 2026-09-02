@@ -392,46 +392,44 @@
     class="cart-overlay hidden"
 >
 
-<div
-id="cartSheet"
-class="cart-sheet"
->
-
-<div class="sheet-header">
-
-    <div class="sheet-handle"></div>
-
-    <button
-        id="closeCartButton"
-        class="sheet-close"
-        type="button"
-        aria-label="Close cart"
+    <div
+        id="cartSheet"
+        class="cart-sheet"
     >
-        ×
-    </button>
 
-</div>
+        <div class="sheet-handle"></div>
 
-<h2>Your Cart</h2>
+        <button
+            id="closeCartButton"
+            class="sheet-close"
+            aria-label="Close cart"
+            type="button"
+        >
+            ×
+        </button>
 
-<div id="cartItems"></div>
+        <h2>Your Cart</h2>
 
-<div class="cart-total">
-    <span>Subtotal</span>
+        <div id="cartItems"></div>
 
-    <span id="sheetTotal">
-        ₹0
-    </span>
-</div>
+        <div class="cart-total">
 
-<button
-    id="sheetCheckoutButton"
-    class="primary-btn"
->
-    Place Order
-</button>
+            <span>Subtotal</span>
 
-</div>
+            <span id="sheetTotal">
+                ₹0
+            </span>
+
+        </div>
+
+        <button
+            id="sheetCheckoutButton"
+            class="primary-btn"
+        >
+            Place Order
+        </button>
+
+    </div>
 
 </div>
 
@@ -450,28 +448,26 @@ class="cart-sheet"
         class="checkout-sheet"
     >
 
-    <div class="sheet-header">
-
         <div class="sheet-handle"></div>
-    
+
         <button
             id="closeCheckoutButton"
             class="sheet-close"
+            aria-label="Close checkout"
             type="button"
-            aria-label="Close review order"
         >
             ×
         </button>
-    
-    </div>
-    
-    <div class="checkout-header">
-    
-        <h2 class="checkout-title">
-            Review <span>Order</span>
-        </h2>
-    
-    </div>
+
+        <div class="checkout-header">
+
+            <h2 class="checkout-title">
+
+                Review <span>Order</span>
+
+            </h2>
+
+        </div>
 
         <!-- NEW CONTENT WRAPPER -->
 

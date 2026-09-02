@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://barriers-rising-ensuring-locate.trycloudflare.com",
+        "https://specialized-details-mechanical-hamburg.trycloudflare.com",
         
     // Theme
 
