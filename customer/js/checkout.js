@@ -49,6 +49,25 @@ const addMoreBtn =
     );
 
 
+const closeCheckoutButton =
+    document.getElementById(
+        "closeCheckoutButton"
+    );
+
+if(closeCheckoutButton){
+
+    closeCheckoutButton.addEventListener(
+        "click",
+        () => {
+
+            closeCheckout();
+
+        }
+    );
+
+}
+
+
 // ==========================================
 // EVENT LISTENERS
 // ==========================================
@@ -77,6 +96,8 @@ checkoutOverlay.onclick = (event)=>{
 
 function openCheckout(){
 
+    pushModalHistory("checkout");
+
     lockPageScroll();
 
     renderCheckout();
@@ -100,22 +121,26 @@ function openCheckout(){
 // CLOSE CHECKOUT
 // ==========================================
 
-function closeCheckout(){
+function closeCheckout(fromHistory = false) {
 
-    checkoutOverlay.classList.remove(
-        "show"
-    );
+    if (!fromHistory && activeModal === "checkout") {
+        history.back();
+        return;
+    }
 
-    setTimeout(()=>{
+    checkoutOverlay.classList.remove("show");
 
-        checkoutOverlay.classList.add(
-            "hidden"
-        );
+    setTimeout(() => {
+
+        checkoutOverlay.classList.add("hidden");
 
         unlockPageScroll();
 
-    },250);
+        activeModal = null;
 
+        clearModalHistory();
+
+    }, 250);
 }
 
 

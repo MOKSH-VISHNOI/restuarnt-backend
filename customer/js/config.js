@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://here-both-eos-hospital.trycloudflare.com",
+        "https://barriers-rising-ensuring-locate.trycloudflare.com",
         
     // Theme
 

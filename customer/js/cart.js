@@ -50,6 +50,52 @@ const cartInfo =
         "cartInfo"
     );
 
+const closeCartButton =
+    document.getElementById(
+        "closeCartButton"
+    );
+
+if(closeCartButton){
+
+    closeCartButton.addEventListener(
+        "click",
+        () => {
+
+            closeCart();
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// MODAL HISTORY
+// ==========================================
+
+let activeModal = null;
+
+
+function pushModalHistory(modal){
+
+    history.pushState(
+        {
+            yatharthModal: modal
+        },
+        ""
+    );
+
+    activeModal = modal;
+
+}
+
+
+function clearModalHistory(){
+
+    activeModal = null;
+
+}
+
 
 // ==========================================
 // BACKGROUND SCROLL LOCK
@@ -87,6 +133,8 @@ function unlockPageScroll(){
 
 function openCart(){
 
+    pushModalHistory("cart");
+
     lockPageScroll();
 
     cartOverlay.classList.remove(
@@ -108,7 +156,15 @@ function openCart(){
 // CLOSE CART
 // ==========================================
 
-function closeCart(){
+function closeCart(fromHistory = false){
+
+    if(!fromHistory && activeModal === "cart"){
+
+        history.back();
+
+        return;
+
+    }
 
     cartOverlay.classList.remove(
         "show"
@@ -121,6 +177,8 @@ function closeCart(){
         );
 
         unlockPageScroll();
+
+        clearModalHistory();
 
     },250);
 
@@ -659,3 +717,107 @@ if(sheetCheckoutButton){
     );
 
 }
+
+
+// ==========================================
+// BROWSER BACK / GESTURE
+// ==========================================
+
+window.addEventListener("popstate", (event) => {
+
+    const destination =
+        event.state?.yatharthModal || null;
+
+
+    // ==================================
+    // CHECKOUT IS CURRENTLY OPEN
+    // ==================================
+
+    if (!checkoutOverlay.classList.contains("hidden")) {
+
+        // -------------------------------
+        // CHECKOUT → CART
+        // -------------------------------
+
+        if (destination === "cart") {
+
+            checkoutOverlay.classList.remove("show");
+
+            setTimeout(() => {
+
+                checkoutOverlay.classList.add("hidden");
+
+                activeModal = "cart";
+
+                cartOverlay.classList.remove("hidden");
+
+                requestAnimationFrame(() => {
+                    cartOverlay.classList.add("show");
+                });
+
+                // IMPORTANT:
+                // Do NOT unlock page scroll here.
+                // Cart is still open.
+
+            }, 250);
+
+            return;
+        }
+
+
+        // -------------------------------
+        // CHECKOUT → ORDER PAGE
+        // -------------------------------
+
+        if (destination === null) {
+
+            checkoutOverlay.classList.remove("show");
+
+            setTimeout(() => {
+
+                checkoutOverlay.classList.add("hidden");
+
+                activeModal = null;
+
+                unlockPageScroll();
+
+                clearModalHistory();
+
+            }, 250);
+
+            return;
+        }
+    }
+
+
+    // ==================================
+    // CART IS CURRENTLY OPEN
+    // ==================================
+
+    if (!cartOverlay.classList.contains("hidden")) {
+
+        // -------------------------------
+        // CART → ORDER PAGE
+        // -------------------------------
+
+        if (destination === null) {
+
+            cartOverlay.classList.remove("show");
+
+            setTimeout(() => {
+
+                cartOverlay.classList.add("hidden");
+
+                activeModal = null;
+
+                unlockPageScroll();
+
+                clearModalHistory();
+
+            }, 250);
+
+            return;
+        }
+    }
+
+});
