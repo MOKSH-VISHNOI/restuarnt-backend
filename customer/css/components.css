@@ -622,19 +622,17 @@
     height: clamp(76px, 25vw, 92px);
 
     border-radius: 18px;
-
     overflow: hidden;
 
     background: #fff;
+    border: 1px solid var(--border);
 
     display: flex;
     justify-content: center;
     align-items: center;
 
     flex-shrink: 0;
-
     align-self: center;
-
     margin-top: 0;
 }
 
@@ -988,6 +986,8 @@
 }
 
 .cart-sheet {
+
+    position: relative;
     width:  calc(100% - 24px);
     
     max-width: 540px;
@@ -1008,6 +1008,8 @@
     box-shadow: var(--shadow-lg);
 
     overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
 
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -1030,7 +1032,7 @@
 
     width: 100%;
 
-    margin: 0 0 14px;
+    margin: 0 0 8px;
     padding: 0 54px 0 0;
 
     box-sizing: border-box;
@@ -1326,7 +1328,7 @@
 
     padding: 18px 0;
 
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
 
 .checkout-item:last-child {
@@ -1576,6 +1578,160 @@
     }
 }
 
+
+/* ==========================================
+   EXIT CONFIRMATION
+   ========================================== */
+
+   .exit-confirm-overlay {
+    position: fixed;
+    inset: 0;
+
+    z-index: var(--z-overlay);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: var(--space-lg);
+
+    background: rgba(0, 0, 0, .55);
+    backdrop-filter: blur(6px);
+
+    opacity: 1;
+    visibility: visible;
+
+    transition:
+        opacity var(--normal),
+        visibility var(--normal);
+}
+
+.exit-confirm-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+
+.exit-confirm-card {
+    width: min(100%, 420px);
+    box-sizing: border-box;
+
+    padding: var(--space-xl) var(--space-lg);
+
+    background: var(--surface);
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+
+    box-shadow: var(--shadow-lg);
+
+    text-align: center;
+
+    transform: scale(1);
+
+    transition:
+        transform var(--normal);
+}
+
+.exit-confirm-overlay.hidden .exit-confirm-card {
+    transform: scale(.96);
+}
+
+
+/* ICON */
+
+.exit-confirm-icon {
+    width: 52px;
+    height: 52px;
+
+    margin: 0 auto var(--space-md);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--accent);
+    color: var(--surface);
+
+    font-size: 28px;
+    font-weight: var(--weight-bold);
+}
+
+
+/* TEXT */
+
+.exit-confirm-card h2 {
+    margin: 0 0 var(--space-sm);
+
+    color: var(--text);
+
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+}
+
+.exit-confirm-card p {
+    max-width: 320px;
+
+    margin: 0 auto var(--space-lg);
+
+    color: var(--text-secondary);
+
+    font-size: var(--text-sm);
+    line-height: 1.6;
+}
+
+
+/* ACTIONS */
+
+.exit-confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: var(--space-sm);
+}
+
+.exit-stay-btn,
+.exit-leave-btn {
+    min-height: var(--button-height);
+
+    border-radius: var(--button-radius);
+
+    font-family: var(--font-family);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+
+    cursor: pointer;
+
+    transition:
+        transform var(--fast),
+        background-color var(--fast);
+}
+
+.exit-stay-btn {
+    border: 1.5px solid var(--accent);
+
+    background: transparent;
+    color: var(--accent);
+}
+
+.exit-leave-btn {
+    border: 1.5px solid var(--accent);
+
+    background: var(--accent);
+    color: var(--surface);
+}
+
+.exit-stay-btn:active,
+.exit-leave-btn:active {
+    transform: scale(var(--click-scale));
+}
+
+
+
 /* ===================== MOBILE ===================== */
 /* Only mobile-specific overrides */
 @media (max-width: 480px) {
@@ -1706,18 +1862,24 @@
         width: 60px;
     }
 
+    .exit-confirm-overlay {
+        padding: var(--space-md);
+    }
+
+    .exit-confirm-card {
+        padding: var(--space-xl) var(--space-lg);
+    }
+
+
 }
 
 /* ==========================================
-   CART SHEET CLOSE POSITION
+   CART SHEET CLOSE BUTTON
 ========================================== */
-
-.cart-sheet {
-    position: relative;
-}
 
 .cart-sheet .sheet-close {
     position: absolute;
+
     top: 18px;
     right: 18px;
 
@@ -1725,5 +1887,25 @@
     height: 40px;
 
     margin: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+
+    background: var(--surface);
+    color: var(--accent);
+
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+
     transform: none;
+    z-index: 20;
 }

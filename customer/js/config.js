@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://specialized-details-mechanical-hamburg.trycloudflare.com",
+        "https://holmes-florence-affected-recipe.trycloudflare.com",
         
     // Theme
 

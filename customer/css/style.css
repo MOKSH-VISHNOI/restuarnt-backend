@@ -113,6 +113,30 @@
     color: var(--text-secondary);
 }
 
+.search-close-btn {
+    display: none;
+    flex-shrink: 0;
+
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    font-size: clamp(24px, 6vw, 28px);
+    color: var(--text);
+
+    padding: 0;
+    line-height: 1;
+    transition: opacity 0.2s;
+}
+
+.search-close-btn:hover {
+    opacity: 0.6;
+}
+
+.search-bar input:not(:placeholder-shown) ~ .search-close-btn {
+    display: block;
+}
+
 
 
 /* ==========================================

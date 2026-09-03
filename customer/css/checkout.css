@@ -80,6 +80,10 @@
     transform: translateY(0);
 }
 
+.checkout-sheet .sheet-close {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
 
 
 /* ==========================================
@@ -88,18 +92,16 @@
 
 .sheet-close {
     position: absolute;
+
     top: 18px;
     right: 18px;
 
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
 
     display: flex;
     align-items: center;
     justify-content: center;
-
-    padding: 0;
-    box-sizing: border-box;
 
     border: 1.5px solid var(--accent);
     border-radius: 50%;
@@ -112,7 +114,18 @@
     line-height: 1;
 
     cursor: pointer;
+
+    box-shadow:
+        0 3px 12px rgba(0, 0, 0, .18),
+        0 0 0 3px var(--accent-light);
+
     z-index: 20;
+
+    transition:
+        transform .2s ease,
+        background .2s ease,
+        color .2s ease,
+        box-shadow .2s ease;
 }
 
 .sheet-close:hover {
@@ -202,7 +215,7 @@
 
     font-weight:600;
 
-    margin:8px 14px 10px;
+    margin: 8px 0 10px;
 
     cursor:pointer;
 
@@ -279,6 +292,16 @@
     .checkout-header {
         margin-bottom: 10px;
         padding-right: 50px;
+    }
+
+    .summary {
+        margin-bottom: 2px;
+    }
+
+
+    .place-order {
+        height: 64px;
+        margin-top: 4px;
     }
 
     .sheet-close {
