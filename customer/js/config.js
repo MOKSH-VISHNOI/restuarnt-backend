@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://holmes-florence-affected-recipe.trycloudflare.com",
+        "https://duck-pets-wall-mardi.trycloudflare.com",
         
     // Theme
 
