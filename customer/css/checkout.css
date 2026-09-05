@@ -64,9 +64,8 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
 
-    transform: translateY(100%);
-
-    transition: transform .35s ease;
+    transform: translateY(12px);
+    transition: transform 280ms ease;
 
     box-shadow:
         0 -12px 40px rgba(0,0,0,.25);
@@ -282,7 +281,8 @@
     .checkout-sheet {
         width: calc(100% - 20px);
         max-height: 76vh;
-        padding: 18px 16px calc(env(safe-area-inset-bottom) + 12px);
+        padding: 42px 20px
+            calc(env(safe-area-inset-bottom) + 16px);
     }
 
     .checkout-title {

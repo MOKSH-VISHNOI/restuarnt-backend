@@ -540,21 +540,26 @@ function renderBottomSheet(){
             </div>
     
         `;
+
+        sheetCheckoutButton.textContent =
+        "Add Items";
+
     
     }
 
     else{
 
+        sheetCheckoutButton.textContent =
+            "Place Order";
+    
         cart.forEach(item => {
-
+    
             cartItemsContainer.appendChild(
-
                 createCartItem(item)
-
             );
-
+    
         });
-
+    
     }
 
     sheetTotal.textContent =
@@ -699,6 +704,16 @@ if(sheetCheckoutButton){
         "click",
         () => {
 
+            // Empty cart → Add Items
+            if(totalItems() === 0){
+
+                closeCart();
+
+                return;
+
+            }
+
+            // Cart has items → Place Order
             cartOverlay.classList.remove(
                 "show"
             );
@@ -717,7 +732,6 @@ if(sheetCheckoutButton){
     );
 
 }
-
 
 // ==========================================
 // BROWSER BACK / GESTURE

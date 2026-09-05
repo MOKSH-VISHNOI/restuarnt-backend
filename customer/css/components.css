@@ -1916,24 +1916,56 @@
         padding: var(--space-xl) var(--space-lg);
     }
 
-    .empty-state{
-        padding:24px 16px 20px;
+    .empty-state {
+        min-height: 0 !important;
+        padding: 24px 16px 20px !important;
+        max-width: 100% !important;
     }
 
-    .empty-cart-icon{
-        font-size:60px;
-        margin-bottom:12px;
+    .empty-cart-icon {
+        font-size: 60px !important;
+        margin-bottom: 12px !important;
     }
 
-    .empty-state h3{
-        font-size:30px;
-        line-height:1.15;
-        margin-bottom:10px;
+    .empty-state h3 {
+        font-size: 30px !important;
+        line-height: 1.15 !important;
+        white-space: normal !important;
+        margin-bottom: 10px !important;
     }
 
-    .empty-state p{
-        font-size:17px;
-        line-height:1.45;
+    .empty-state p {
+        max-width: 280px !important;
+        margin: 0 !important;
+        font-size: 17px !important;
+        line-height: 1.45 !important;
+    }
+
+    .cart-sheet .empty-state {
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 20px 16px 24px !important;
+
+        justify-content: flex-start !important;
+    }
+
+    .checkout-sheet .checkout-items {
+        margin-bottom: 0 !important;
+    }
+
+    .checkout-sheet .checkout-items:has(.empty-state) {
+        gap: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .checkout-sheet .checkout-items .empty-state {
+        min-height: 0 !important;
+        height: auto !important;
+
+        padding: 20px 16px 24px !important;
+
+        justify-content: flex-start !important;
     }
 
 
@@ -1974,4 +2006,62 @@
 
     transform: none;
     z-index: 20;
+}
+
+/* ==========================================
+   CART EMPTY → ADD ITEMS TRANSITION
+========================================== */
+
+.cart-overlay {
+    opacity: 0;
+    transition: opacity 280ms ease;
+}
+
+.cart-overlay.show {
+    opacity: 1;
+}
+
+.cart-sheet {
+    transform: translateY(12px);
+    transition: transform 280ms ease;
+}
+
+.cart-overlay.show .cart-sheet {
+    transform: translateY(0);
+}
+
+/* ==========================================
+   REVIEW - EMPTY STATE SPACING
+========================================== */
+
+.checkout-items:has(.empty-state) {
+    gap: 0;
+    margin-bottom: 0;
+}
+
+.checkout-items:has(.empty-state) .empty-state {
+    min-height: 0 !important;
+    height: auto !important;
+
+    padding: 20px 16px 24px !important;
+
+    margin: 0 !important;
+
+    justify-content: flex-start !important;
+}
+
+/* ==========================================
+   EMPTY CART - HIDE SUBTOTAL
+========================================== */
+
+.cart-sheet:has(.empty-state) .cart-total {
+    display: none;
+}
+
+/* ==========================================
+   CART PLACE ORDER POSITION
+   ========================================== */
+
+.cart-sheet #sheetCheckoutButton {
+    margin-bottom: 30px;
 }

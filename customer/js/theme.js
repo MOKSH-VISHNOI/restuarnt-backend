@@ -128,35 +128,27 @@ function updateThemeIcon(){
 window.matchMedia(
     "(prefers-color-scheme: dark)"
 )
-
 .addEventListener(
-
     "change",
-
-    e=>{
+    e => {
 
         if(
-
             localStorage.getItem(
-                "theme"
+                CONFIG.themeStorageKey
             )
+        ){
+            return;
+        }
 
-        ) return;
-
-        html.dataset.theme=
-
+        html.dataset.theme =
             e.matches
-
                 ? "dark"
-
                 : "light";
 
         updateThemeIcon();
 
     }
-
 );
-
 
 
 // =========================

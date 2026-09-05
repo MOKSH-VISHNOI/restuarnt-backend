@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://duck-pets-wall-mardi.trycloudflare.com",
+        "https://candles-delivered-cons-suite.trycloudflare.com",
         
     // Theme
 
