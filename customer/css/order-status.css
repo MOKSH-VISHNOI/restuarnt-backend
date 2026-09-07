@@ -102,83 +102,70 @@
    SUCCESS ICON
 ========================================== */
 
+.success-icon-section {
+    width: 100%;
+    display: grid;
+    place-items: center;
+    margin: 0 0 8px;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 .success-icon{
-
-    width:92px;
-
-    height:92px;
-
+    width:76px;
+    height:76px;
+    flex:0 0 76px;
     border-radius:50%;
-
     display:flex;
-
     justify-content:center;
-
     align-items:center;
-
-    margin-bottom:28px;
+    position: relative;
+    left: 0;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 
     animation:pop .55s ease;
 
     background:
         radial-gradient(
-
             circle,
-
             rgba(255,177,27,.10) 0%,
-
             rgba(255,177,27,.04) 45%,
-
             transparent 75%
-
         );
 
     box-shadow:
-
-        0 0 25px rgba(255,177,27,.22);
-
+        0 0 22px rgba(255,177,27,.20);
 }
 
 .checkmark-svg{
-
-    width:70px;
-
-    height:70px;
-
+    display:block;
+    width:60px;
+    height:60px;
+    flex:0 0 60px;
+    overflow:visible;
 }
 
 .checkmark-circle{
-
     stroke:var(--accent);
-
-    stroke-width:2;
-
+    stroke-width:2.5;
+    fill:none;
     filter:drop-shadow(
-
-        0 0 10px rgba(255,177,27,.65)
-
+        0 0 8px rgba(255,177,27,.55)
     );
-
 }
 
 .checkmark-path{
-
     stroke:var(--accent);
-
-    stroke-width:3.6;
-
+    stroke-width:4;
     stroke-linecap:round;
-
     stroke-linejoin:round;
-
-    stroke-dasharray:42;
-
-    stroke-dashoffset:42;
-
-    animation:
-
-        drawCheck .65s ease forwards .35s;
-
+    stroke-dasharray:none;
+    stroke-dashoffset:0;
+    opacity:1;
+    visibility:visible;
+    fill:none;
 }
 
 .checkout-item{
@@ -191,17 +178,44 @@
 
 }
 
+/* ==========================================
+   CONFIRMATION HEADER
+========================================== */
+
+.confirmation-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.confirmation-header .success-icon {
+    margin: 0 auto 14px;
+    align-self: center;
+}
+
+.confirmation-header .success-message {
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+.confirmation-header .success-message h1,
+.confirmation-header .success-message p {
+    text-align: center;
+}
+
 
 /* ==========================================
    TITLE
 ========================================== */
 
 .success-message{
-
+    width:100%;
     text-align:center;
-
-    margin-bottom:34px;
-
+    margin:0 0 20px;
 }
 
 .success-message h1{
@@ -217,15 +231,10 @@
 }
 
 .success-message p{
-
-    margin-top:12px;
-
+    margin:8px 0 0;
     color:var(--text-secondary);
-
-    line-height:1.6;
-
+    line-height:1.45;
     font-size:16px;
-
 }
 
 
@@ -234,58 +243,44 @@
 ========================================== */
 
 .token-card{
-
     width:100%;
-
     max-width:420px;
 
     background:var(--surface);
-
     border:1px solid var(--border);
-
     border-radius:24px;
 
-    padding:26px;
+    padding:20px 24px 18px;
 
     text-align:center;
-
     margin-bottom:24px;
 
+    box-sizing:border-box;
 }
 
 .token-label{
-
     margin:0;
 
     color:var(--accent);
-
     font-size:14px;
-
     letter-spacing:3px;
-
     font-weight:600;
-
+    line-height:1.2;
 }
 
 .token-number{
-
-    margin:16px 0 0;
+    margin:10px 0 0;
 
     font-size:100px;
-
+    line-height:1;
     font-weight:800;
-
     letter-spacing:3px;
 
     text-shadow:
-
         0 0 20px var(--border);
 
-
     animation:
-
         tokenGlow 1.2s ease;
-
 }
 
 @keyframes tokenGlow{
@@ -321,77 +316,60 @@
 }
 
 .token-note{
-
-    margin-top:14px;
+    margin:12px 0 0;
 
     font-size:14px;
+    line-height:1.3;
 
     color:var(--text-secondary);
-
     font-weight:500;
-
     letter-spacing:.3px;
-
 }
 
 /* ==========================================
    STATUS CARD
 ========================================== */
-
 .status-card{
-
     width:100%;
-
     max-width:420px;
 
     background:var(--surface);
-
     border:1px solid var(--border);
-
     border-radius:24px;
 
-    padding:28px;
+    padding:24px 24px 22px;
 
     margin-bottom:24px;
 
     text-align:center;
 
     box-shadow:
-
         0 8px 24px rgba(0,0,0,.25);
 
+    box-sizing:border-box;
 }
 
 .status-card h3{
-
     margin:0;
 
     color:var(--text-secondary);
-
-    font-size:18px;
-
+    font-size:20px;
     font-weight:500;
-
+    line-height:1.2;
 }
 
 .progress-container{
-
-    margin:28px 0;
+    margin:24px 0 22px;
 
     display:flex;
-
     justify-content:center;
-
+    align-items:center;
 }
 
 .progress-svg{
-
     width:100%;
-
     max-width:320px;
-
     overflow:visible;
-
 }
 
 .progress-line{
@@ -443,27 +421,21 @@
 }
 
 #statusTitle{
-
     margin:0;
 
-    font-size:30px;
-
+    font-size:28px;
+    line-height:1.2;
     font-weight:700;
 
     color:var(--text);
-
 }
 
 #statusMessage{
-
-    margin-top:14px;
+    margin:8px 0 0;
 
     color:var(--text-secondary);
-
-    line-height:1.6;
-
-    font-size:16px;
-
+    line-height:1.4;
+    font-size:15px;
 }
 
 .status-card.ready{
@@ -484,12 +456,42 @@
 
 @media(max-width:420px){
 
-    .success-message h1{
-
-        font-size:30px;
-        color:var(--text);
-
+    .success-icon-section{
+        width: 100%;
+        display: grid;
+        place-items: center;
+        margin: 0 0 8px;
+        padding: 0;
+        box-sizing: border-box;
     }
+
+    .success-icon{
+        width:72px;
+        height:72px;
+        flex-basis:72px;
+    }
+
+    .checkmark-svg{
+        width:58px;
+        height:58px;
+        flex-basis:58px;
+    }
+
+    .success-message{
+        margin-bottom:18px;
+    }
+
+    .success-message h1{
+        font-size:30px;
+        line-height:1.15;
+    }
+
+    .success-message p{
+        margin-top:7px;
+        font-size:15px;
+        line-height:1.4;
+    }
+    
 
     .token-number{
 
@@ -2264,3 +2266,538 @@
     }
 
 }
+
+
+/* ==========================================================
+   FINAL LAYOUT OVERHAUL
+   Layout-only refinements. Existing elements, classes,
+   colors, animations and interaction states are preserved.
+========================================================== */
+
+/* ---- Success / Confirmation Area ---- */
+.success-container{
+    padding:
+        18px 16px
+        calc(env(safe-area-inset-bottom) + 24px);
+}
+
+.success-icon{
+    width:76px;
+    height:76px;
+    margin-bottom:14px;
+}
+
+.checkmark-svg{
+    width:58px;
+    height:58px;
+}
+
+.success-message{
+    width:100%;
+    margin-bottom:20px;
+    text-align:center;
+}
+
+.success-message h1{
+    margin:0;
+    line-height:1.1;
+}
+
+.success-message p{
+    margin:8px auto 0;
+    max-width:360px;
+    line-height:1.4;
+}
+
+/* ---- Token ---- */
+.token-card{
+    width:100%;
+    max-width:420px;
+    padding:22px 18px;
+    margin-bottom:16px;
+    box-sizing:border-box;
+}
+
+.token-number{
+    margin-top:10px;
+    line-height:1;
+}
+
+.token-note{
+    margin-top:10px;
+}
+
+/* ---- Order Status ---- */
+.status-card{
+    width:100%;
+    max-width:420px;
+    padding:22px 16px;
+    margin-bottom:16px;
+    box-sizing:border-box;
+}
+
+.status-card h3{
+    margin:0;
+}
+
+.progress-container{
+    margin:20px 0;
+    width:100%;
+}
+
+.progress-svg{
+    width:100%;
+    max-width:320px;
+}
+
+#statusTitle{
+    line-height:1.15;
+}
+
+#statusMessage{
+    margin:8px auto 0;
+    max-width:360px;
+    line-height:1.4;
+}
+
+/* ---- Rating ---- */
+.rating-card{
+    width:100%;
+    max-width:600px;
+    margin:0 auto 16px;
+    padding:18px 16px;
+    box-sizing:border-box;
+}
+
+.rating-card .action-content{
+    width:100%;
+    max-width:440px;
+    gap:14px;
+}
+
+.rating-card .action-body h3{
+    line-height:1.15;
+}
+
+.rating-card .action-body p{
+    line-height:1.3;
+}
+
+.rating-options{
+    width:100%;
+    gap:12px;
+    margin:16px auto 0;
+    justify-content:center;
+}
+
+/* ---- Current + Other Orders ---- */
+.orders-grid{
+    width:100%;
+    max-width:740px;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:12px;
+    margin:0 auto 16px;
+    align-items:stretch;
+}
+
+.action-card,
+.other-orders-card{
+    min-width:0;
+    box-sizing:border-box;
+}
+
+.action-card{
+    padding:16px;
+    min-height:160px;
+    gap:10px;
+    overflow:hidden;
+}
+
+#currentOrderCard{
+    min-width:0;
+    padding:16px;
+}
+
+#currentOrderCard .action-content{
+    width:100%;
+    min-width:0;
+    grid-template-columns:48px minmax(0,1fr);
+    column-gap:10px;
+}
+
+#currentOrderCard .action-icon{
+    width:48px;
+    height:48px;
+    font-size:26px;
+}
+
+#currentOrderCard .action-body{
+    min-width:0;
+    overflow:hidden;
+}
+
+#currentOrderCard .action-body h3{
+    font-size:19px;
+    line-height:1.15;
+    margin:0 0 6px;
+    overflow-wrap:anywhere;
+}
+
+#currentOrderCard .action-body p{
+    font-size:15px;
+    line-height:1.35;
+    overflow-wrap:anywhere;
+}
+
+#currentOrderCard .action-link{
+    margin-top:10px;
+    padding:6px 10px;
+    font-size:15px;
+}
+
+.other-orders-card{
+    min-height:160px;
+    padding:16px;
+    grid-template-columns:48px minmax(0,1fr);
+    column-gap:10px;
+}
+
+.other-orders-icon{
+    width:48px;
+    height:48px;
+    font-size:24px;
+}
+
+.other-orders-header,
+.other-orders-title{
+    min-width:0;
+}
+
+.other-orders-header h3,
+.other-orders-title h3{
+    font-size:19px;
+    line-height:1.15;
+    overflow-wrap:anywhere;
+}
+
+#otherOrdersList{
+    min-width:0;
+}
+
+/* ---- Place Another Order ---- */
+.place-another-order{
+    width:100%;
+    max-width:650px;
+    min-height:60px;
+    margin:0 auto 24px;
+    box-sizing:border-box;
+}
+
+/* ==========================================================
+   MOBILE LAYOUT
+========================================================== */
+@media(max-width:520px){
+
+    .success-container{
+        padding-top:14px;
+    }
+
+    .success-icon{
+        width:70px;
+        height:70px;
+        margin-bottom:12px;
+    }
+
+    .checkmark-svg{
+        width:54px;
+        height:54px;
+    }
+
+    .success-message{
+        margin-bottom:18px;
+    }
+
+    .success-message h1{
+        font-size:30px;
+    }
+
+    .success-message p{
+        font-size:15px;
+    }
+
+    .token-card{
+        padding:20px 14px;
+        margin-bottom:14px;
+    }
+
+    .token-number{
+        font-size:74px;
+    }
+
+    .status-card{
+        padding:22px 18px 20px;
+        margin-bottom:14px;
+    }
+
+    .progress-container{
+        margin:20px 0 18px;
+    }
+
+    #statusTitle{
+        font-size:26px;
+        line-height:1.2;
+    }
+
+    #statusMessage{
+        margin:8px 0 0;
+        font-size:15px;
+        line-height:1.4;
+    }
+
+    .rating-card{
+        padding:18px 12px;
+        margin-bottom:14px;
+    }
+
+    .rating-card .action-content{
+        gap:12px;
+    }
+
+    .rating-options{
+        gap:8px;
+        margin-top:14px;
+        justify-content:center;
+    }
+
+    .rating-option{
+        width:42px;
+        height:42px;
+        font-size:22px;
+    }
+
+    /* Keep these two cards side-by-side on mobile. */
+    .orders-grid{
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+        gap:10px;
+    }
+
+    .action-card,
+    #currentOrderCard,
+    .other-orders-card{
+        padding:14px 12px;
+    }
+
+    #currentOrderCard .action-content{
+        grid-template-columns:42px minmax(0,1fr);
+        column-gap:8px;
+    }
+
+    #currentOrderCard .action-icon,
+    .other-orders-icon{
+        width:42px;
+        height:42px;
+        font-size:22px;
+    }
+
+    #currentOrderCard .action-body h3,
+    .other-orders-header h3,
+    .other-orders-title h3{
+        font-size:18px;
+    }
+
+    #currentOrderCard .action-body p,
+    .other-orders-card .empty-orders-text{
+        font-size:14px;
+        line-height:1.3;
+    }
+
+    .other-orders-card{
+        grid-template-columns:42px minmax(0,1fr);
+        column-gap:8px;
+    }
+
+    .other-orders-header h3,
+    .other-orders-title h3{
+        overflow-wrap:anywhere;
+    }
+
+    .place-another-order{
+        min-height:58px;
+        margin-bottom:18px;
+        font-size:19px;
+    }
+}
+
+/* ---- Very Narrow Phones ---- */
+@media(max-width:360px){
+
+    .success-message h1{
+        font-size:27px;
+    }
+
+    .rating-card .action-content{
+        gap:9px;
+    }
+
+    .rating-card .action-icon{
+        width:50px;
+        height:50px;
+        font-size:26px;
+    }
+
+    .rating-card .action-body h3{
+        font-size:17px;
+    }
+
+    .rating-card .action-body p{
+        font-size:14px;
+    }
+
+    .rating-options{
+        gap:5px;
+    }
+
+    .rating-option{
+        width:40px;
+        height:40px;
+        font-size:21px;
+    }
+
+    .orders-grid{
+        gap:8px;
+    }
+
+    .action-card,
+    #currentOrderCard,
+    .other-orders-card{
+        padding:12px 9px;
+    }
+}
+
+
+/* ==========================================================
+   CONFIRMATION HEADER REFINEMENT
+   Header-only layout pass.
+   Token/status/order sections are intentionally untouched.
+========================================================== */
+
+.success-container > .success-icon-section {
+    width: 100%;
+    height: 72px;
+    margin: 0 0 12px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    position: relative;
+    left: 0;
+}
+
+.success-container > .success-icon-section > .success-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    left: 0;
+    transform: none;
+}
+
+.success-container > .success-icon-section > .success-icon .checkmark-svg {
+    width: 72px;
+    height: 72px;
+    display: block;
+    margin: 0;
+}
+
+.success-container > .success-icon-section > .success-icon .checkmark-circle {
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    fill: none;
+    filter: drop-shadow(0 0 9px rgba(255, 177, 27, .55));
+}
+
+.success-container > .success-icon-section > .success-icon .checkmark-path {
+    stroke: var(--accent);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 42;
+    stroke-dashoffset: 0;
+    opacity: 1;
+    visibility: visible;
+    animation: drawCheck .55s ease forwards;
+}
+
+.success-container > .success-message {
+    width: 100%;
+    margin: 0 auto 18px;
+    text-align: center;
+}
+
+.success-container > .success-message h1 {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.12;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text);
+}
+
+.success-container > .success-message p {
+    margin: 7px auto 0;
+    max-width: 360px;
+    font-size: 15px;
+    line-height: 1.35;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 520px) {
+    .success-container > .success-icon-section > .success-icon {
+        width: 68px;
+        height: 68px;
+        margin-bottom: 10px;
+    }
+
+    .success-container > .success-icon-section > .success-icon .checkmark-svg {
+        width: 68px;
+        height: 68px;
+    }
+
+    .success-container > .success-message {
+        margin-bottom: 16px;
+    }
+
+    .success-container > .success-message h1 {
+        font-size: 29px;
+        line-height: 1.1;
+    }
+
+    .success-container > .success-message p {
+        margin-top: 6px;
+        font-size: 15px;
+        line-height: 1.3;
+    }
+}
+
+@media (max-width: 360px) {
+    .success-container > .success-icon-section > .success-icon {
+        width: 62px;
+        height: 62px;
+    }
+
+    .success-container > .success-icon-section > .success-icon .checkmark-svg {
+        width: 62px;
+        height: 62px;
+    }
+
+    .success-container > .success-message h1 {
+        font-size: 27px;
+    }
+}
+

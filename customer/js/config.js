@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://candles-delivered-cons-suite.trycloudflare.com",
+        "https://engagement-returning-beaches-server.trycloudflare.com",
         
     // Theme
 
