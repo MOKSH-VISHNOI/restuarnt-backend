@@ -277,9 +277,10 @@ href="./css/order-status.css"
                 Current Order
             </h3>
 
-            <p id="currentOrderSummary">
-                3 Items • ₹420
-            </p>
+            <div id="currentOrderSummary" class="current-order-summary">
+                <span id="currentOrderItems">3 Items</span>
+                <span id="currentOrderAmount">₹420</span>
+            </div>
 
         </div>
 
@@ -291,8 +292,8 @@ href="./css/order-status.css"
             type="button"
             aria-label="View current order details"
         >
-            →
-        </button>
+    <span class="card-arrow-icon">→</span>
+</button>
 
     </div>
 
@@ -317,9 +318,6 @@ href="./css/order-status.css"
                 Other Orders
             </h3>
 
-            <span id="otherOrdersCount">
-                (0)
-            </span>
 
         </div>
 
@@ -338,11 +336,11 @@ href="./css/order-status.css"
     </div>
 
     <span
-        class="card-arrow"
-        aria-hidden="true"
-    >
-        →
-    </span>
+    class="card-arrow"
+    aria-hidden="true"
+>
+    <span class="card-arrow-icon">→</span>
+</span>
 
 </section>
 

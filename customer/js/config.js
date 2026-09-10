@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://engagement-returning-beaches-server.trycloudflare.com",
+        "https://relate-bin-barcelona-assess.trycloudflare.com",
         
     // Theme
 

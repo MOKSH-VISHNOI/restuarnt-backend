@@ -2490,9 +2490,7 @@ function updateCurrentOrderSummary(){
         !selectedOrder ||
         !currentOrderSummary
     ){
-
         return;
-
     }
 
     const totalItems =
@@ -2505,15 +2503,30 @@ function updateCurrentOrderSummary(){
     const totalAmount =
         selectedOrder.totalAmount ?? 0;
 
-    currentOrderSummary.textContent =
-        `${totalItems} ${
-            totalItems === 1
-                ? "Item"
-                : "Items"
-        } • ₹${totalAmount}`;
+    const currentOrderItems =
+        document.getElementById(
+            "currentOrderItems"
+        );
 
+    const currentOrderAmount =
+        document.getElementById(
+            "currentOrderAmount"
+        );
+
+    if(currentOrderItems){
+        currentOrderItems.textContent =
+            `${totalItems} ${
+                totalItems === 1
+                    ? "Item"
+                    : "Items"
+            }`;
+    }
+
+    if(currentOrderAmount){
+        currentOrderAmount.textContent =
+            `₹${totalAmount}`;
+    }
 }
-
 
 // ==========================================
 // RENDER SELECTED ORDER
