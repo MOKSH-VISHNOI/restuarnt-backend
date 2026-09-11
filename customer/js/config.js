@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://relate-bin-barcelona-assess.trycloudflare.com",
+        "https://hiv-allen-tar-updated.trycloudflare.com",
         
     // Theme
 
