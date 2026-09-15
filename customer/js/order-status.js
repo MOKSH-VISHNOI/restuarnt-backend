@@ -37,11 +37,9 @@ const statusCard =
         ".status-card"
     );
 
-
-const viewBillButton =
-
+const currentOrderInfo =
     document.getElementById(
-        "viewBillButton"
+        "currentOrderInfo"
     );
 
 const orderSheetOverlay =
@@ -805,7 +803,8 @@ function restoreRatingCard(){
 // EVENT LISTENERS 
 // ==========================================
 
-viewBillButton?.addEventListener(
+
+currentOrderInfo?.addEventListener(
     "click",
     openOrderSheet
 );
@@ -1154,6 +1153,28 @@ function renderOtherOrders(){
 
     );
 
+    const orderCount = otherOrders.length;
+
+    otherOrdersList.parentElement.classList.toggle(
+        "has-1-order",
+        orderCount === 1
+    );
+
+    otherOrdersList.parentElement.classList.toggle(
+        "has-2-orders",
+        orderCount === 2
+    );
+
+    otherOrdersList.parentElement.classList.toggle(
+        "has-3-orders",
+        orderCount === 3
+    );
+
+    otherOrdersList.parentElement.classList.toggle(
+        "has-many-orders",
+        orderCount >= 4
+    );
+
 
     // Update count
 
@@ -1277,37 +1298,14 @@ function renderOtherOrders(){
 
         );
 
-           orderItem.innerHTML = `
-
-    <span class="other-order-token">
-
-        Token ${order.tokenNumber}
-
-    </span>
-
-
-    <div class="other-order-right">
-
-        <span
-            class="other-order-status ${order.status.toLowerCase()}"
-        >
-
+        orderItem.innerHTML = `
+        <span class="other-order-token">
+            ${order.tokenNumber}
+        </span>
+    
+        <span class="other-order-status ${order.status.toLowerCase()}">
             ${formatOrderStatus(order.status)}
-
         </span>
-
-
-        <span
-            class="other-order-chevron"
-            aria-hidden="true"
-        >
-
-            ›
-
-        </span>
-
-    </div>
-
     `;
 
 
@@ -1398,6 +1396,11 @@ function selectOrder(orderId){
         renderSelectedOrder();
     
         renderOtherOrders();
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
     
     
         // Prepare new content

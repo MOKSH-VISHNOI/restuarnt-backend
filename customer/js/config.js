@@ -17,7 +17,7 @@ const CONFIG = {
     // API
     
     apiBaseUrl:
-        "https://hiv-allen-tar-updated.trycloudflare.com",
+        "https://chan-believe-november-broadway.trycloudflare.com",
         
     // Theme
 

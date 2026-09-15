@@ -485,7 +485,7 @@
 
     margin:0 auto 24px;
 
-    align-items:stretch;
+    align-items:start;
 
 }
 
@@ -810,29 +810,16 @@
 ========================================== */
 
 .other-orders-card{
-
     width:100%;
-
     min-height:160px;
-
-    padding:22px 26px;
-
-    display:grid;
-
-    grid-template-columns:56px 1fr;
-
-    grid-template-rows:auto 1fr;
-
-    column-gap:22px;
-
+    padding:18px 16px;
+    display:flex;
+    flex-direction:column;
     background:var(--surface);
-
     border:1px solid var(--border);
-
     border-radius:20px;
-
     box-sizing:border-box;
-
+    overflow:hidden;
 }
 
 
@@ -887,8 +874,9 @@
     display: flex;
     justify-content: center;
     align-items: baseline;
-    gap: 4px;
+    gap: 6px;
     text-align: center;
+    min-width:0;
 }
 
 .other-orders-icon{
@@ -922,7 +910,9 @@
 
     margin:0;
 
-    font-size:22px;
+    font-size:19px;
+
+    line-height:1.2;
 
     font-weight:700;
 
@@ -933,7 +923,7 @@
 
 .other-orders-title #otherOrdersCount{
 
-    font-size:17px;
+    font-size:16px;
 
     font-weight:600;
 
@@ -947,22 +937,10 @@
 ========================================== */
 
 #otherOrdersList{
-
-    grid-column:2;
-    grid-row:2;
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:stretch;
-
-    justify-content:flex-start;
-
     width:100%;
-
     min-width:0;
-
+    display:flex;
+    flex-direction:column;
 }
 
 
@@ -971,29 +949,23 @@
 ========================================== */
 
 .other-order-item{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:18px;
-
     width:100%;
-
-    padding:14px 4px;
-
+    min-height:36px;
+    padding:7px 0;
+    
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    
     border-bottom:1px solid var(--border);
-
     box-sizing:border-box;
-
+    
     cursor:pointer;
-
+    
     transition:
         background var(--fast),
         transform var(--fast);
-
 }
 
 
@@ -1013,21 +985,18 @@
 
 .other-order-item:active{
 
+    background:rgba(255,255,255,.05);
     transform:scale(.98);
 
 }
 
 
 .other-order-token{
-
+    margin-left: 10px;
     font-size:18px;
-
     font-weight:700;
-
     color:var(--text);
-
     white-space:nowrap;
-
 }
 
 
@@ -1036,15 +1005,14 @@
 ========================================== */
 
 .other-order-status{
-
-    padding:8px 14px;
-
-    border-radius:12px;
-
-    font-size:14px;
-
+    flex-shrink:0;
+    margin-right: 8px;
+    padding:5px 8px;
+    border-radius:9px;
+    font-size:12px;
+    line-height:1.2;
     font-weight:700;
-
+    white-space:nowrap;
 }
 
 
@@ -1071,60 +1039,6 @@
     color:var(--text-secondary);
 
     background:rgba(255,255,255,.06);
-
-}
-
-
-/* ==========================================
-   OTHER ORDER RIGHT SIDE
-========================================== */
-
-.other-order-right{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:12px;
-
-    flex-shrink:0;
-
-}
-
-
-/* ==========================================
-   OTHER ORDER CHEVRON
-========================================== */
-
-.other-order-chevron{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    font-size:28px;
-
-    line-height:1;
-
-    font-weight:400;
-
-    color:var(--text-secondary);
-
-    transition:
-        transform var(--fast),
-        color var(--fast);
-
-}
-
-
-.other-order-item:hover
-.other-order-chevron{
-
-    transform:translateX(3px);
-
-    color:var(--accent);
 
 }
 
@@ -1347,8 +1261,8 @@
     border-radius:30px;
 
     padding:
-        32px 18px
-        calc(env(safe-area-inset-bottom) + 14px);
+    32px 18px
+    calc(env(safe-area-inset-bottom) + 8px);
 
     box-shadow:var(--shadow-lg);
 
@@ -1390,7 +1304,7 @@
     width:70px;
     height:6px;
 
-    margin:0 auto 18px;
+    margin:0 auto 14px;
 
     border-radius:999px;
     background:var(--border);
@@ -1401,10 +1315,7 @@
     width:100%;
     box-sizing:border-box;
 
-    padding:
-        0
-        0
-        calc(env(safe-area-inset-bottom) + 14px);
+    padding:0;
 }
 
 
@@ -1452,7 +1363,7 @@
 .order-sheet .summary{
     display:flex;
     flex-direction:column;
-    margin-top:4px;
+    margin-top:0;
     margin-bottom:18px;
     padding-top:18px;
     border-top:1px solid var(--border);
@@ -1532,7 +1443,7 @@
         "Poppins",
         sans-serif;
 
-    font-size:22px;
+    font-size:24px;
 
     font-weight:700;
 
@@ -1548,7 +1459,7 @@
         "Poppins",
         sans-serif;
 
-    font-size:18px;
+    font-size:19px;
 
     font-weight:500;
 
@@ -1562,7 +1473,7 @@
         "Poppins",
         sans-serif;
 
-    font-size:24px;
+    font-size:26px;
 
     font-weight:700;
 
@@ -2088,19 +1999,46 @@
 ========================================== */
 
 .order-sheet-close{
+    position:absolute;
 
-    width:100%;
+    top:18px;
+    right:18px;
 
-    height:60px;
+    width:40px;
+    height:40px;
 
-    margin-top:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-    border-radius:22px;
+    padding:0;
 
-    font-size:20px;
+    border:2px solid var(--accent);
+    border-radius:50%;
 
-    font-weight:800;
+    background:transparent;
+    color:var(--accent);
 
+    font-size:26px;
+    font-weight:700;
+    line-height:1;
+
+    cursor:pointer;
+
+    transition:
+        transform var(--fast),
+        background var(--fast),
+        box-shadow var(--fast);
+}
+
+.order-sheet-close:hover{
+    transform:scale(1.06);
+    background:rgba(255,170,0,0.08);
+    box-shadow:0 0 14px rgba(255,170,0,0.25);
+}
+
+.order-sheet-close:active{
+    transform:scale(.94);
 }
 
 
@@ -2443,15 +2381,24 @@
         display: none;
     }
 
-    /* Mobile arrow */
-    #currentOrderCard .card-arrow {
-        margin-top: auto;
-        align-self: flex-end;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 23px;
+    #currentOrderInfo{
+        width:100%;
+        padding:10px 12px;
+        border:1px solid var(--accent);
+        border-radius:14px;
+        box-sizing:border-box;
+        cursor:pointer;
+        box-shadow:0 0 7px rgba(245,158,11,.14);
+    
+        align-self:flex-start;
+        flex:none;
+        align-items:flex-start;
     }
+
+    #currentOrderInfo:active{
+        transform:scale(.98);
+    }
+
 
     /* ==========================================
         OTHER ORDERS - MOBILE
@@ -2459,9 +2406,8 @@
 
     .other-orders-card {
         min-width: 0;
-        min-height: 250px;
+        min-height: 0;
         padding: 16px 12px;
-
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -2473,10 +2419,14 @@
         height: 50px;
         flex-shrink: 0;
         font-size: 25px;
+        margin-top: 13px;
     }
 
     .other-orders-header {
-        width: 100%;
+        width:100%;
+        display:flex;
+        align-items:center;
+        margin:0 0 12px;
         margin-top: 10px;
     }
 
@@ -2492,13 +2442,14 @@
     }
 
     #otherOrdersCount {
-        font-size: 15px;
+        font-size: 14px;
+        font-weight: 500;
     }
 
     #otherOrdersList {
         width: 100%;
         min-width: 0;
-        margin-top: 18px;
+        margin-top: -8px;
     }
 
     .other-orders-empty {
@@ -2516,111 +2467,15 @@
         line-height: 1.35;
     }
 
-    /* Match Current Order arrow */
-    .other-orders-card > .card-arrow {
-        margin-top: auto;
-        align-self: flex-end;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 23px;
-    }
-
-    /* ==========================================
-        ORDER CARD ARROWS - MOBILE
-    ========================================== */
-
-    #currentOrderCard .card-arrow,
-    .other-orders-card > .card-arrow {
-        margin-top: auto;
-        align-self: flex-end;
-
-        width: 46px;
-        height: 46px;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        padding: 0;
-
-        border: 2px solid var(--accent);
-        border-radius: 50%;
-
-        background: rgba(255, 255, 255, 0.025);
-
-        color: var(--accent);
-
-        box-shadow:
-            0 0 10px rgba(255, 170, 0, 0.18),
-            inset 0 0 8px rgba(255, 170, 0, 0.04);
-
-        cursor: pointer;
-
-        transition:
-            transform var(--fast),
-            background var(--fast),
-            box-shadow var(--fast);
-    }
 
 
-    /* ==========================================
-        ARROW GLYPH
-    ========================================== */
-
-    .card-arrow-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        width: 100%;
-        height: 100%;
-
-        font-size: 27px;
-        font-weight: 400;
-        line-height: 1;
-
-        position: relative;
-        top: -1px;
-
-        transform: translateX(1px);
-    }
+    
 
 
-    /* ==========================================
-        HOVER
-    ========================================== */
+    
 
-    #currentOrderCard .card-arrow:hover,
-    .other-orders-card > .card-arrow:hover {
-        background: rgba(255, 170, 0, 0.10);
-
-        box-shadow:
-            0 0 16px rgba(255, 170, 0, 0.35),
-            inset 0 0 10px rgba(255, 170, 0, 0.06);
-
-        transform: translateX(2px);
-    }
+    
 
 
-    /* ==========================================
-        ACTIVE
-    ========================================== */
-
-    #currentOrderCard .card-arrow:active,
-    .other-orders-card > .card-arrow:active {
-        transform: scale(0.92);
-    }
-
-
-    /* ==========================================
-        FOCUS
-    ========================================== */
-
-    #currentOrderCard .card-arrow:focus-visible,
-    .other-orders-card > .card-arrow:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 3px;
-    }
 
 }
