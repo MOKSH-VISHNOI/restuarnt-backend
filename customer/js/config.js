@@ -14,10 +14,10 @@ const CONFIG = {
     cartStorageKey:
         "yatharth_cart",
 
-    // API
+    // APIz
     
     apiBaseUrl:
-        "https://chan-believe-november-broadway.trycloudflare.com",
+        "https://fitting-runs-powell-reaction.trycloudflare.com",
         
     // Theme
 

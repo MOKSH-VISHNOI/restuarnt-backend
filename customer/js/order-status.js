@@ -42,6 +42,11 @@ const currentOrderInfo =
         "currentOrderInfo"
     );
 
+const currentOrderCard =
+    document.getElementById(
+        "currentOrderCard"
+    );
+
 const orderSheetOverlay =
     document.getElementById(
         "orderSheetOverlay"
@@ -97,6 +102,11 @@ const otherOrdersCount =
 
         "otherOrdersCount"
 
+    );
+
+const otherOrdersCard =
+    document.querySelector(
+        ".other-orders-card"
     );
 
 
@@ -1175,6 +1185,31 @@ function renderOtherOrders(){
         orderCount >= 4
     );
 
+    /* ------------------------------------------
+        TOGGLE OTHER ORDERS LAYOUT
+    ------------------------------------------ */
+
+    if(orderCount === 0){
+
+        otherOrdersCard?.classList.add(
+            "hidden"
+        );
+
+        currentOrderCard?.classList.add(
+            "single-order"
+        );
+
+    }else{
+
+        otherOrdersCard?.classList.remove(
+            "hidden"
+        );
+
+        currentOrderCard?.classList.remove(
+            "single-order"
+        );
+    }
+
 
     // Update count
 
@@ -1191,45 +1226,10 @@ function renderOtherOrders(){
     // Empty state
 
     if(
-
         otherOrders.length === 0
-
     ){
 
-        const emptyState =
-
-            document.createElement(
-
-                "div"
-
-            );
-
-
-        emptyState.className =
-
-            "other-orders-empty";
-
-
-        emptyState.innerHTML = `
-
-            <span class="empty-orders-text">
-
-                No other active orders
-
-            </span>
-
-        `;
-
-
-        otherOrdersList.appendChild(
-
-            emptyState
-
-        );
-
-
         return;
-
     }
 
 
@@ -2569,5 +2569,629 @@ document.addEventListener(
     initializeSuccess
 
 );
+
+
+/* ==========================================
+   ORDER STATUS ONBOARDING
+========================================== */
+
+const orderOnboarding =
+    document.getElementById(
+        "orderOnboarding"
+    );
+
+const onboardingSpotlight =
+    document.getElementById(
+        "onboardingSpotlight"
+    );
+
+const onboardingTooltip =
+    document.getElementById(
+        "onboardingTooltip"
+    );
+
+const onboardingMessage =
+    document.getElementById(
+        "onboardingMessage"
+    );
+
+const onboardingStep =
+    document.getElementById(
+        "onboardingStep"
+    );
+
+const onboardingAction =
+    document.getElementById(
+        "onboardingAction"
+    );
+
+
+const CURRENT_ORDER_ONBOARDING_KEY =
+    "yatharthCurrentOrderOnboardingSeen";
+
+const OTHER_ORDERS_ONBOARDING_KEY =
+    "yatharthOtherOrdersOnboardingSeen";
+
+    let onboardingCurrentStep = 0;
+    let onboardingTargets = [];
+
+
+/* ------------------------------------------
+   TARGETS
+------------------------------------------ */
+
+function getOnboardingTargets(){
+
+    const targets = [];
+
+    const currentOrderElement =
+        document.getElementById(
+            "currentOrderCard"
+        );
+
+    const otherOrdersElement =
+        document.querySelector(
+            ".other-orders-card"
+        );
+
+    const currentOrderSeen =
+        localStorage.getItem(
+            CURRENT_ORDER_ONBOARDING_KEY
+        ) === "true";
+
+    const otherOrdersSeen =
+        localStorage.getItem(
+            OTHER_ORDERS_ONBOARDING_KEY
+        ) === "true";
+
+    if(
+        currentOrderElement &&
+        !currentOrderSeen
+    ){
+
+        targets.push({
+            key:
+                CURRENT_ORDER_ONBOARDING_KEY,
+
+            element:
+                currentOrderElement,
+
+            message:
+                "Tap here to view your complete order details."
+        });
+
+    }
+
+    if(
+        otherOrdersElement &&
+        !otherOrdersElement.classList.contains("hidden") &&
+        !otherOrdersSeen
+    ){
+
+        targets.push({
+            key:
+                OTHER_ORDERS_ONBOARDING_KEY,
+
+            element:
+                otherOrdersElement,
+
+            message:
+                "Tap an order here to view its status and details."
+        });
+
+    }
+
+    return targets;
+}
+
+/* ------------------------------------------
+   NEXT / GOT IT
+------------------------------------------ */
+let onboardingTargetObserver = null;
+
+function observeOnboardingTarget(target){
+
+    if(!target){
+        return;
+    }
+
+    onboardingTargetObserver?.disconnect();
+
+    onboardingTargetObserver =
+        new IntersectionObserver(
+            (entries) => {
+
+                const entry =
+                    entries[0];
+
+                    if(
+                        !entry.isIntersecting ||
+                        entry.intersectionRatio < 0.6
+                    ){
+                    
+                        orderOnboarding?.classList.add(
+                            "hidden"
+                        );
+                    
+                        orderOnboarding?.setAttribute(
+                            "aria-hidden",
+                            "true"
+                        );
+                    
+                        return;
+                    }
+                    
+                    startOrderOnboarding();
+
+            },
+            {
+                threshold: 0.6
+            }
+        );
+
+    onboardingTargetObserver.observe(
+        target
+    );
+}
+
+onboardingAction?.addEventListener(
+    "click",
+    () => {
+
+        const currentTarget =
+            onboardingTargets[
+                onboardingCurrentStep
+            ];
+
+        if(!currentTarget){
+
+            finishOrderOnboarding();
+
+            return;
+        }
+
+        /* ----------------------------------
+           MARK CURRENT TARGET AS SEEN
+        ---------------------------------- */
+
+        localStorage.setItem(
+            currentTarget.key,
+            "true"
+        );
+
+        /* ----------------------------------
+           FIND NEXT UNSEEN TARGET
+        ---------------------------------- */
+
+        onboardingTargets =
+            getOnboardingTargets();
+
+        onboardingCurrentStep = 0;
+
+        /* ----------------------------------
+           NOTHING LEFT
+        ---------------------------------- */
+
+        if(
+            onboardingTargets.length === 0
+        ){
+
+            finishOrderOnboarding();
+
+            return;
+        }
+
+        /* ----------------------------------
+           SHOW NEXT TARGET
+        ---------------------------------- */
+
+        const nextTarget =
+            onboardingTargets[
+                onboardingCurrentStep
+            ]?.element;
+
+        if(!nextTarget){
+
+            finishOrderOnboarding();
+
+            return;
+        }
+
+        showOnboardingStep();
+
+        observeOnboardingTarget(
+            nextTarget
+        );
+
+    }
+);
+
+/* ------------------------------------------
+   SHOW ONBOARDING
+------------------------------------------ */
+
+function startOrderOnboarding(){
+
+    if(!orderOnboarding){
+        return;
+    }
+
+    onboardingTargets =
+        getOnboardingTargets();
+
+    /* ----------------------------------
+       NOTHING NEEDS ONBOARDING
+    ---------------------------------- */
+
+    if(
+        onboardingTargets.length === 0
+    ){
+
+        finishOrderOnboarding();
+
+        return;
+    }
+
+    /* ----------------------------------
+       START FIRST REQUIRED TARGET
+    ---------------------------------- */
+
+    onboardingCurrentStep = 0;
+
+    orderOnboarding.classList.remove(
+        "hidden"
+    );
+
+    orderOnboarding.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    showOnboardingStep();
+}
+
+/* ------------------------------------------
+   SHOW CURRENT STEP
+------------------------------------------ */
+
+function showOnboardingStep(){
+
+    const targets =
+        onboardingTargets;
+
+    const currentTarget =
+        targets[onboardingCurrentStep];
+
+    if(
+        !currentTarget ||
+        !currentTarget.element
+    ){
+
+        finishOrderOnboarding();
+
+        return;
+    }
+
+    const target =
+        currentTarget.element;
+
+    const rect =
+        target.getBoundingClientRect();
+
+    /* ----------------------------------
+       MAKE SURE TARGET IS ACTUALLY
+       AT LEAST 60% VISIBLE
+    ---------------------------------- */
+
+    const visibleHeight =
+        Math.min(
+            rect.bottom,
+            window.innerHeight
+        ) -
+        Math.max(
+            rect.top,
+            0
+        );
+
+    const visibleRatio =
+        rect.height > 0
+            ? visibleHeight / rect.height
+            : 0;
+
+    if(
+        visibleRatio < 0.6
+    ){
+
+        orderOnboarding?.classList.add(
+            "hidden"
+        );
+
+        orderOnboarding?.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        return;
+    }
+
+    /* ----------------------------------
+       SPOTLIGHT
+    ---------------------------------- */
+
+    onboardingSpotlight.style.top =
+        `${rect.top - 2}px`;
+
+    onboardingSpotlight.style.left =
+        `${rect.left - 2}px`;
+
+    onboardingSpotlight.style.width =
+        `${rect.width + 4}px`;
+
+    onboardingSpotlight.style.height =
+        `${rect.height + 4}px`;
+
+    /* ----------------------------------
+       MESSAGE
+    ---------------------------------- */
+
+    onboardingMessage.textContent =
+        currentTarget.message;
+
+    /* ----------------------------------
+       STEP
+    ---------------------------------- */
+
+    const totalSteps =
+        targets.length;
+
+    onboardingStep.textContent =
+        `${onboardingCurrentStep + 1} / ${totalSteps}`;
+
+    /* ----------------------------------
+       BUTTON
+    ---------------------------------- */
+
+    onboardingAction.textContent =
+        onboardingCurrentStep ===
+        totalSteps - 1
+            ? "Got it"
+            : "Next";
+
+    /* ----------------------------------
+       SHOW OVERLAY FIRST
+       SO TOOLTIP HAS REAL DIMENSIONS
+    ---------------------------------- */
+
+    orderOnboarding?.classList.remove(
+        "hidden"
+    );
+
+    orderOnboarding?.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    /* ----------------------------------
+       POSITION AFTER RENDER
+    ---------------------------------- */
+
+    requestAnimationFrame(() => {
+
+        positionOnboardingTooltip(
+            rect
+        );
+    
+    });
+    
+
+}
+
+/* ------------------------------------------
+   TOOLTIP POSITION
+------------------------------------------ */
+
+function positionOnboardingTooltip(
+    targetRect
+){
+
+    if(!onboardingTooltip){
+        return;
+    }
+
+    const tooltipRect =
+        onboardingTooltip.getBoundingClientRect();
+
+    const spacing = 14;
+    const viewportPadding = 20;
+
+    let top;
+    let left;
+
+    /* ----------------------------------
+       HORIZONTAL POSITION
+    ---------------------------------- */
+
+    left =
+        targetRect.left +
+        (
+            targetRect.width -
+            tooltipRect.width
+        ) / 2;
+
+    left = Math.max(
+        viewportPadding,
+        Math.min(
+            left,
+            window.innerWidth -
+            tooltipRect.width -
+            viewportPadding
+        )
+    );
+
+    /* ----------------------------------
+       AVAILABLE SPACE
+    ---------------------------------- */
+
+    const spaceBelow =
+        window.innerHeight -
+        targetRect.bottom -
+        viewportPadding;
+
+    const spaceAbove =
+        targetRect.top -
+        viewportPadding;
+
+    /* ----------------------------------
+       PLACE BELOW
+    ---------------------------------- */
+
+    if(
+        spaceBelow >=
+        tooltipRect.height +
+        spacing
+    ){
+
+        top =
+            targetRect.bottom +
+            spacing;
+
+        onboardingTooltip.classList.remove(
+            "tooltip-above"
+        );
+
+    }
+
+    /* ----------------------------------
+       PLACE ABOVE
+    ---------------------------------- */
+
+    else if(
+        spaceAbove >=
+        tooltipRect.height +
+        spacing
+    ){
+
+        top =
+            targetRect.top -
+            tooltipRect.height -
+            spacing;
+
+        onboardingTooltip.classList.add(
+            "tooltip-above"
+        );
+
+    }
+
+    /* ----------------------------------
+       IF NEITHER SIDE HAS ENOUGH ROOM
+    ---------------------------------- */
+
+    else{
+
+        top =
+            Math.max(
+                viewportPadding,
+                Math.min(
+                    targetRect.bottom +
+                    spacing,
+                    window.innerHeight -
+                    tooltipRect.height -
+                    viewportPadding
+                )
+            );
+
+        onboardingTooltip.classList.remove(
+            "tooltip-above"
+        );
+
+    }
+
+    onboardingTooltip.style.top =
+        `${top}px`;
+
+    onboardingTooltip.style.left =
+        `${left}px`;
+}
+
+
+
+
+
+/* ------------------------------------------
+   FINISH
+------------------------------------------ */
+
+function finishOrderOnboarding(){
+
+    orderOnboarding?.classList.add(
+        "hidden"
+    );
+
+    orderOnboarding?.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+}
+
+
+/* ------------------------------------------
+   KEEP POSITION CORRECT
+------------------------------------------ */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        if(
+            orderOnboarding?.classList.contains(
+                "hidden"
+            )
+        ){
+            return;
+        }
+
+        showOnboardingStep();
+    }
+);
+
+let onboardingScrollTick = false;
+
+window.addEventListener(
+    "scroll",
+    () => {
+        if(
+            orderOnboarding?.classList.contains("hidden") ||
+            onboardingScrollTick
+        ){
+            return;
+        }
+
+        onboardingScrollTick = true;
+
+        requestAnimationFrame(() => {
+            onboardingScrollTick = false;
+            showOnboardingStep();
+        });
+    },
+    {
+        passive: true
+    }
+);
+
+
+const onboardingStartTarget =
+    document.getElementById(
+        "currentOrderCard"
+    );
+
+if(onboardingStartTarget){
+
+    observeOnboardingTarget(
+        onboardingStartTarget
+    );
+
+}
+
+
 
 
