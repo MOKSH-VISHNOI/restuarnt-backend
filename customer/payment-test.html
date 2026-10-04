@@ -60,11 +60,11 @@
 
     <h2>Yatharth Payment Test</h2>
 
-    <p>Order #407</p>
-    <p>Amount: ₹50</p>
+    <p>Order #410</p>
+    <p>Amount: ₹100</p>
 
     <button id="payButton">
-      Pay ₹50
+      Pay ₹100
     </button>
 
     <div id="status"></div>
@@ -74,7 +74,7 @@
   <script>
     const API_URL = "http://localhost:5000";
 
-    const orderId = 407;
+    const orderId = 410;
 
     async function startPayment() {
       const status = document.getElementById("status");
@@ -106,7 +106,7 @@
 
         // 2. Open Razorpay Checkout
         const options = {
-          key: "rzp_test_TjWIgA6g3eEIJp",
+          key: "rzp_test_Tjv9yCEOXdi5D3",
 
           amount: razorpayOrder.amount,
 

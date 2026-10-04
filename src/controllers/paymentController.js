@@ -205,36 +205,95 @@ const verifyRazorpayPayment = async (req, res) => {
             .includes("water")
       );
 
-    // 6. Update payment + release order
-    const updatedPayment =
-      await prisma.payment.update({
-        where: {
-          id: payment.id,
-        },
+    // 6. Update payment + generate token + release order
+const result = await prisma.$transaction(async (tx) => {
+
+  // Mark payment as successful
+  const updatedPayment =
+    await tx.payment.update({
+      where: {
+        id: payment.id,
+      },
+      data: {
+        status: "SUCCESS",
+        gatewayPaymentId:
+          razorpay_payment_id,
+      },
+    });
+
+  // Generate token only after successful payment
+  const today = new Date();
+
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  let counter =
+    await tx.dailyTokenCounter.findUnique({
+      where: {
+        counterDate: today,
+      },
+    });
+
+  if (!counter) {
+    counter =
+      await tx.dailyTokenCounter.create({
         data: {
-          status: "SUCCESS",
-          gatewayPaymentId:
-            razorpay_payment_id,
+          counterDate: today,
+          lastToken: 100,
         },
       });
+  }
 
-    const updatedOrder =
-      await prisma.order.update({
-        where: {
-          id: order.id,
+  counter =
+    await tx.dailyTokenCounter.update({
+      where: {
+        id: counter.id,
+      },
+      data: {
+        lastToken: {
+          increment: 1,
         },
-        data: {
-          status: isWaterOnly
-            ? "READY"
-            : "PLACED",
+      },
+    });
 
-          placedAt: new Date(),
+  const tokenNumber =
+    counter.lastToken;
 
-          readyAt: isWaterOnly
-            ? new Date()
-            : null,
-        },
-      });
+  // Release order into restaurant workflow
+  const updatedOrder =
+    await tx.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        tokenNumber,
+
+        status: isWaterOnly
+          ? "READY"
+          : "PLACED",
+
+        placedAt: new Date(),
+
+        readyAt: isWaterOnly
+          ? new Date()
+          : null,
+      },
+    });
+
+  return {
+    updatedPayment,
+    updatedOrder,
+  };
+});
+
+const {
+  updatedPayment,
+  updatedOrder,
+} = result;
 
     // 7. Notify the restaurant
     const io = req.app.get("io");

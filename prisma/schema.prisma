@@ -46,7 +46,7 @@ model Order {
   createdAt   DateTime    @default(now())
   placedAt     DateTime?
   branchId    Int
-  tokenNumber Int
+  tokenNumber Int?
   orderSource OrderSource @default(QR)
 
   collectedAt DateTime?

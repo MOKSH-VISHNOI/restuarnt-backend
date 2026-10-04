@@ -76,78 +76,52 @@ const createOrder = async (req, res) => {
 
 
     // ==========================================
-    // DAILY TOKEN
-    // ==========================================
+// DAILY TOKEN
+// ==========================================
 
-    const today = new Date();
+let tokenNumber = null;
 
-    today.setHours(
+if (!paymentRequired) {
+  const today = new Date();
 
-      0,
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
 
-      0,
+  let counter =
+    await prisma.dailyTokenCounter.findUnique({
+      where: {
+        counterDate: today
+      }
+    });
 
-      0,
-
-      0
-
-    );
-
-    let counter =
-
-      await prisma.dailyTokenCounter.findUnique({
-
-        where:{
-
-          counterDate:today
-
-        }
-
-      });
-
-    if(!counter){
-
-      counter =
-
-        await prisma.dailyTokenCounter.create({
-
-          data:{
-
-            counterDate:today,
-
-            lastToken:100
-
-          }
-
-        });
-
-    }
-
+  if (!counter) {
     counter =
-
-      await prisma.dailyTokenCounter.update({
-
-        where:{
-
-          id:counter.id
-
-        },
-
-        data:{
-
-          lastToken:{
-
-            increment:1
-
-          }
-
+      await prisma.dailyTokenCounter.create({
+        data: {
+          counterDate: today,
+          lastToken: 100
         }
-
       });
+  }
 
-    const tokenNumber =
+  counter =
+    await prisma.dailyTokenCounter.update({
+      where: {
+        id: counter.id
+      },
+      data: {
+        lastToken: {
+          increment: 1
+        }
+      }
+    });
 
-      counter.lastToken;
+  tokenNumber = counter.lastToken;
+}
 
     // ==========================================
     // CREATE ORDER
