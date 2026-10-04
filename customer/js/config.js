@@ -17,7 +17,7 @@ const CONFIG = {
     // APIz
     
     apiBaseUrl:
-        "https://fitting-runs-powell-reaction.trycloudflare.com",
+        "http://localhost:5000",
         
     // Theme
 

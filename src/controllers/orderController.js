@@ -4,7 +4,11 @@ const createOrder = async (req, res) => {
 
   try {
 
-    const { branchId, items } = req.body;
+    const {
+      branchId,
+      items,
+      paymentRequired = false
+    } = req.body;
 
     let totalAmount = 0;
 
@@ -161,16 +165,20 @@ const createOrder = async (req, res) => {
 
           totalAmount,
 
-          status:isWaterOnly
-
+          status: paymentRequired
+          ? "PENDING_PAYMENT"
+          : isWaterOnly
             ? "READY"
-
             : "PLACED",
-
-          readyAt:isWaterOnly
-
+        
+        placedAt: paymentRequired
+          ? null
+          : new Date(),
+        
+        readyAt: paymentRequired
+          ? null
+          : isWaterOnly
             ? new Date()
-
             : null,
 
           items:{
@@ -209,42 +217,34 @@ const createOrder = async (req, res) => {
       });
 
     // ==========================================
-    // SOCKET EVENTS
-    // ==========================================
+// SOCKET EVENTS
+// ==========================================
 
-    const io =
+const io = req.app.get("io");
 
-      req.app.get("io");
+if (!paymentRequired) {
 
-    if(isWaterOnly){
+  if (isWaterOnly) {
 
-      io.emit(
+    io.emit(
+      "ORDER_READY",
+      order
+    );
 
-        "ORDER_READY",
+    io.emit(
+      "DISPLAY_REFRESH"
+    );
 
-        order
+  } else {
 
-      );
+    io.emit(
+      "NEW_ORDER",
+      order
+    );
 
-      io.emit(
+  }
 
-        "DISPLAY_REFRESH"
-
-      );
-
-    }
-
-    else{
-
-      io.emit(
-
-        "NEW_ORDER",
-
-        order
-
-      );
-
-    }
+}
 
     // ==========================================
     // RESPONSE

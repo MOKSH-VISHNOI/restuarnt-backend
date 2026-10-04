@@ -224,11 +224,14 @@ function renderOrders(orders) {
                 ? `<div class="new-badge">NEW</div>`
                 : "";
 
-        const orderAge =
-            getOrderAge(order.createdAt);
-
-        const ageClass =
-            getAgeClass(order.createdAt);
+            const orderStartTime =
+                order.placedAt || order.createdAt;
+            
+            const orderAge =
+                getOrderAge(orderStartTime);
+            
+            const ageClass =
+                getAgeClass(orderStartTime);
 
         card.innerHTML = `
             ${badgeHtml}
@@ -243,10 +246,10 @@ function renderOrders(orders) {
 
             <div
                 class="time-section ${ageClass}"
-                data-created-at="${order.createdAt}"
-            >
-                ${orderAge}
-            </div>
+                data-placed-at="${orderStartTime}"
+>
+    ${orderAge}
+</div>
         `;
 
 
@@ -493,13 +496,16 @@ setInterval(() => {
 
     timers.forEach(timer => {
 
-        const createdAt =
-            timer.dataset.createdAt;
+        const placedAt =
+            timer.dataset.placedAt;
 
-        if (!createdAt) return;
+        if (!placedAt) return;
 
         timer.textContent =
-            getOrderAge(createdAt);
+            getOrderAge(placedAt);
+
+        timer.className =
+            `time-section ${getAgeClass(placedAt)}`;
 
     });
 

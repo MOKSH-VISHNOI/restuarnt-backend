@@ -44,8 +44,11 @@ model Order {
   status      OrderStatus @default(PLACED)
   totalAmount Float
   createdAt   DateTime    @default(now())
+  placedAt     DateTime?
   branchId    Int
   tokenNumber Int
+  orderSource OrderSource @default(QR)
+
   collectedAt DateTime?
   notes       String?
   readyAt     DateTime?
@@ -53,6 +56,7 @@ model Order {
   branch      Branch      @relation(fields: [branchId], references: [id])
   items       OrderItem[]
   feedback    Feedback?
+  payments Payment[]
 }
 
 model OrderItem {
@@ -62,6 +66,32 @@ model OrderItem {
   menuItemId Int
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
   order      Order    @relation(fields: [orderId], references: [id])
+}
+
+model Payment {
+  id Int @id @default(autoincrement())
+
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id])
+
+  amount Float
+
+  status PaymentStatus @default(PENDING)
+  method PaymentMethod?
+
+  gateway String?
+  gatewayOrderId String?
+  gatewayPaymentId String?
+
+  refundedAmount Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  refundedAt DateTime?
+
+  @@index([orderId])
+  @@index([status])
+  @@index([gatewayPaymentId])
 }
 
 model Feedback {
@@ -78,10 +108,36 @@ model Feedback {
 }
 
 enum OrderStatus {
+  PENDING_PAYMENT
   PLACED
   PREPARING
   READY
   COLLECTED
+}
+
+enum OrderSource {
+  QR
+  COUNTER
+  ONLINE
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  NETBANKING
+  WALLET
+  CASH
+  OTHER
 }
 
 model DailyTokenCounter {

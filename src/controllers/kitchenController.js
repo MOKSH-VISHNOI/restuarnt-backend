@@ -16,6 +16,7 @@ const getKitchenOrders = async (req, res) => {
         tokenNumber: true,
         status: true,
         createdAt: true,
+        placedAt: true,
 
         items: {
           select: {
@@ -32,7 +33,7 @@ const getKitchenOrders = async (req, res) => {
       },
 
       orderBy: {
-        createdAt: "asc"
+        placedAt: "asc"
       }
     });
 
