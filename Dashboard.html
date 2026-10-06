@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yatharth™ - Real Operations. Real Clarity. | Owner Dashboard</title>
+
+  <!-- Google Fonts: Poppins & Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500;1,600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================
+       YATHARTH DESIGN SYSTEM - DESIGN TOKENS
+    ========================================== */
+    :root {
+      --color-primary-accent: #E5A93C;
+      --color-primary-hover: #F5BA4E;
+      --color-accent-light: rgba(229, 169, 60, 0.12);
+      --color-accent-border: rgba(229, 169, 60, 0.28);
+
+      --color-bg-base: #0A0D14;
+      --color-bg-sidebar: #0E121B;
+      --color-bg-surface: #121722;
+      --color-bg-card: #151B27;
+      --color-bg-card-hover: #1A2232;
+      --color-bg-subtle: #1C2436;
+
+      --color-border-subtle: rgba(255, 255, 255, 0.07);
+      --color-border-default: #1E2738;
+      --color-border-hover: #2B374E;
+
+      --font-family-sans: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-family-serif: 'Playfair Display', 'Georgia', serif;
+
+      --color-text-primary: #FFFFFF;
+      --color-text-secondary: #94A3B8;
+      --color-text-muted: #64748B;
+      --color-text-accent: #E5A93C;
+
+      --color-success: #10B981;
+      --color-success-bg: rgba(16, 185, 129, 0.12);
+      --color-warning: #F59E0B;
+      --color-warning-bg: rgba(245, 158, 11, 0.12);
+      --color-danger: #EF4444;
+      --color-danger-bg: rgba(239, 68, 68, 0.12);
+      --color-info: #3B82F6;
+      --color-info-bg: rgba(59, 130, 246, 0.12);
+
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-20: 20px;
+      --space-24: 24px;
+      --space-32: 32px;
+
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 24px;
+      --radius-pill: 999px;
+
+      --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.35);
+      --sidebar-width: 250px;
+      --topbar-height: 70px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family-sans);
+      background-color: var(--color-bg-base);
+      color: var(--color-text-primary);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================
+       SIDEBAR
+    ========================================== */
+    .owner-sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background-color: var(--color-bg-sidebar);
+      border-right: 1px solid var(--color-border-subtle);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: var(--space-24) var(--space-16);
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-section {
+      padding: 0 var(--space-8) var(--space-20);
+    }
+
+    .brand-title {
+      font-family: var(--font-family-serif);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-primary-accent);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .brand-tm {
+      font-size: 11px;
+      vertical-align: super;
+      font-family: var(--font-family-sans);
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    .brand-tagline {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #B5935A;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      flex: 1;
+      margin-top: var(--space-8);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+      color: var(--color-text-primary);
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(229, 169, 60, 0.18) 0%, rgba(229, 169, 60, 0.06) 100%);
+      color: #F8D18C;
+      font-weight: 600;
+      border-left: 3px solid var(--color-primary-accent);
+    }
+
+    .nav-icon {
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+    }
+
+    .sidebar-quote-card {
+      margin-top: auto;
+      border-radius: var(--radius-md);
+      padding: var(--space-16);
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(25, 32, 46, 0.85) 0%, rgba(10, 13, 20, 0.98) 100%),
+                  radial-gradient(circle at 75% 25%, rgba(229, 169, 60, 0.22) 0%, transparent 60%);
+      border: 1px solid var(--color-border-subtle);
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .quote-text {
+      font-family: var(--font-family-serif);
+      font-style: italic;
+      font-size: 12.5px;
+      line-height: 1.4;
+      color: #E2E8F0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .quote-author {
+      font-size: 10.5px;
+      color: #B5935A;
+      margin-top: var(--space-8);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ==========================================
+       MAIN CONTENT & TOPBAR
+    ========================================== */
+    .owner-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background-color: var(--color-bg-base);
+    }
+
+    .owner-topbar {
+      height: var(--topbar-height);
+      padding: 0 var(--space-32);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border-subtle);
+      background-color: rgba(14, 18, 27, 0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-20);
+    }
+
+    .select-btn {
+      background-color: var(--color-bg-card);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .select-btn:hover {
+      background-color: var(--color-bg-card-hover);
+      border-color: var(--color-border-hover);
+    }
+
+    .select-chevron {
+      color: var(--color-text-muted);
+      font-size: 10px;
+      margin-left: 2px;
+    }
+
+    .live-indicator-pill {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      background-color: rgba(16, 185, 129, 0.08);
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background-color: var(--color-success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--color-success);
+      animation: pulse-dot 2s infinite ease-in-out;
+    }
+
+    .icon-btn {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 7px;
+      height: 7px;
+      background-color: var(--color-danger);
+      border-radius: 50%;
+      border: 1.5px solid var(--color-bg-card);
+    }
+
+    .user-profile-pill {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      cursor: pointer;
+      padding: 4px 8px 4px 4px;
+      border-radius: var(--radius-pill);
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #B58A3E 0%, #E5A93C 100%);
+      color: #0A0D14;
+      font-weight: 700;
+      font-size: 12px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+
+    /* ==========================================
+       DASHBOARD CONTENT
+    ========================================== */
+    .dashboard-content {
+      padding: var(--space-24) var(--space-32) var(--space-40);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-24);
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .greeting-section {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .greeting-title {
+      font-family: var(--font-family-serif);
+      font-size: 30px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      color: var(--color-text-primary);
+    }
+
+    .greeting-subtitle {
+      font-size: 13.5px;
+      color: var(--color-text-secondary);
+      margin-top: 4px;
+    }
+
+    .header-meta-pill {
+      font-size: 12.5px;
+      color: var(--color-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+      background-color: var(--color-bg-surface);
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--color-border-subtle);
+    }
+
+    .header-meta-pill strong {
+      color: var(--color-text-primary);
+    }
+
+    /* ==========================================
+       KPI METRICS
+    ========================================== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-16);
+    }
+
+    .kpi-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+      padding: var(--space-20);
+      background-color: var(--color-bg-card);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      transition: all 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--color-border-hover);
+      transform: translateY(-1px);
+    }
+
+    .kpi-icon-container {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      flex-shrink: 0;
+    }
+
+    .kpi-icon-container.orders { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+    .kpi-icon-container.revenue { background: rgba(59, 130, 246, 0.15); color: #3B82F6; }
+    .kpi-icon-container.aov { background: rgba(139, 92, 246, 0.15); color: #A78BFA; }
+    .kpi-icon-container.prep { background: rgba(234, 179, 8, 0.15); color: #FACC15; }
+    .kpi-icon-container.collection { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+
+    .kpi-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-top: 2px;
+      letter-spacing: -0.2px;
+    }
+
+    /* ==========================================
+       TWO COLUMN GRIDS & CARDS
+    ========================================== */
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: var(--space-16);
+    }
+
+    .dash-card {
+      background-color: var(--color-bg-card);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      padding: var(--space-20);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .dash-card:hover {
+      border-color: var(--color-border-hover);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--space-16);
+    }
+
+    .card-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    .card-action-link {
+      font-size: 12px;
+      font-weight: 500;
+      color: #B5935A;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-action-link:hover {
+      color: var(--color-primary-accent);
+    }
+
+    /* ==========================================
+       LIVE OPERATIONS TILES
+    ========================================== */
+    .live-ops-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-12);
+      margin-top: var(--space-8);
+    }
+
+    .live-ops-tile {
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .live-ops-tile:hover {
+      transform: translateY(-2px);
+    }
+
+    .live-ops-tile.placed {
+      background: linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.02) 100%);
+      border-color: rgba(59, 130, 246, 0.25);
+    }
+
+    .live-ops-tile.preparing {
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.02) 100%);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+
+    .live-ops-tile.ready {
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+
+    .live-ops-tile.delayed {
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 100%);
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+
+    .tile-icon { font-size: 18px; margin-bottom: var(--space-8); }
+    .live-ops-tile.placed .tile-icon { color: #60A5FA; }
+    .live-ops-tile.preparing .tile-icon { color: #FBBF24; }
+    .live-ops-tile.ready .tile-icon { color: #34D399; }
+    .live-ops-tile.delayed .tile-icon { color: #F87171; }
+
+    .tile-label { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+    .tile-value { font-size: 26px; font-weight: 700; color: var(--color-text-primary); margin-top: 4px; }
+
+    /* ==========================================
+       ORDER ACTIVITY BAR CHART
+    ========================================== */
+    .chart-toggle-group {
+      display: flex;
+      background-color: var(--color-bg-subtle);
+      border-radius: var(--radius-pill);
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .chart-toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--color-text-secondary);
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chart-toggle-btn.active {
+      background-color: #E5A93C;
+      color: #0A0D14;
+      font-weight: 600;
+    }
+
+    .bar-chart-container {
+      width: 100%;
+      height: 180px;
+      position: relative;
+      margin-top: var(--space-12);
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .grid-line {
+      stroke: rgba(255, 255, 255, 0.05);
+      stroke-dasharray: 2, 2;
+      stroke-width: 1;
+    }
+
+    .axis-text {
+      fill: var(--color-text-muted);
+      font-size: 10px;
+      font-family: var(--font-family-sans);
+    }
+
+    .chart-bar {
+      fill: #A07428;
+      cursor: pointer;
+      transition: fill 0.2s ease;
+      rx: 3px;
+    }
+
+    .chart-bar:hover, .chart-bar.active-peak {
+      fill: #F5BA4E;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      background-color: #1A2232;
+      border: 1px solid var(--color-border-hover);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--color-text-primary);
+      pointer-events: none;
+      transform: translate(-50%, -100%);
+      margin-top: -8px;
+      white-space: nowrap;
+      box-shadow: var(--shadow-sm);
+      z-index: 30;
+      display: none;
+    }
+
+    .chart-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid #1A2232;
+    }
+
+    /* ==========================================
+       STORE PERFORMANCE TABLE
+    ========================================== */
+    .store-table-container {
+      overflow-x: auto;
+      margin-top: var(--space-8);
+    }
+
+    .store-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .store-table th {
+      padding: 10px 14px;
+      color: var(--color-text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+
+    .store-table td {
+      padding: 12px 14px;
+      color: var(--color-text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .store-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.02);
+      color: var(--color-text-primary);
+    }
+
+    .store-name-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      color: var(--color-text-primary);
+      font-weight: 500;
+    }
+
+    .store-icon-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      background-color: var(--color-bg-subtle);
+      border: 1px solid var(--color-border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .delayed-badge.has-delay { color: var(--color-danger); font-weight: 600; }
+    .delayed-badge.zero-delay { color: var(--color-text-muted); }
+
+    /* ==========================================
+       PAYMENT METHODS DONUT
+    ========================================== */
+    .payment-methods-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-20);
+      margin-top: var(--space-8);
+    }
+
+    .donut-chart-wrapper {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .donut-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .donut-segment {
+      fill: none;
+      stroke-width: 18;
+      transition: stroke-width 0.3s ease;
+      cursor: pointer;
+    }
+
+    .donut-segment:hover { stroke-width: 22; }
+
+    .donut-center-info {
+      position: absolute;
+      text-align: center;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .donut-center-amount { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
+    .donut-center-label { font-size: 10px; color: var(--color-text-muted); text-transform: uppercase; margin-top: 1px; }
+
+    .payment-legend-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-8);
+      flex: 1;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12.5px;
+    }
+
+    .legend-label-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .legend-name { color: var(--color-text-secondary); font-weight: 500; }
+    .legend-percent { font-weight: 600; color: var(--color-text-primary); }
+
+    .payment-status-pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-8);
+      margin-top: var(--space-16);
+      padding-top: var(--space-12);
+      border-top: 1px solid var(--color-border-subtle);
+    }
+
+    .payment-status-pill {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+    }
+
+    .status-pill-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    .payment-status-pill.success .status-pill-icon { background: var(--color-success-bg); color: var(--color-success); }
+    .payment-status-pill.failed .status-pill-icon { background: var(--color-danger-bg); color: var(--color-danger); }
+    .payment-status-pill.refunded .status-pill-icon { background: var(--color-warning-bg); color: var(--color-warning); }
+
+    .status-pill-label { font-size: 10px; color: var(--color-text-muted); }
+    .status-pill-value { font-size: 13px; font-weight: 700; color: var(--color-text-primary); }
+
+    /* ==========================================
+       OPERATIONAL SIGNALS
+    ========================================== */
+    .signals-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-16);
+    }
+
+    .signal-card {
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-12);
+      transition: all 0.2s ease;
+    }
+
+    .signal-card:hover {
+      background-color: rgba(255, 255, 255, 0.04);
+      border-color: var(--color-border-hover);
+    }
+
+    .signal-icon-wrapper {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 15px;
+    }
+
+    .signal-card.danger .signal-icon-wrapper { background: var(--color-danger-bg); color: var(--color-danger); }
+    .signal-card.warning .signal-icon-wrapper { background: var(--color-warning-bg); color: var(--color-warning); }
+    .signal-card.info .signal-icon-wrapper { background: var(--color-info-bg); color: var(--color-info); }
+
+    .signal-text { font-size: 12.5px; font-weight: 600; color: var(--color-text-primary); line-height: 1.3; }
+    .signal-subtext { font-size: 11px; color: var(--color-text-muted); margin-top: 2px; }
+
+    @keyframes pulse-dot {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    @media (max-width: 1300px) {
+      .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+      .two-col-grid { grid-template-columns: 1fr; }
+      .signals-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================
+       LEFT SIDEBAR NAVIGATION
+  ========================================== -->
+  <aside class="owner-sidebar">
+    <div class="sidebar-top">
+      <div class="brand-section">
+        <h1 class="brand-title">
+          Yatharth<span class="brand-tm">™</span>
+        </h1>
+        <p class="brand-tagline">REAL OPERATIONS. REAL CLARITY.</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#overview" class="nav-item active">
+          <span class="nav-icon">⊞</span>
+          <span>Overview</span>
+        </a>
+        <a href="#live-orders" class="nav-item">
+          <span class="nav-icon">📶</span>
+          <span>Live Orders</span>
+        </a>
+        <a href="#stores" class="nav-item">
+          <span class="nav-icon">🏪</span>
+          <span>Stores</span>
+        </a>
+        <a href="#payments" class="nav-item">
+          <span class="nav-icon">💳</span>
+          <span>Payments</span>
+        </a>
+        <a href="#orders" class="nav-item">
+          <span class="nav-icon">📋</span>
+          <span>Orders</span>
+        </a>
+        <a href="#analytics" class="nav-item">
+          <span class="nav-icon">📊</span>
+          <span>Analytics</span>
+        </a>
+        <a href="#reports" class="nav-item">
+          <span class="nav-icon">📑</span>
+          <span>Reports</span>
+        </a>
+        <a href="#settings" class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Atmospheric Quote Container -->
+    <div class="sidebar-quote-card">
+      <p class="quote-text">“Great operations create great experiences.”</p>
+      <p class="quote-author">Yatharth</p>
+    </div>
+  </aside>
+
+  <!-- ==========================================
+       MAIN VIEWPORT
+  ========================================== -->
+  <div class="owner-main">
+
+    <!-- Topbar Header -->
+    <header class="owner-topbar">
+      <div class="topbar-left">
+        <button class="select-btn" type="button">
+          <span>🏪</span>
+          <span id="selectedStoreLabel">All Stores (4)</span>
+          <span class="select-chevron">▼</span>
+        </button>
+
+        <button class="select-btn" type="button">
+          <span>📅</span>
+          <span>Today</span>
+          <span class="select-chevron">▼</span>
+        </button>
+      </div>
+
+      <div class="topbar-right">
+        <div class="live-indicator-pill">
+          <span class="live-dot"></span>
+          <span>Live data</span>
+          <span style="opacity: 0.4;">|</span>
+          <span id="lastSyncedTime">Last synced 9:14 PM</span>
+        </div>
+
+        <button class="icon-btn" type="button" aria-label="Notifications">
+          <span>🔔</span>
+          <span class="notification-badge"></span>
+        </button>
+
+        <div class="user-profile-pill">
+          <div class="user-avatar">RV</div>
+          <div class="user-info">
+            <span class="user-name">Rohit Verma</span>
+            <span class="user-role">Owner</span>
+          </div>
+          <span class="select-chevron" style="margin-left: 6px;">▼</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Content -->
+    <main class="dashboard-content">
+
+      <!-- Greeting & Executive Meta Summary -->
+      <section class="greeting-section">
+        <div>
+          <h2 id="greetingText" class="greeting-title">Good evening, Rohit.</h2>
+          <p class="greeting-subtitle">Here's what's happening across your restaurants today.</p>
+        </div>
+        <div class="header-meta-pill">
+          <span id="metaStoresCount">4 stores</span>
+          <span style="opacity: 0.3;">•</span>
+          <strong id="metaOrdersToday">428 orders today</strong>
+          <span style="opacity: 0.3;">•</span>
+          <strong id="metaRevenueToday">₹ 51,360 revenue</strong>
+        </div>
+      </section>
+
+      <!-- 1. Five Top KPI Metrics -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon-container orders">🛒</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Total Orders</span>
+            <span id="kpiTotalOrders" class="kpi-value">428</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon-container revenue">₹</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Total Revenue</span>
+            <span id="kpiTotalRevenue" class="kpi-value">₹ 51,360</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon-container aov">📈</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Average Order Value</span>
+            <span id="kpiAvgOrderValue" class="kpi-value">₹ 120</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon-container prep">⏱️</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Avg. Preparation Time</span>
+            <span id="kpiAvgPrepTime" class="kpi-value">8m 24s</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon-container collection">👥</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Avg. Collection Time</span>
+            <span id="kpiAvgCollectionTime" class="kpi-value">2m 11s</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Mid Section: Live Operations + Order Activity Chart -->
+      <section class="two-col-grid">
+        <div class="dash-card">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <h3 class="card-title">
+                <span class="live-dot" style="display:inline-block; margin-right:4px;"></span>
+                Live Operations
+              </h3>
+              <p class="card-subtitle">Current order status across all selected stores</p>
+            </div>
+          </div>
+
+          <div class="live-ops-grid">
+            <div class="live-ops-tile placed">
+              <span class="tile-icon">📑</span>
+              <span class="tile-label">Placed</span>
+              <span id="livePlacedCount" class="tile-value">8</span>
+            </div>
+
+            <div class="live-ops-tile preparing">
+              <span class="tile-icon">👨‍🍳</span>
+              <span class="tile-label">Preparing</span>
+              <span id="livePreparingCount" class="tile-value">17</span>
+            </div>
+
+            <div class="live-ops-tile ready">
+              <span class="tile-icon">🛎️</span>
+              <span class="tile-label">Ready</span>
+              <span id="liveReadyCount" class="tile-value">6</span>
+            </div>
+
+            <div class="live-ops-tile delayed">
+              <span class="tile-icon">⏰</span>
+              <span class="tile-label">Delayed</span>
+              <span id="liveDelayedCount" class="tile-value">3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <h3 class="card-title">Order Activity</h3>
+              <p class="card-subtitle">Orders throughout the day</p>
+            </div>
+            <div class="chart-toggle-group">
+              <button id="toggleChartOrders" class="chart-toggle-btn active" type="button">Orders</button>
+              <button id="toggleChartRevenue" class="chart-toggle-btn" type="button">Revenue</button>
+            </div>
+          </div>
+
+          <div id="orderActivityChart" class="bar-chart-container">
+            <!-- Dynamic SVG Chart renders here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Lower Section: Store Performance + Payment Methods -->
+      <section class="two-col-grid">
+        <div class="dash-card">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <h3 class="card-title">
+                <span>🏪</span> Store Performance
+              </h3>
+              <p class="card-subtitle">Overview of all stores for the selected period</p>
+            </div>
+            <a href="#stores" class="card-action-link">View All Stores &rarr;</a>
+          </div>
+
+          <div class="store-table-container">
+            <table class="store-table">
+              <thead>
+                <tr>
+                  <th>Store</th>
+                  <th>Orders</th>
+                  <th>Revenue</th>
+                  <th>Avg. Prep Time</th>
+                  <th>Delayed</th>
+                </tr>
+              </thead>
+              <tbody id="storePerformanceTableBody">
+                <!-- Store rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="dash-card">
+          <div class="card-header-row">
+            <div class="card-title-group">
+              <h3 class="card-title">Payment Methods</h3>
+              <p class="card-subtitle">Distribution of successful payments</p>
+            </div>
+            <a href="#payments" class="card-action-link">View Details &rarr;</a>
+          </div>
+
+          <div class="payment-methods-content">
+            <div id="donutChartContainer" class="donut-chart-wrapper">
+              <div class="donut-center-info">
+                <span id="donutCenterRevenue" class="donut-center-amount">₹ 51,360</span>
+                <span class="donut-center-label">Total Revenue</span>
+              </div>
+            </div>
+
+            <div id="paymentLegendList" class="payment-legend-list">
+              <!-- Payment legend items -->
+            </div>
+          </div>
+
+          <div class="payment-status-pills">
+            <div class="payment-status-pill success">
+              <div class="status-pill-icon">✓</div>
+              <div class="status-pill-text">
+                <span class="status-pill-label">Successful</span>
+                <span id="paymentSuccessCount" class="status-pill-value">423</span>
+              </div>
+            </div>
+
+            <div class="payment-status-pill failed">
+              <div class="status-pill-icon">✕</div>
+              <div class="status-pill-text">
+                <span class="status-pill-label">Failed</span>
+                <span id="paymentFailedCount" class="status-pill-value">4</span>
+              </div>
+            </div>
+
+            <div class="payment-status-pill refunded">
+              <div class="status-pill-icon">↻</div>
+              <div class="status-pill-text">
+                <span class="status-pill-label">Refunded</span>
+                <span id="paymentRefundedCount" class="status-pill-value">2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Bottom Section: Operational Signals -->
+      <section class="dash-card">
+        <div class="card-header-row" style="margin-bottom: 12px;">
+          <div class="card-title-group">
+            <h3 class="card-title">
+              <span>⚡</span> Operational Signals
+            </h3>
+            <p class="card-subtitle">Key events to keep an eye on</p>
+          </div>
+          <a href="#signals" class="card-action-link">View All &rarr;</a>
+        </div>
+
+        <div id="operationalSignalsContainer" class="signals-grid">
+          <!-- Dynamic signal cards -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // ==========================================
+    // STANDALONE DATA & CHART CONTROLLER
+    // ==========================================
+    const DASHBOARD_DATA = {
+      summary: {
+        totalOrders: 428,
+        totalRevenue: 51360,
+        averageOrderValue: 120,
+        avgPrepTime: "8m 24s",
+        avgCollectionTime: "2m 11s",
+        storesCount: 4
+      },
+      liveOperations: { placed: 8, preparing: 17, ready: 6, delayed: 3 },
+      hourlyActivity: [
+        { hour: "8 AM", orders: 6, revenue: 720 },
+        { hour: "9 AM", orders: 12, revenue: 1440 },
+        { hour: "10 AM", orders: 18, revenue: 2160 },
+        { hour: "11 AM", orders: 24, revenue: 2880 },
+        { hour: "12 PM", orders: 36, revenue: 4320 },
+        { hour: "1 PM", orders: 22, revenue: 2640 },
+        { hour: "2 PM", orders: 30, revenue: 3600 },
+        { hour: "3 PM", orders: 38, revenue: 4560 },
+        { hour: "4 PM", orders: 40, revenue: 4800 },
+        { hour: "5 PM", orders: 52, revenue: 6240 },
+        { hour: "6 PM", orders: 50, revenue: 6000 },
+        { hour: "7 PM", orders: 62, revenue: 7440, isPeak: true },
+        { hour: "8 PM", orders: 44, revenue: 5280 },
+        { hour: "9 PM", orders: 22, revenue: 2640 },
+        { hour: "10 PM", orders: 12, revenue: 1440 }
+      ],
+      storePerformance: [
+        { name: "Indore - 1", orders: 152, revenue: 18240, avgPrepTime: "7m 42s", delayed: 1 },
+        { name: "Indore - 2", orders: 139, revenue: 16680, avgPrepTime: "8m 31s", delayed: 2 },
+        { name: "Indore - 3", orders: 91, revenue: 10920, avgPrepTime: "9m 14s", delayed: 0 },
+        { name: "Indore - 4", orders: 46, revenue: 5520, avgPrepTime: "10m 02s", delayed: 0 }
+      ],
+      paymentMethods: {
+        totalRevenue: 51360,
+        distribution: [
+          { name: "UPI", percentage: 45, color: "#3B82F6" },
+          { name: "Card", percentage: 28, color: "#06B6D4" },
+          { name: "Cash", percentage: 18, color: "#EF4444" },
+          { name: "Other", percentage: 9, color: "#8B5CF6" }
+        ],
+        statuses: { successful: 423, failed: 4, refunded: 2 }
+      },
+      signals: [
+        { type: "danger", message: "5 orders exceeded 10 minutes", subtext: "in the last 1 hour", icon: "❗" },
+        { type: "warning", message: "3 ready orders not yet collected", subtext: "waiting for more than 5 minutes", icon: "⏱️" },
+        { type: "danger", message: "4 payment attempts failed", subtext: "in the last 2 hours", icon: "⚠️" },
+        { type: "info", message: "42 orders received in last 30 min", subtext: "Higher than usual", icon: "ℹ️" }
+      ]
+    };
+
+    let currentMetric = "orders";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Dynamic Greeting
+      const hour = new Date().getHours();
+      let timeOfDay = "evening";
+      if (hour >= 5 && hour < 12) timeOfDay = "morning";
+      else if (hour >= 12 && hour < 17) timeOfDay = "afternoon";
+      document.getElementById("greetingText").textContent = `Good ${timeOfDay}, Rohit.`;
+
+      // Render Charts & Tables
+      renderBarChart(DASHBOARD_DATA.hourlyActivity, currentMetric);
+      renderDonutChart(DASHBOARD_DATA.paymentMethods);
+      renderStoreTable(DASHBOARD_DATA.storePerformance);
+      renderSignals(DASHBOARD_DATA.signals);
+      bindToggleEvents();
+
+      // Try connecting to live API if server is up
+      tryFetchLiveOverview();
+    });
+
+    async function tryFetchLiveOverview() {
+      try {
+        const res = await fetch("/api/owner/overview");
+        if (res.ok) {
+          const liveData = await res.json();
+          if (liveData && liveData.summary) {
+            document.getElementById("kpiTotalOrders").textContent = liveData.summary.totalOrders.toLocaleString();
+            document.getElementById("kpiTotalRevenue").textContent = "₹ " + liveData.summary.totalRevenue.toLocaleString();
+            document.getElementById("kpiAvgOrderValue").textContent = "₹ " + liveData.summary.averageOrderValue.toLocaleString();
+            if (liveData.liveOperations) {
+              document.getElementById("livePlacedCount").textContent = liveData.liveOperations.placed;
+              document.getElementById("livePreparingCount").textContent = liveData.liveOperations.preparing;
+              document.getElementById("liveReadyCount").textContent = liveData.liveOperations.ready;
+              document.getElementById("liveDelayedCount").textContent = liveData.liveOperations.delayed;
+            }
+          }
+        }
+      } catch (e) {
+        // Fallback data already active
+      }
+    }
+
+    // Render Hourly Bar Chart
+    function renderBarChart(data, metric) {
+      const container = document.getElementById("orderActivityChart");
+      const svgWidth = 620, svgHeight = 170, pL = 32, pR = 16, pT = 20, pB = 30;
+      const cW = svgWidth - pL - pR, cH = svgHeight - pT - pB;
+      const values = data.map(d => d[metric]);
+      const maxVal = metric === "orders" ? Math.max(80, Math.ceil(Math.max(...values) / 20) * 20) : Math.ceil(Math.max(...values) / 1000) * 1000;
+
+      let svg = `<svg class="chart-svg" viewBox="0 0 ${svgWidth} ${svgHeight}">
+        <defs>
+          <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#E5A93C"/>
+            <stop offset="100%" stop-color="#9E6F22"/>
+          </linearGradient>
+          <linearGradient id="peakGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#FFCE73"/>
+            <stop offset="100%" stop-color="#D4952B"/>
+          </linearGradient>
+        </defs>`;
+
+      for (let i = 0; i <= 4; i++) {
+        const stepVal = Math.round((maxVal / 4) * (4 - i));
+        const yPos = pT + (cH / 4) * i;
+        svg += `<line x1="${pL}" y1="${yPos}" x2="${svgWidth - pR}" y2="${yPos}" class="grid-line"/>
+                <text x="${pL - 8}" y="${yPos + 3}" text-anchor="end" class="axis-text">${metric === 'revenue' ? '₹' + stepVal : stepVal}</text>`;
+      }
+
+      const barW = 14;
+      const space = cW / data.length;
+      data.forEach((item, idx) => {
+        const val = item[metric];
+        const barH = Math.max(4, (val / maxVal) * cH);
+        const x = pL + idx * space + (space - barW) / 2;
+        const y = pT + cH - barH;
+        const isPeak = item.isPeak || val === Math.max(...values);
+        svg += `<rect class="chart-bar ${isPeak ? 'active-peak' : ''}" x="${x}" y="${y}" width="${barW}" height="${barH}" rx="3"
+                  fill="${isPeak ? 'url(#peakGrad)' : 'url(#barGrad)'}" data-hour="${item.hour}" data-val="${val}" data-x="${x + barW/2}" data-y="${y}"/>`;
+        if (idx % 2 === 0 || idx === data.length - 1) {
+          svg += `<text x="${x + barW / 2}" y="${svgHeight - 10}" text-anchor="middle" class="axis-text">${item.hour}</text>`;
+        }
+      });
+      svg += `</svg><div class="chart-tooltip" id="chartTooltip"></div>`;
+      container.innerHTML = svg;
+
+      const tooltip = document.getElementById("chartTooltip");
+      container.querySelectorAll(".chart-bar").forEach(bar => {
+        bar.addEventListener("mouseenter", () => {
+          const hour = bar.getAttribute("data-hour");
+          const val = bar.getAttribute("data-val");
+          const x = parseFloat(bar.getAttribute("data-x"));
+          const y = parseFloat(bar.getAttribute("data-y"));
+          tooltip.innerHTML = `<strong>${hour}</strong> • ${metric === 'revenue' ? '₹ ' + Number(val).toLocaleString() : val + ' orders'}`;
+          const svgEl = container.querySelector(".chart-svg").getBoundingClientRect();
+          tooltip.style.left = `${(x * (svgEl.width / svgWidth))}px`;
+          tooltip.style.top = `${(y * (svgEl.height / svgHeight))}px`;
+          tooltip.style.display = "block";
+        });
+        bar.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
+      });
+    }
+
+    // Render Donut Chart
+    function renderDonutChart(payment) {
+      const container = document.getElementById("donutChartContainer");
+      const size = 170, center = size / 2, strokeW = 18, radius = (size - strokeW) / 2 - 4;
+      const circum = 2 * Math.PI * radius;
+      let accum = 0, paths = "";
+
+      payment.distribution.forEach(item => {
+        const seg = item.percentage / 100;
+        const dash = seg * circum;
+        paths += `<circle class="donut-segment" cx="${center}" cy="${center}" r="${radius}" stroke="${item.color}"
+                    stroke-dasharray="${dash} ${circum - dash}" stroke-dashoffset="${-(accum * circum)}"/>`;
+        accum += seg;
+      });
+
+      const donutSvg = `<svg class="donut-svg" viewBox="0 0 ${size} ${size}">${paths}</svg>
+        <div class="donut-center-info">
+          <span class="donut-center-amount">₹ ${payment.totalRevenue.toLocaleString()}</span>
+          <span class="donut-center-label">Total Revenue</span>
+        </div>`;
+      container.innerHTML = donutSvg;
+
+      document.getElementById("paymentLegendList").innerHTML = payment.distribution.map(item => `
+        <div class="legend-item">
+          <div class="legend-label-group">
+            <span class="legend-dot" style="background-color: ${item.color};"></span>
+            <span class="legend-name">${item.name}</span>
+          </div>
+          <span class="legend-percent">${item.percentage}%</span>
+        </div>`).join("");
+    }
+
+    // Render Table & Signals
+    function renderStoreTable(stores) {
+      document.getElementById("storePerformanceTableBody").innerHTML = stores.map(s => `
+        <tr>
+          <td><div class="store-name-cell"><div class="store-icon-badge">🏪</div><span>${s.name}</span></div></td>
+          <td>${s.orders}</td>
+          <td>₹ ${s.revenue.toLocaleString()}</td>
+          <td>${s.avgPrepTime}</td>
+          <td><span class="delayed-badge ${s.delayed > 0 ? 'has-delay' : 'zero-delay'}">${s.delayed}</span></td>
+        </tr>`).join("");
+    }
+
+    function renderSignals(signals) {
+      document.getElementById("operationalSignalsContainer").innerHTML = signals.map(s => `
+        <div class="signal-card ${s.type}">
+          <div class="signal-icon-wrapper">${s.icon}</div>
+          <div><div class="signal-text">${s.message}</div><div class="signal-subtext">${s.subtext}</div></div>
+        </div>`).join("");
+    }
+
+    function bindToggleEvents() {
+      const btnOrders = document.getElementById("toggleChartOrders");
+      const btnRev = document.getElementById("toggleChartRevenue");
+      btnOrders.addEventListener("click", () => {
+        if (currentMetric === "orders") return;
+        currentMetric = "orders";
+        btnOrders.classList.add("active");
+        btnRev.classList.remove("active");
+        renderBarChart(DASHBOARD_DATA.hourlyActivity, "orders");
+      });
+      btnRev.addEventListener("click", () => {
+        if (currentMetric === "revenue") return;
+        currentMetric = "revenue";
+        btnRev.classList.add("active");
+        btnOrders.classList.remove("active");
+        renderBarChart(DASHBOARD_DATA.hourlyActivity, "revenue");
+      });
+    }
+  </script>
+</body>
+</html>

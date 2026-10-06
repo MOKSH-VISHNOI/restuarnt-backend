@@ -335,3 +335,42 @@ async function checkServer(){
 
 }
 
+
+// ==========================================
+// CREATE RAZORPAY PAYMENT ORDER
+// ==========================================
+
+async function createPaymentOrder(orderId){
+
+    return await request(
+        "/api/payments/razorpay/order",
+        {
+            method:"POST",
+
+            body:JSON.stringify({
+                orderId
+            })
+        }
+    );
+
+}
+
+
+// ==========================================
+// VERIFY RAZORPAY PAYMENT
+// ==========================================
+
+async function verifyPayment(paymentData){
+
+    return await request(
+        "/api/payments/razorpay/verify",
+        {
+            method:"POST",
+
+            body:JSON.stringify(
+                paymentData
+            )
+        }
+    );
+
+}

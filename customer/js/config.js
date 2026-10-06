@@ -17,7 +17,13 @@ const CONFIG = {
     // APIz
     
     apiBaseUrl:
-        "http://localhost:5000",
+        "https://mistress-circular-plot-colored.trycloudflare.com",
+
+
+    // Razorpay
+    razorpayKeyId:
+        "rzp_test_Tjv9yCEOXdi5D3",
+  
         
     // Theme
 
