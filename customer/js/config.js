@@ -17,7 +17,7 @@ const CONFIG = {
     // APIz
     
     apiBaseUrl:
-        "https://mistress-circular-plot-colored.trycloudflare.com",
+        "https://nissan-yeah-chocolate-expiration.trycloudflare.com",
 
 
     // Razorpay

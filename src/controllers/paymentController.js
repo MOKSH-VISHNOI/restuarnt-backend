@@ -32,23 +32,7 @@ const createPaymentOrder = async (req, res) => {
       });
     }
 
-    // 2. Check if this order is already successfully paid
-
-      const successfulPayment = order.payments.find(
-        (payment) =>
-          payment.status === "SUCCESS" &&
-          payment.gateway === "RAZORPAY" &&
-          payment.gatewayOrderId === razorpay_order_id
-      );
-
-      if (successfulPayment) {
-        return res.status(200).json({
-          success: true,
-          message: "Payment already processed",
-          payment: successfulPayment,
-          order,
-        });
-      }
+    
 
     // 3. Reuse an existing pending Razorpay payment if available
     const pendingPayment = order.payments.find(
@@ -290,25 +274,31 @@ const verifyRazorpayPayment = async (req, res) => {
     counter.lastToken;
 
   // Release order into restaurant workflow
-  const updatedOrder =
-    await tx.order.update({
-      where: {
-        id: order.id,
+  const updatedOrder = await tx.order.update({
+    where: {
+      id: order.id,
+    },
+    data: {
+      tokenNumber,
+  
+      status: isWaterOnly
+        ? "READY"
+        : "PLACED",
+  
+      placedAt: new Date(),
+  
+      readyAt: isWaterOnly
+        ? new Date()
+        : null,
+    },
+    include: {
+      items: {
+        include: {
+          menuItem: true,
+        },
       },
-      data: {
-        tokenNumber,
-
-        status: isWaterOnly
-          ? "READY"
-          : "PLACED",
-
-        placedAt: new Date(),
-
-        readyAt: isWaterOnly
-          ? new Date()
-          : null,
-      },
-    });
+    },
+  });
 
   return {
     updatedPayment,
@@ -579,7 +569,7 @@ const handleRazorpayWebhook = async (req, res) => {
       const updatedOrder =
         await tx.order.update({
           where: {
-            id: payment.order.id,
+            id: order.id,
           },
           data: {
             tokenNumber,
