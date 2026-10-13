@@ -17,7 +17,7 @@ const CONFIG = {
     // APIz
     
     apiBaseUrl:
-        "https://nissan-yeah-chocolate-expiration.trycloudflare.com",
+        "https://her-cumulative-characters-constitutes.trycloudflare.com",
 
 
     // Razorpay

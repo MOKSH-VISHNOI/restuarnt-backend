@@ -83,6 +83,7 @@ model Payment {
   gatewayOrderId String?
   gatewayPaymentId String?
 
+  idempotencyKey String? @unique
   webhookEventId String? @unique
 
   refundedAmount Float @default(0)
@@ -133,6 +134,13 @@ enum PaymentStatus {
   PARTIALLY_REFUNDED
 }
 
+enum WebhookEventStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
+  FAILED
+}
+
 enum PaymentMethod {
   UPI
   CARD
@@ -148,4 +156,31 @@ model DailyTokenCounter {
   counterDate DateTime @unique
 
   lastToken Int
+}
+
+model WebhookEvent {
+  id Int @id @default(autoincrement())
+
+  gateway String
+  eventType String
+
+  // Gateway-provided event ID, if available.
+  externalEventId String?
+
+  // Payment and order identifiers extracted from the payload.
+  gatewayPaymentId String?
+  gatewayOrderId String?
+
+  status WebhookEventStatus @default(RECEIVED)
+
+  receivedAt DateTime @default(now())
+  processedAt DateTime?
+
+  processingAttempts Int @default(0)
+  lastError String?
+
+  @@unique([gateway, externalEventId])
+  @@index([gateway, gatewayPaymentId])
+  @@index([gateway, gatewayOrderId])
+  @@index([status, receivedAt])
 }

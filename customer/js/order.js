@@ -2,6 +2,7 @@
 // YATHARTH ORDER ENGINE
 // ==========================================
 
+let pendingPaymentOrderId = null;
 
 // ==========================================
 // DOM
@@ -71,13 +72,22 @@ async function placeOrder(){
         // 1. CREATE PENDING PAYMENT ORDER
         // ==========================================
 
-        const order =
-            await createOrder(
-                orderData
-            );
+        let order;
+
+        if (pendingPaymentOrderId !== null) {
+            // Reuse the restaurant order from the previous attempt.
+            order = {
+                id: pendingPaymentOrderId
+            };
+        } else {
+            // Create the restaurant order only once.
+            order = await createOrder(orderData);
+
+            pendingPaymentOrderId = order.id;
+        }
 
         console.log(
-            "Pending Payment Order Created:",
+            "Pending Payment Order:",
             order
         );
 
@@ -86,9 +96,26 @@ async function placeOrder(){
         // 2. CREATE RAZORPAY PAYMENT ORDER
         // ==========================================
 
+        // Reuse the key if this exact request is retried.
+        const idempotencyStorageKey =
+            `yatharth_payment_attempt_${order.id}`;
+
+        let idempotencyKey =
+            sessionStorage.getItem(idempotencyStorageKey);
+
+        if (!idempotencyKey) {
+            idempotencyKey = crypto.randomUUID();
+
+        sessionStorage.setItem(
+            idempotencyStorageKey,
+            idempotencyKey
+        );
+        }
+
         const paymentOrder =
             await createPaymentOrder(
-                order.id
+                order.id,
+                idempotencyKey
             );
 
         console.log(

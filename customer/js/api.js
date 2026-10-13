@@ -340,21 +340,21 @@ async function checkServer(){
 // CREATE RAZORPAY PAYMENT ORDER
 // ==========================================
 
-async function createPaymentOrder(orderId){
-
+async function createPaymentOrder(orderId, idempotencyKey) {
     return await request(
         "/api/payments/razorpay/order",
         {
-            method:"POST",
-
-            body:JSON.stringify({
-                orderId
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                orderId,
+                idempotencyKey
             })
         }
     );
-
 }
-
 
 // ==========================================
 // VERIFY RAZORPAY PAYMENT
