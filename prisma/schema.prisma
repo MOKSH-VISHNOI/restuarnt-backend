@@ -44,10 +44,12 @@ model Order {
   status      OrderStatus @default(PLACED)
   totalAmount Float
   createdAt   DateTime    @default(now())
-  placedAt     DateTime?
+  placedAt    DateTime?
   branchId    Int
   tokenNumber Int?
   orderSource OrderSource @default(QR)
+  idempotencyKey String? @unique
+  paymentRequired Boolean @default(false)
 
   collectedAt DateTime?
   notes       String?
@@ -56,7 +58,7 @@ model Order {
   branch      Branch      @relation(fields: [branchId], references: [id])
   items       OrderItem[]
   feedback    Feedback?
-  payments Payment[]
+  payments    Payment[]
 }
 
 model OrderItem {
@@ -76,25 +78,63 @@ model Payment {
 
   amount Float
 
-  status PaymentStatus @default(PENDING)
+  status PaymentStatus  @default(PENDING)
   method PaymentMethod?
 
-  gateway String?
-  gatewayOrderId String?
+  gateway          String?
+  gatewayOrderId   String?
   gatewayPaymentId String?
 
   idempotencyKey String? @unique
   webhookEventId String? @unique
 
+  transactions PaymentTransaction[]
+  refunds      PaymentRefund[]
+
   refundedAmount Float @default(0)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
   refundedAt DateTime?
+  expiresAt  DateTime?
 
   @@index([orderId])
   @@index([status])
   @@index([gatewayPaymentId])
+  @@index([status, expiresAt])
+}
+
+model PaymentTransaction {
+  id               Int                  @id @default(autoincrement())
+  paymentId        Int
+  payment          Payment              @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  gatewayPaymentId String               @unique
+  refundRequestKey String?              @unique
+  status           GatewayPaymentStatus @default(PENDING)
+  amountMinor      Int
+  currency         String               @default("INR")
+  method           String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  @@index([paymentId, status])
+  @@index([status])
+}
+
+model PaymentRefund {
+  id              Int                 @id @default(autoincrement())
+  paymentId       Int
+  payment         Payment             @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  idempotencyKey  String              @unique
+  gatewayRefundId String?             @unique
+  amountMinor     Int
+  currency        String              @default("INR")
+  status          RefundAttemptStatus @default(PENDING)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  processedAt     DateTime?
+
+  @@index([paymentId, status])
 }
 
 model Feedback {
@@ -112,6 +152,7 @@ model Feedback {
 
 enum OrderStatus {
   PENDING_PAYMENT
+  PAYMENT_ABANDONED
   PLACED
   PREPARING
   READY
@@ -127,11 +168,28 @@ enum OrderSource {
 
 enum PaymentStatus {
   PENDING
+  PROCESSING
   SUCCESS
   FAILED
   CANCELLED
+  TIMED_OUT
   REFUNDED
   PARTIALLY_REFUNDED
+}
+
+enum GatewayPaymentStatus {
+  PENDING
+  AUTHORIZED
+  FAILED
+  CAPTURED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum RefundAttemptStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }
 
 enum WebhookEventStatus {
@@ -161,7 +219,7 @@ model DailyTokenCounter {
 model WebhookEvent {
   id Int @id @default(autoincrement())
 
-  gateway String
+  gateway   String
   eventType String
 
   // Gateway-provided event ID, if available.
@@ -169,15 +227,15 @@ model WebhookEvent {
 
   // Payment and order identifiers extracted from the payload.
   gatewayPaymentId String?
-  gatewayOrderId String?
+  gatewayOrderId   String?
 
   status WebhookEventStatus @default(RECEIVED)
 
-  receivedAt DateTime @default(now())
+  receivedAt  DateTime  @default(now())
   processedAt DateTime?
 
-  processingAttempts Int @default(0)
-  lastError String?
+  processingAttempts Int     @default(0)
+  lastError          String?
 
   @@unique([gateway, externalEventId])
   @@index([gateway, gatewayPaymentId])

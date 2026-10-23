@@ -51,21 +51,27 @@ async function request(
 
         );
 
-        if(
+        let result;
 
-            !response.ok
-
-        ){
-
-            throw new Error(
-
-                `HTTP ${response.status}`
-
-            );
-
+        try{
+            result = await response.json();
+        }
+        catch{
+            result = {};
         }
 
-        return await response.json();
+        if(!response.ok){
+            const apiError = new Error(
+                result.message || `HTTP ${response.status}`
+            );
+
+            apiError.status = response.status;
+            apiError.code = result.code;
+
+            throw apiError;
+        }
+
+        return result;
 
     }
 
@@ -351,6 +357,31 @@ async function createPaymentOrder(orderId, idempotencyKey) {
             body: JSON.stringify({
                 orderId,
                 idempotencyKey
+            })
+        }
+    );
+}
+
+// ==========================================
+// GET PAYMENT ATTEMPTS FOR ORDER (RECOVERY)
+// ==========================================
+
+async function getPaymentAttempts(orderId) {
+    return await request(
+        `/api/payments/order/${orderId}/attempts`
+    );
+}
+
+// Ask the backend to fetch and reconcile the exact payment reported by
+// Razorpay Checkout. The browser's failure callback is never treated as proof.
+async function reconcilePaymentFailure(orderId, paymentData) {
+    return await request(
+        "/api/payments/razorpay/reconcile-failure",
+        {
+            method: "POST",
+            body: JSON.stringify({
+                orderId,
+                ...paymentData
             })
         }
     );

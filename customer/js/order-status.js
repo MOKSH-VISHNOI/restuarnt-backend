@@ -13,6 +13,8 @@ const tokenNumber =
         "tokenNumber"
     );
 
+const tokenCard = document.querySelector(".token-card");
+
 const progressContainer =
 
     document.getElementById(
@@ -281,6 +283,8 @@ if(placeAnotherOrder){
     placeAnotherOrder.addEventListener(
         "click",
         () => {
+
+            sessionStorage.removeItem("yatharth_pending_payment_order_id");
 
             window.location.href =
                 "./index.html";
@@ -1304,7 +1308,7 @@ function renderOtherOrders(){
         </span>
     
         <span class="other-order-status ${order.status.toLowerCase()}">
-            ${formatOrderStatus(order.status)}
+            ${formatOrderStatus(order.status, order.paymentState)}
         </span>
     `;
 
@@ -1440,9 +1444,15 @@ function selectOrder(orderId){
 // FORMAT ORDER STATUS
 // ==========================================
 
-function formatOrderStatus(status){
+function formatOrderStatus(status, paymentState){
 
     switch(status){
+
+        case "PENDING_PAYMENT":
+        case "PAYMENT_ABANDONED":
+            return paymentState === "ATTEMPTS_EXHAUSTED" || paymentState === "RETRY_AVAILABLE"
+                ? "Payment Failed"
+                : "Payment Pending";
 
         case "PLACED":
 
@@ -1689,6 +1699,26 @@ function updateStatus(){
     );
 
     switch(selectedOrder.status){
+
+        case "PENDING_PAYMENT":
+        case "PAYMENT_ABANDONED":
+
+            if(selectedOrder.paymentState === "ATTEMPTS_EXHAUSTED"){
+                statusTitle.textContent = "Payment Failed";
+                statusMessage.textContent =
+                    `The maximum of ${selectedOrder.maxPaymentAttempts || 3} payment attempts was reached. This order was not sent to the kitchen.`;
+            }else if(selectedOrder.paymentState === "RETRY_AVAILABLE"){
+                statusTitle.textContent = "Payment Failed";
+                statusMessage.textContent = "This payment attempt failed. The order was not sent to the kitchen.";
+            }else if(selectedOrder.paymentState === "CONFIRMING"){
+                statusTitle.textContent = "Confirming Payment";
+                statusMessage.textContent = "We are confirming your payment with Razorpay. This order has not been sent to the kitchen yet.";
+            }else{
+                statusTitle.textContent = "Payment Pending";
+                statusMessage.textContent = "Complete payment to confirm your order. It will reach the kitchen only after payment is captured.";
+            }
+
+            break;
 
         // ======================================
         // ORDER RECEIVED
@@ -2543,9 +2573,13 @@ function renderSelectedOrder(){
 
     }
 
-    tokenNumber.textContent =
-
-        selectedOrder.tokenNumber;
+    tokenNumber.textContent = selectedOrder.tokenNumber ?? "—";
+    tokenCard?.classList.toggle("hidden", selectedOrder.tokenNumber == null);
+    if(placeAnotherOrder){
+        placeAnotherOrder.disabled =
+            selectedOrder.status === "PENDING_PAYMENT" &&
+            selectedOrder.paymentState !== "ATTEMPTS_EXHAUSTED";
+    }
 
     updateStatus();
 

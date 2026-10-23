@@ -1,5 +1,2 @@
-const { PrismaClient } = require("@prisma/client");
-
-const prisma = new PrismaClient();
-
-module.exports = prisma;
+// Keep every controller on the same Prisma client/configuration path.
+module.exports = require("../lib/prisma");

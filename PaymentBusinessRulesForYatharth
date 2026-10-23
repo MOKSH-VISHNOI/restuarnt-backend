@@ -1,0 +1,133 @@
+# 💳 Payment Module — Important Business Rules
+
+> **Legend:** Rules 1–7 are from the original spec. Rules 8–14 are additional critical rules recommended for a production-grade payment system.
+
+> Dated: 13/10/26 (Tuesday)
+> These rules are **non-negotiable** and must be enforced throughout the entire payment module development.
+
+---
+
+## Rule 1 — Create the Restaurant Order Only Once
+- A restaurant order must be created **exactly once** per customer order.
+- Duplicate order creation must be prevented at all costs (database-level + application-level guards).
+
+---
+
+## Rule 2 — Preserve Every Payment Attempt
+- Every single payment attempt must be **recorded and persisted**, regardless of success or failure.
+- **Example:**
+  - Order #105
+    - Attempt 1 → ❌ Failed  *(still saved)*
+    - Attempt 2 → ❌ Failed  *(still saved)*
+    - Attempt 3 → ✅ Success *(still saved)*
+- No attempt should ever be silently discarded.
+
+---
+
+## Rule 3 — Implement Proper Idempotency
+- All payment-related API endpoints must be **idempotent**.
+- Retrying the same request must never produce duplicate side effects (e.g., double charges, double order creation).
+- Use idempotency keys tied to the order + attempt context.
+
+---
+
+## Rule 4 — Don't Allow Overlapping Payment Attempts
+- For a given order, only **one active payment attempt** can be in-flight at a time.
+- A new attempt must not be initiated while another attempt is still pending/processing.
+- This prevents race conditions and double-charge scenarios.
+
+---
+
+## Rule 5 — Never Release an Unpaid Order Into the Kitchen
+- An order must **only reach the kitchen** after payment is confirmed successful.
+- No partial payment or pending-state order should trigger kitchen dispatch.
+
+---
+
+## Rule 6 — Generate Token Exactly Once
+- Payment tokens (e.g., session tokens, gateway tokens) must be generated **exactly once** per payment flow.
+- Token reuse or regeneration mid-flow is not allowed.
+
+---
+
+## Rule 7 — Handle Delayed Payment Success
+- The system must gracefully handle **webhooks or callbacks that arrive late**.
+- If a payment success notification is delayed, the system must:
+  - Correctly update the order status
+  - Trigger kitchen dispatch (if not already done)
+  - Not create duplicate state transitions
+
+---
+
+## ✅ Additional Recommended Rules
+
+---
+
+## Rule 8 — Enforce a Strict Payment Status State Machine
+- Payment status must **only move forward** through a defined set of states.
+- Allowed transitions only:
+  ```
+  PENDING → PROCESSING → SUCCESS
+                       → FAILED
+                       → TIMED_OUT
+  ```
+- Any backward or invalid transition (e.g., `SUCCESS → FAILED`) must be **rejected at the application layer**.
+- This prevents webhook race conditions from corrupting order state.
+
+---
+
+## Rule 9 — Verify Amount Before Confirming Payment
+- Before marking a payment as `SUCCESS`, **always verify** that the amount received from the gateway matches the order amount.
+- If amounts don't match → reject and flag as anomaly, **never auto-confirm**.
+- Protects against partial payments being treated as full payments.
+
+---
+
+## Rule 10 — Set a Maximum Attempt Limit Per Order
+- An order must not allow **unlimited payment retries**.
+- Define a hard cap (e.g., **max 5 attempts** per order).
+- After the limit is hit → mark the order as `PAYMENT_ABANDONED` and notify the customer.
+- Prevents abuse and infinite loop scenarios.
+
+---
+
+## Rule 11 — Every Payment Attempt Must Have an Expiry (TTL)
+- A payment attempt that receives **no response within a defined window** (e.g., 10–15 minutes) must be automatically marked as `TIMED_OUT`.
+- The system must never leave an attempt in `PENDING` or `PROCESSING` state indefinitely.
+- Use a background job/scheduler to sweep and expire stale attempts.
+- Ties directly into Rule 4 — an expired attempt must **release the lock** so a new attempt can begin.
+
+---
+
+## Rule 12 — Always Verify Webhook Signatures
+- Every incoming payment webhook must be **cryptographically verified** against the gateway's signature.
+- Reject and log any webhook that fails signature verification — never process it.
+- Prevents spoofed/fake payment success notifications.
+
+---
+
+## Rule 13 — Order Amount is Immutable After Confirmation
+- Once an order is confirmed and payment is initiated, the **order total must not change**.
+- Any modification to items/price after payment has started requires cancellation of the current payment and re-initiation.
+- Prevents amount mismatch between what the customer paid and what the system thinks they paid.
+
+---
+
+## Rule 14 — Payment & Order Status Updates Must Be Atomic
+- Updating `payment_attempt.status` and `order.status` must happen inside a **single database transaction**.
+- If either update fails, both must be rolled back.
+- Prevents split-brain state where payment shows `SUCCESS` but the order still shows `PENDING` (or vice versa).
+
+---
+
+## Rule 15 — Never Log or Store Raw Sensitive Payment Data
+- Raw card numbers, CVVs, or full PAN must **never** appear in logs, database, or error messages.
+- Only store gateway-provided tokens or masked representations (e.g., last 4 digits).
+- Even in error scenarios — sanitize before logging.
+
+---
+
+## Rule 16 — Refund Must Be Tied to a Verified Successful Payment
+- A refund can only be initiated if there is a corresponding **confirmed successful payment attempt** for that order.
+- Refund amount must **never exceed** the original payment amount.
+- Each refund must be recorded as its own audit entry.

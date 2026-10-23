@@ -1,0 +1,381 @@
+# 🛠️ Payment Module — Complete Development Plan
+
+> Based on full codebase audit as of 20 Oct 2026.
+> Gateway: **Razorpay** | Stack: **Node.js + Prisma + PostgreSQL + Socket.IO**
+
+---
+
+## 📊 Current State Audit
+
+### ✅ Already Built & Working
+| Component | File | Status |
+|-----------|------|--------|
+| `createPaymentOrder` controller | `paymentController.js` | ✅ Complete |
+| `verifyRazorpayPayment` controller | `paymentController.js` | ✅ Complete |
+| `reconcileCheckoutFailure` controller | `paymentController.js` | ✅ Complete |
+| `handleRazorpayWebhook` controller | `paymentController.js` | ✅ Complete |
+| `getPaymentAttemptsForOrder` controller | `paymentController.js` | ✅ Complete |
+| `confirmCapturedPayment()` (core atomic fn) | `paymentController.js` | ✅ Complete |
+| `recordFailedPayment()` | `paymentController.js` | ✅ Complete |
+| `reconcilePendingPayment()` | `paymentController.js` | ✅ Complete |
+| Razorpay service wrapper | `razorpayService.js` | ✅ Complete |
+| Payment summary utility | `paymentSummary.js` | ✅ Complete |
+| DB schema (Payment, PaymentTransaction, WebhookEvent, etc.) | `schema.prisma` | ✅ Complete |
+| Payment routes | `paymentRoutes.js` | ✅ Complete |
+| Webhook route (raw body middleware) | `paymentWebhookRoutes.js` | ✅ Complete |
+| Unit tests (29 test cases) | `payment-controller.test.js` | ✅ Complete |
+| Socket.IO order notifications | inside `paymentController.js` | ✅ Complete |
+
+### ❌ Not Yet Built / Gaps Found
+| What's Missing | Priority | Notes |
+|----------------|----------|-------|
+| DB schema: `PROCESSING` status missing from `PaymentStatus` enum | 🔴 High | Rule 8 — state machine incomplete |
+| DB schema: `TIMED_OUT` status missing from `PaymentStatus` enum | 🔴 High | Rule 11 |
+| Attempt TTL expiry job (sweep stale `PENDING` attempts) | 🔴 High | Rule 11 |
+| Frontend payment integration (Checkout flow) | 🔴 High | Nothing exists yet |
+| Frontend recovery on reload (poll `/attempts`) | 🔴 High | Phase 4 |
+| Frontend success + failure screens | 🔴 High | UX |
+| `PROCESSING` state transition in `createPaymentOrder` | 🟡 Medium | Rule 8 |
+| Refund endpoints (`POST /refund`) | 🟡 Medium | Rule 16 |
+| Admin/owner dashboard — payment visibility | 🟡 Medium | Business ops |
+| Integration / E2E test (full DB, real HTTP) | 🟡 Medium | Confidence |
+| `RAZORPAY_WEBHOOK_SECRET` env validation on startup | 🟡 Medium | Fail fast |
+| Postman collection for payment flows | 🟢 Low | Developer tooling |
+| API documentation | 🟢 Low | Handover |
+
+---
+
+## 🗺️ Development Milestones
+
+---
+
+## Milestone 1 — Schema Hardening
+**Goal:** Make the DB schema fully reflect the business rules (state machine, TTL support)
+**Estimated effort:** ~1 hour
+
+### Tasks
+
+#### 1.1 — Add `PROCESSING` to `PaymentStatus` enum
+```prisma
+// schema.prisma
+enum PaymentStatus {
+  PENDING
+  PROCESSING   ← ADD THIS
+  SUCCESS
+  FAILED
+  CANCELLED
+  TIMED_OUT    ← ADD THIS
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+```
+**Why:** Rule 8 requires `PENDING → PROCESSING → SUCCESS/FAILED`.
+Right now the controller jumps from `PENDING` directly to `SUCCESS`, which skips `PROCESSING`. The webhook handler does update to `PROCESSING` via `WebhookEvent` but the `Payment` row itself never enters a `PROCESSING` state. This must be explicit.
+
+#### 1.2 — Add `expiresAt` to `Payment` model
+```prisma
+model Payment {
+  ...
+  expiresAt  DateTime?   ← ADD THIS (Rule 11 — TTL)
+}
+```
+**Why:** The expiry job (Milestone 3) needs to know when to time out a stale attempt.
+
+#### 1.3 — Run migration
+```bash
+npx prisma migrate dev --name add_payment_processing_states
+```
+
+#### 1.4 — Update `paymentSummary.js`
+- Add `PROCESSING` and `TIMED_OUT` to the status handling logic in `getPaymentSummary()`.
+- Add new `paymentState` values: `"PROCESSING"`, `"TIMED_OUT"`.
+
+### Acceptance Criteria
+- [ ] Migration runs without errors.
+- [ ] `PROCESSING` and `TIMED_OUT` are valid values in Prisma client.
+- [ ] `getPaymentSummary()` handles the new states without crashing.
+- [ ] Existing 29 unit tests still pass.
+
+---
+
+## Milestone 2 — Controller Hardening
+**Goal:** Apply missing business rules directly to the controller logic
+**Estimated effort:** ~2–3 hours
+
+### Tasks
+
+#### 2.1 — Add `PROCESSING` transition in `createPaymentOrder`
+When a new `Payment` record is created and a Razorpay Order is successfully obtained, immediately transition `Payment` status from `PENDING → PROCESSING` before returning to the frontend.
+
+```
+Create Payment (PENDING)
+    → createRazorpayOrder()
+    → Save gatewayOrderId
+    → Update Payment status = PROCESSING   ← NEW STEP
+    → Return to frontend
+```
+
+**Why:** Rule 8 — while the customer is inside Razorpay Checkout, the attempt should be `PROCESSING`, not `PENDING`. This clearly signals "a live checkout is happening right now."
+
+#### 2.2 — Set `expiresAt` when creating a payment attempt
+When creating a new `Payment` record, set:
+```js
+expiresAt: new Date(now().getTime() + 15 * 60 * 1000) // 15 minutes
+```
+**Why:** Rule 11 — the expiry job (Milestone 3) needs this field.
+
+#### 2.3 — Guard `createPaymentOrder` against `PROCESSING` status
+Update the active attempt detection logic to also treat `PROCESSING` as an active/blocking attempt:
+```js
+// Current check
+item.status === "PENDING"
+// New check
+["PENDING", "PROCESSING"].includes(item.status)
+```
+**Why:** Rule 4 — overlapping attempts must be blocked even if the first is in `PROCESSING`.
+
+#### 2.4 — Validate `RAZORPAY_WEBHOOK_SECRET` on app startup
+In `app.js` or `server.js`, add a startup check:
+```js
+if (!process.env.RAZORPAY_WEBHOOK_SECRET) {
+  console.warn("⚠️  RAZORPAY_WEBHOOK_SECRET is not set. Webhooks will be rejected.");
+}
+```
+**Why:** Fail-fast principle — surface misconfiguration early instead of silently failing at runtime.
+
+#### 2.5 — Update existing unit tests for new state transitions
+- Update tests that assert `status === "PENDING"` mid-flow to assert `status === "PROCESSING"`.
+- Add new test: `"payment transitions to PROCESSING after Razorpay order is created"`.
+- Add new test: `"PROCESSING attempt blocks a new attempt (Rule 4)"`.
+- Add new test: `"expiresAt is set on new payment attempt"`.
+
+### Acceptance Criteria
+- [ ] New payments transition `PENDING → PROCESSING` after Razorpay order creation.
+- [ ] `expiresAt` is populated on every new `Payment` record.
+- [ ] `PROCESSING` attempts block new checkout initiations.
+- [ ] All unit tests pass (including new ones).
+
+---
+
+## Milestone 3 — Attempt Expiry Background Job
+**Goal:** Implement Rule 11 — no attempt stays stuck in PENDING/PROCESSING forever
+**Estimated effort:** ~2 hours
+
+### Tasks
+
+#### 3.1 — Create `src/jobs/paymentExpiryJob.js`
+A periodic job (runs every 5 minutes) that:
+1. Queries `Payment` where `status IN ['PENDING', 'PROCESSING'] AND expiresAt < NOW()`.
+2. For each expired attempt:
+   - Tries to fetch its status from Razorpay one final time.
+   - If Razorpay says `captured` → run `confirmCapturedPayment()`.
+   - If Razorpay says `failed` → run `recordFailedPayment()`.
+   - If Razorpay is unreachable or says `created/authorized` → mark as `TIMED_OUT`.
+3. Logs every expiry action.
+
+```
+File: src/jobs/paymentExpiryJob.js
+```
+
+#### 3.2 — Register the job in `app.js`
+```js
+const { startPaymentExpiryJob } = require('./jobs/paymentExpiryJob');
+startPaymentExpiryJob(); // starts setInterval internally
+```
+
+#### 3.3 — Add unit tests for expiry job
+- Test: expired `PENDING` attempt with no gateway response → marked `TIMED_OUT`.
+- Test: expired attempt where Razorpay says captured → order released.
+- Test: expiry job does not affect non-expired attempts.
+
+### Acceptance Criteria
+- [ ] Job runs every 5 minutes without crashing.
+- [ ] Expired attempts are moved to `TIMED_OUT` (or confirmed if Razorpay has a result).
+- [ ] `TIMED_OUT` attempts release the lock — next attempt can be started.
+- [ ] Razorpay gateway call failures in the job are non-fatal (logged + skipped).
+
+---
+
+## Milestone 4 — Refund Endpoint
+**Goal:** Implement Rule 16 — safe, audited refunds tied to successful payments
+**Estimated effort:** ~2–3 hours
+
+### Tasks
+
+#### 4.1 — Create `POST /api/payments/razorpay/refund`
+**Body:** `{ orderId, amount? }` (amount optional for full refund)
+
+Logic:
+```
+Load Order + Payments
+    → Find Payment with status = SUCCESS
+    → No SUCCESS payment → 400 REFUND_NOT_ELIGIBLE
+    → Refund amount > (payment.amount - payment.refundedAmount) → 400 REFUND_EXCEEDS_PAYMENT
+    → Call gateway.refundPayment(gatewayPaymentId, amount)
+    → On success: update Payment (refundedAmount, status = REFUNDED or PARTIALLY_REFUNDED)
+    → Update Order status as needed
+    → Return updated payment + order
+```
+
+#### 4.2 — Add `refundPayment()` to `razorpayService.js`
+```js
+const refundPayment = async (paymentId, amount) => {
+  const rp = getRazorpay();
+  return rp.payments.refund(paymentId, { amount: Math.round(amount * 100) });
+};
+```
+
+#### 4.3 — Register route in `paymentRoutes.js`
+```
+POST /api/payments/razorpay/refund
+```
+
+#### 4.4 — Add unit tests
+- Test: full refund marks payment `REFUNDED`.
+- Test: partial refund marks payment `PARTIALLY_REFUNDED`, updates `refundedAmount`.
+- Test: refund amount exceeding original payment is rejected.
+- Test: refund on an order with no successful payment is rejected.
+
+### Acceptance Criteria
+- [ ] Refund endpoint is protected behind a check for successful payment.
+- [ ] `refundedAmount` is updated atomically with the status change.
+- [ ] Over-refunding is blocked.
+- [ ] All refund tests pass.
+
+---
+
+## Milestone 5 — Frontend Payment Integration
+**Goal:** Wire up the customer-facing payment flow in the frontend
+**Estimated effort:** ~4–6 hours
+
+### Tasks
+
+#### 5.1 — Install Razorpay Checkout SDK
+Load via CDN in the customer checkout page:
+```html
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+```
+
+#### 5.2 — Implement `initiatePayment(orderId)` function
+```
+On "Pay Now" button click:
+    1. Generate idempotencyKey = `${orderId}-${Date.now()}-${uuid()}`
+       → Store in sessionStorage (for recovery on reload)
+    2. POST /api/payments/razorpay/order
+       → { orderId, idempotencyKey }
+    3. If 200/201 → open Razorpay Checkout with returned razorpayOrder
+    4. On Checkout success callback → POST /api/payments/razorpay/verify
+    5. On Checkout failure callback → POST /api/payments/razorpay/reconcile-failure
+    6. On success → redirect to success screen
+    7. On failure → show retry option (if attemptsRemaining > 0)
+```
+
+#### 5.3 — Implement recovery on page reload
+```
+On page load (order status screen):
+    1. GET /api/payments/order/:orderId/attempts
+    2. Check paymentState in response:
+       - "PAID" → show success screen
+       - "PENDING" / "PROCESSING" → show "Payment in progress" + resume option
+       - "RETRY_AVAILABLE" → show retry button
+       - "ATTEMPTS_EXHAUSTED" → show "Contact restaurant" message
+       - "AWAITING_PAYMENT" → show Pay Now button
+```
+
+#### 5.4 — Build success screen
+- Show order token number.
+- Show order items summary.
+- Show estimated preparation time.
+- Link to order tracking page.
+
+#### 5.5 — Build failure/retry screen
+- Show clear error message.
+- Show remaining attempts count.
+- Retry button (starts new attempt with new idempotencyKey).
+- "Contact restaurant" fallback when attempts exhausted.
+
+### Acceptance Criteria
+- [ ] Full payment flow works end-to-end in browser (manual test).
+- [ ] Page reload during payment resumes correctly.
+- [ ] Success screen shows correct token number.
+- [ ] Retry works after failure with a new idempotencyKey.
+- [ ] Attempts exhausted state shows correct message.
+
+---
+
+## Milestone 6 — Owner Dashboard Payment Visibility
+**Goal:** Give the restaurant owner visibility into payment status per order
+**Estimated effort:** ~2–3 hours
+
+### Tasks
+
+#### 6.1 — Add payment info to `ownerController.js`
+When fetching orders for the dashboard, include payment state:
+- Current `paymentState` (from `getPaymentSummary()`).
+- `paymentAttemptsUsed` / `paymentAttemptsRemaining`.
+- Gateway payment ID (for Razorpay dashboard cross-reference).
+
+#### 6.2 — Add payment status badge to order cards in the dashboard
+- `PENDING_PAYMENT` order → show `💳 Awaiting Payment` badge.
+- `PAID` → show `✅ Paid` badge with amount.
+- `ATTEMPTS_EXHAUSTED` → show `🔴 Payment Failed` badge.
+
+#### 6.3 — Add manual refund trigger in owner dashboard (optional)
+- "Refund" button on a paid, collected order.
+- Calls `POST /api/payments/razorpay/refund`.
+
+### Acceptance Criteria
+- [ ] Owner can see payment status for every order.
+- [ ] `PENDING_PAYMENT` orders are visually distinct from paid orders.
+- [ ] Payment history (all attempts) is accessible per order.
+
+---
+
+## 🔁 Execution Order
+
+```
+Milestone 1 (Schema)
+    ↓
+Milestone 2 (Controller Hardening)
+    ↓
+Milestone 3 (Expiry Job)
+    ↓
+Milestone 4 (Refund)          ← can run parallel with Milestone 5
+Milestone 5 (Frontend)        ← can run parallel with Milestone 4
+    ↓
+Milestone 6 (Dashboard)
+```
+
+---
+
+## 📁 Files to Create / Modify
+
+| File | Action | Milestone |
+|------|--------|-----------|
+| `prisma/schema.prisma` | Modify — add `PROCESSING`, `TIMED_OUT`, `expiresAt` | M1 |
+| `src/utils/paymentSummary.js` | Modify — handle new statuses | M1 |
+| `src/controllers/paymentController.js` | Modify — PROCESSING transition, expiresAt, startup guard | M2 |
+| `test/payment-controller.test.js` | Modify — update + add test cases | M2 |
+| `src/jobs/paymentExpiryJob.js` | **Create** | M3 |
+| `src/app.js` | Modify — register expiry job | M3 |
+| `src/services/razorpayService.js` | Modify — add `refundPayment()` | M4 |
+| `src/controllers/paymentController.js` | Modify — add refund handler | M4 |
+| `src/routes/paymentRoutes.js` | Modify — add refund route | M4 |
+| `frontend/customer/checkout.js` (or equivalent) | **Create** — payment initiation | M5 |
+| `frontend/customer/payment-success.html` | **Create** | M5 |
+| `frontend/customer/payment-failure.html` | **Create** | M5 |
+| `src/controllers/ownerController.js` | Modify — include payment summary | M6 |
+| `owner_dashboard/` (frontend) | Modify — payment badges | M6 |
+
+---
+
+## ✅ Overall Definition of Done
+
+- [ ] All 16 business rules are enforced in code.
+- [ ] All unit tests pass (`npm test`).
+- [ ] Full end-to-end payment works in browser (happy path + failure + reload).
+- [ ] Webhook signature verification is active.
+- [ ] No attempt stays `PENDING`/`PROCESSING` forever (expiry job active).
+- [ ] Refund is protected behind payment confirmation check.
+- [ ] Owner can see payment status on dashboard.
+- [ ] No sensitive data (card numbers, secrets) in logs.

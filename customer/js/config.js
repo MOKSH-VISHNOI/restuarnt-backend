@@ -17,7 +17,7 @@ const CONFIG = {
     // APIz
     
     apiBaseUrl:
-        "https://her-cumulative-characters-constitutes.trycloudflare.com",
+        "https://arise-gauge-definitely-belongs.trycloudflare.com",
 
 
     // Razorpay

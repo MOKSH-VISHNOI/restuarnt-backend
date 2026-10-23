@@ -1,0 +1,283 @@
+# 💳 Payment Module — Deep Inspection & Flowchart
+
+## What the Module Is
+
+The payment module is a **production-grade Razorpay integration** with:
+- A factory function `createPaymentController()` — dependency-injectable for testing
+- 5 exported HTTP handlers
+- A shared in-memory mock (`src/lib/prisma.js`) for unit tests without a DB
+- Client-side orchestration in `customer/js/order.js` and `customer/js/api.js`
+
+---
+
+## Module Files
+
+| File | Role |
+|---|---|
+| [`paymentController.js`](file:///c:/Users/Lenovo/restuarnt-backend/src/controllers/paymentController.js) | All payment logic (1034 lines) |
+| [`paymentRoutes.js`](file:///c:/Users/Lenovo/restuarnt-backend/src/routes/paymentRoutes.js) | Route declarations |
+| [`paymentWebhookRoutes.js`](file:///c:/Users/Lenovo/restuarnt-backend/src/routes/paymentWebhookRoutes.js) | Webhook route (raw body) |
+| [`razorpayService.js`](file:///c:/Users/Lenovo/restuarnt-backend/src/services/razorpayService.js) | Razorpay SDK wrapper |
+| [`paymentSummary.js`](file:///c:/Users/Lenovo/restuarnt-backend/src/utils/paymentSummary.js) | Client-facing payment state machine |
+| [`order.js`](file:///c:/Users/Lenovo/restuarnt-backend/customer/js/order.js) | Frontend: order + payment orchestration |
+| [`api.js`](file:///c:/Users/Lenovo/restuarnt-backend/customer/js/api.js) | Frontend: API calls |
+
+---
+
+## The 5 API Endpoints
+
+| Endpoint | Handler | Purpose |
+|---|---|---|
+| `POST /api/payments/razorpay/order` | `createPaymentOrder` | Create/resume a Razorpay payment attempt |
+| `POST /api/payments/razorpay/verify` | `verifyRazorpayPayment` | Verify payment after Checkout success callback |
+| `POST /api/payments/razorpay/reconcile-failure` | `reconcileCheckoutFailure` | Reconcile failed/dismissed checkout |
+| `POST /api/payments/webhook` | `handleRazorpayWebhook` | Razorpay server-to-server webhook (raw body) |
+| `GET /api/payments/order/:orderId/attempts` | `getPaymentAttemptsForOrder` | Poll/reconcile payment status for recovery |
+
+---
+
+## Complete Payment Flow — Mermaid Diagram
+
+```mermaid
+flowchart TD
+    A([Customer taps Place Order]) --> B[POST /orders\npaymentRequired=true]
+    B --> C{Order created\nstatus=PENDING_PAYMENT\nno token yet}
+    C --> D[Store orderId in\nsessionStorage]
+
+    D --> E[Generate idempotencyKey\nstore in sessionStorage]
+    E --> F[POST /api/payments/razorpay/order]
+
+    F --> F1{Order in\nPENDING_PAYMENT?}
+    F1 -- No --> F_ERR1[409 ORDER_NOT_AWAITING_PAYMENT]
+    F1 -- Yes --> F2{Idempotency key\nalready exists?}
+
+    F2 -- New key --> F3{Attempt limit\nreached ≥3?}
+    F3 -- Yes --> F_ERR2[429 PAYMENT_ATTEMPT_LIMIT]
+    F3 -- No --> F4[Create Payment row\nstatus=PENDING\nno gatewayOrderId yet]
+    F4 --> F5[Call Razorpay orders.create]
+
+    F2 -- Key exists, status=PENDING --> F6{Has gatewayOrderId?}
+    F6 -- No --> RECOVERY[Recovery Path:\nfindRazorpayOrderByReceipt]
+    F6 -- Yes --> EXISTING[Return existing attempt\nreconcile if needed]
+
+    F2 -- Key exists, FAILED/CANCELLED --> F_ERR3[409 PAYMENT_ATTEMPT_FAILED]
+
+    F5 -- Success --> F7[Save gatewayOrderId\nto Payment row]
+    F7 --> F8[201: Return razorpayOrder\npayment, key, amount]
+
+    F5 -- 400/422 from Razorpay --> F9[Mark Payment=FAILED\n502 PAYMENT_ATTEMPT_FAILED]
+    F5 -- Network error --> F10[502 PAYMENT_ATTEMPT_UNRESOLVED]
+
+    F8 --> G[Open Razorpay Checkout\nin browser]
+
+    G --> H{Customer action}
+
+    H -- Pays successfully --> I[Razorpay calls\nhandler callback\nwith payment_id + signature]
+    H -- Dismisses/closes --> J[ondismiss fired\nButton re-enabled\nOrder stays PENDING_PAYMENT]
+    H -- Payment fails --> K[payment.failed event\nwith metadata]
+
+    I --> L[POST /api/payments/razorpay/verify\norderId + 3 Razorpay fields]
+    L --> L1[Fetch payment from Razorpay API\nfor authoritative status]
+    L1 --> L2[HMAC signature verify\ntiming-safe compare]
+    L2 -- Invalid sig --> L_ERR1[400 INVALID_PAYMENT_SIGNATURE]
+    L2 -- Valid --> L3{Gateway status?}
+
+    L3 -- captured --> L4[confirmCapturedPayment\ninside $transaction]
+    L3 -- failed --> L5[recordFailedPayment\n409 PAYMENT_FAILED]
+    L3 -- other --> L6[recordUnresolvedGatewayPayment\n409 PAYMENT_NOT_CAPTURED]
+
+    L4 --> L4A{Order still\nPENDING_PAYMENT\nno token?}
+    L4A -- Yes --> L4B[updateMany payment→SUCCESS\nupdateMany order→PLACED/READY\nincrement DailyTokenCounter\nassign tokenNumber]
+    L4B --> L4C[Emit NEW_ORDER / ORDER_READY\nvia Socket.IO]
+    L4C --> L4D[200: payment + order]
+    L4A -- No duplicate --> L4E[200: already processed]
+
+    L4D --> M[Frontend: clear cart\nsave confirmedOrder\nredirect to order.html]
+
+    K --> N[reconcileCheckoutFailure\nin frontend]
+    N --> O[POST /api/payments/razorpay/reconcile-failure\norderId + order_id + payment_id]
+    O --> O1[Fetch payment from Razorpay]
+    O1 --> O2{Gateway status?}
+    O2 -- captured --> O3[confirmCapturedPayment\nredirect to order.html]
+    O2 -- failed --> O4[recordFailedPayment\noutcome=FAILED]
+    O2 -- other --> O5[recordUnresolvedGatewayPayment\noutcome=UNRESOLVED]
+    O4 --> O6[200: paymentState=RETRY_AVAILABLE\nalert user to retry]
+
+    subgraph WEBHOOK ["Razorpay Server Webhook (parallel path)"]
+        W1[POST /api/payments/webhook\nraw body] --> W2[Verify HMAC\nwith RAZORPAY_WEBHOOK_SECRET]
+        W2 -- Invalid --> W_ERR[400 INVALID_WEBHOOK_SIGNATURE]
+        W2 -- Valid --> W3{Event type?}
+        W3 -- payment.captured --> W4[payment.captured handler]
+        W3 -- payment.failed --> W5[payment.failed handler]
+        W3 -- other --> W6[200 not handled]
+        W4 --> W7[Create/find WebhookEvent row\ndeduplication by externalEventId]
+        W5 --> W7
+        W7 --> W8{Already PROCESSED?}
+        W8 -- Yes --> W9[200 already processed]
+        W8 -- No --> W10[Claim: updateMany PROCESSING]
+        W10 --> W11[confirmCapturedPayment\nOR recordFailedPayment\ninside same $transaction]
+        W11 --> W12[Mark WebhookEvent=PROCESSED]
+        W12 --> W13[Emit socket events if fulfilled]
+    end
+
+    subgraph RECOVERY_POLL ["Recovery / Polling"]
+        R1[GET /api/payments/order/:id/attempts] --> R2[Find all PENDING/FAILED/CANCELLED\npayment rows with gatewayOrderId]
+        R2 --> R3[reconcilePendingPayment\nfor each]
+        R3 --> R4[fetchPaymentsForOrder from Razorpay\ncheck each pay_ id]
+        R4 --> R5{Any captured?}
+        R5 -- Yes --> R6[confirmCapturedPayment\nReturn order]
+        R5 -- No --> R7[Return withPaymentSummary order]
+    end
+```
+
+---
+
+## Internal Helper Functions
+
+### `confirmCapturedPayment(...)` — The Critical Path
+Runs inside a `$transaction`. Does ALL of:
+1. Fetches payment + order inside TX
+2. Validates `validateAuthoritativePayment` (id, order_id, amount, currency, status=captured)
+3. Guards against REFUNDED state
+4. `recordGatewayTransaction` — upserts `PaymentTransaction` row
+5. `payment.updateMany` where `status IN [PENDING, FAILED, CANCELLED]` → SUCCESS *(CAS)*
+6. `order.updateMany` where `status=PENDING_PAYMENT AND tokenNumber=null` → PLACED/READY *(CAS)*
+7. Increments `DailyTokenCounter`, assigns `tokenNumber`
+8. Returns `{ fulfilled, payment, order }`
+
+### `recordFailedPayment(...)` — Failure Path
+1. `validateAuthoritativePayment` (status=failed)
+2. `recordGatewayTransaction`
+3. `payment.updateMany` where `status=PENDING` → FAILED
+
+### `recordGatewayTransaction(...)`
+- Upserts a `PaymentTransaction` row keyed on `gatewayPaymentId` (Razorpay `pay_xxx`)
+- Prevents same `pay_` ID attaching to two different Payment rows
+- Short-circuits if data is identical (idempotent)
+
+### `reconcilePendingPayment(...)`
+- Calls `fetchPaymentsForOrder(gatewayOrderId)` → gets all `pay_` IDs from Razorpay
+- Iterates each, calling `verifyGatewayPayment` then routing to confirm/fail/unresolved
+
+### `validateAuthoritativePayment(...)`
+Validates: id match, order_id match, amount match (paise), currency=INR, optional status match
+
+### `getPaymentSummary(order)` — Client-facing state
+Returns `paymentState` enum:
+```
+PAID | NOT_REQUIRED | CONFIRMING | ATTEMPTS_EXHAUSTED | PENDING | RETRY_AVAILABLE | AWAITING_PAYMENT
+```
+
+---
+
+## Bugs & Inconsistencies Found
+
+### 🔴 Critical
+
+**1. `reconcileCheckoutFailure` function name collision (frontend)**
+In [`order.js`](file:///c:/Users/Lenovo/restuarnt-backend/customer/js/order.js#L472), the local function `reconcileCheckoutFailure` (line 472) has the **same name** as the API helper `reconcileCheckoutFailure` from `api.js` (line 377 of `api.js`). However because `api.js` exports its function as `reconcilePaymentFailure` (not `reconcileCheckoutFailure`), the local function correctly shadows but calls `reconcilePaymentFailure`. This is **confusing** but technically works. However if someone adds `reconcileCheckoutFailure` to `api.js` directly, it would silently shadow the local one.
+
+**2. `verifyRazorpayPayment` calls `reconcileCheckoutFailure` on the client for certain errors — but those errors come back as HTTP 409 from `/verify`**
+In `order.js` line 346–354, when verify returns `PAYMENT_FAILED` or `PAYMENT_NOT_CAPTURED`, the client calls the local `reconcileCheckoutFailure`. But at that point, `response` is the Razorpay checkout handler response — **`response.razorpay_payment_id` may be undefined in the PAYMENT_NOT_CAPTURED case** because the payment was never captured. The `reconcile-failure` endpoint then gets `razorpay_payment_id: undefined`, which triggers the `INVALID_RECONCILIATION_REQUEST` 400 error because `isGatewayId(undefined, "pay")` = false.
+
+**3. Webhook endpoint route ordering issue**
+In [`app.js`](file:///c:/Users/Lenovo/restuarnt-backend/src/app.js#L11-L14), the webhook route at `/api/payments/webhook` is mounted **before** `express.json()` (correct — needs raw body). But the `/api/payments` route is mounted **after** `express.json()`. The webhook route handler uses `express.raw()` middleware inline. This is correct, but `paymentWebhookRoutes.js` mounts at `/` and is imported at `/api/payments/webhook`. The regular payment routes also have `POST /api/payments/webhook` (line 22 of `paymentRoutes.js`). **There are TWO routes registered for the same path** — one raw body (correct) and one with JSON body (wrong):
+```
+app.use("/api/payments/webhook", paymentWebhookRoutes);  // raw ✅
+// ...later...
+app.use("/api/payments", paymentRoutes);  // which includes router.post("/webhook", ...) ❌
+```
+Express matches the first one, so the duplicate is harmless right now, but it's a ticking bomb if order changes.
+
+**4. `handleRazorpayWebhook` — `payment.order` condition has a logical bug**
+Line 882:
+```js
+if (!payment.order || payment.order.status === "PENDING_PAYMENT" && payment.order.tokenNumber != null) {
+```
+Due to operator precedence, this is parsed as:
+```js
+if (!payment.order || (payment.order.status === "PENDING_PAYMENT" && payment.order.tokenNumber != null)) {
+```
+Which means: throw `ORDER_STATE_INVALID` if order already has a token while still `PENDING_PAYMENT`. The intent seems correct, but the comment in code is misleading. **The intent is correct, but it would be clearer with explicit parentheses.**
+
+---
+
+### 🟡 Medium Issues
+
+**5. `createPaymentOrder` — double Razorpay order creation race**
+After creating the Payment row in the DB transaction (line 434–443), the gateway call happens **outside** the transaction (line 590). If the server crashes between creating the Payment row and saving the `gatewayOrderId`, the recovery path (`recoveryAttempt`) correctly tries `findRazorpayOrderByReceipt`. However, `findRazorpayOrderByReceipt` uses `rp.orders.all({ receipt, count: 100 })` which is a paginated list call — if Razorpay hasn't indexed the order yet (it can take a few seconds), this returns empty and the endpoint responds `PAYMENT_ATTEMPT_UNRESOLVED`. The customer is then stuck until they retry.
+
+**6. `getPaymentAttemptsForOrder` silently swallows `GATEWAY_UNAVAILABLE` errors**
+Line 995: `if (!(error instanceof PaymentError && error.code === "GATEWAY_UNAVAILABLE")) throw error;` — If Razorpay is down, the endpoint returns a normal 200 with the last known order state, with no indication that reconciliation was skipped. The `sawUnresolvedPayment` flag won't be set either because the error was silently caught.
+
+**7. Frontend: `branchId` is hardcoded to `1`**
+In [`order.js` line 634](file:///c:/Users/Lenovo/restuarnt-backend/customer/js/order.js#L634): `branchId: 1`. This means the entire system only works for branch 1. No QR code carries a branch ID, and there is no branch selection.
+
+**8. `placeOrder()` — no Razorpay SDK loaded check**
+The frontend opens `new Razorpay(options)` without verifying that `window.Razorpay` exists (the SDK must be loaded as a script tag). If the Razorpay CDN fails, this crashes with an uncaught `ReferenceError` instead of a graceful error message.
+
+**9. `reconcilePendingPayment` calls `verifyGatewayPayment` inside a loop with no rate limit**
+If a Razorpay order has many payment attempts (e.g., multiple retries from Checkout), each `pay_xxx` ID causes a separate Razorpay API call. There's no batching or rate-limit handling. Under load, this could cause 429s from Razorpay.
+
+---
+
+### 🟢 Minor / Design Notes
+
+**10. `payment.updateMany` vs `payment.update`**
+The code uses `updateMany` with a CAS (compare-and-swap) pattern (e.g., `where: { id, status: "PENDING" }`) and checks `count > 0` to detect races. This is intentional and correct, but mixing `updateMany` and `findUnique` outside a transaction in `createPaymentOrder` (lines 479–483) creates a small window for race conditions.
+
+**11. `isRecoveringPendingPayment` flag isn't reset on error**
+In `order.js` line 12, `isRecoveringPendingPayment` is set to `true` if there's a stored pending order ID. It's set to `false` in the `finally` block of `recoverPendingPayment`. But if `getPaymentAttempts` throws (line 21), the `finally` runs correctly. However if the IIFE itself throws before reaching `finally` for any reason, the button would remain disabled since `placeOrder()` returns immediately at line 88.
+
+**12. Session storage key `yatharth_payment_attempt_${order.id}` is never cleaned up on success**
+After a successful payment (line 326), `yatharth_pending_payment_order_id` is removed. But the per-attempt idempotency key `yatharth_payment_attempt_${order.id}` (line 181) is never removed. This accumulates in sessionStorage but is harmless for now.
+
+**13. The `config.js` file contains `razorpayKeyId`**
+The Razorpay **public** key ID is embedded in `config.js`. This is correct (public keys are OK in frontend), but this means the key must be changed in two places (`.env` AND `config.js`) — they can drift out of sync with no validation.
+
+---
+
+## Payment State Machine Summary
+
+```
+Order status:   PENDING_PAYMENT ──────────────────────────────► PLACED/READY
+                                         ▲ (confirmCapturedPayment)
+                                         │
+Payment status: PENDING ─► SUCCESS ──────┘
+                         └─► FAILED
+                         └─► CANCELLED
+                         └─► REFUNDED
+
+paymentState (client):
+  AWAITING_PAYMENT   → No attempts yet
+  PENDING            → Razorpay order created, no result yet
+  RETRY_AVAILABLE    → ≥1 failed attempt, <3 total, can retry
+  ATTEMPTS_EXHAUSTED → 3 terminal attempts reached
+  CONFIRMING         → Payment succeeded but order not yet released
+  PAID               → Order released
+  NOT_REQUIRED       → Non-payment order (cash/QR without payment)
+```
+
+---
+
+## What Is Working Well
+
+- ✅ **Idempotency** — every payment attempt is keyed; duplicate requests return the existing attempt
+- ✅ **CAS (Compare-And-Swap)** — `updateMany` with status guards prevents double-confirmation
+- ✅ **Webhook deduplication** — `WebhookEvent` table with `UNIQUE(gateway, externalEventId)`
+- ✅ **Authoritative payment verification** — always fetches from Razorpay API, never trusts client payload alone
+- ✅ **Timing-safe signature comparison** — `crypto.timingSafeEqual` prevents timing attacks
+- ✅ **Advisory DB lock** — `pg_advisory_xact_lock` prevents concurrent payment creation for same order
+- ✅ **Recovery flow** — `getPaymentAttemptsForOrder` + `reconcilePendingPayment` allow page refresh recovery
+- ✅ **Mock DB** — full in-memory Prisma mock for testing without a database
+- ✅ **Factory pattern** — `createPaymentController({ prisma, gateway, env })` is fully testable
+
+## What Needs Work / Is Missing
+
+- ❌ No retry UI on the customer side after exhausted attempts (just alert + redirect)
+- ❌ No payment timeout handling — order sits in PENDING_PAYMENT forever with no expiry
+- ❌ No refund endpoint implemented yet (schema supports it, controller doesn't)
+- ❌ Webhook retries not handled gracefully when Razorpay is down (5xx causes Razorpay to retry, which is correct, but error recovery state in `WebhookEvent` is not cleaned up)
+- ❌ `branchId` hardcoded to 1 in frontend
+- ❌ Duplicate `/api/payments/webhook` route registration
+- ❌ Potential `reconcileCheckoutFailure` issue with undefined `razorpay_payment_id`

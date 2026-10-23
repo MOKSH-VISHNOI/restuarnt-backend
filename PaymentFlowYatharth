@@ -1,0 +1,308 @@
+# 🔄 Payment Module — Complete Implementation Flow
+
+> **Gateway:** Razorpay | **Stack:** Node.js + Prisma + PostgreSQL
+> This document is the single source of truth for the payment flow we will implement.
+
+---
+
+## Overview — The 4 Phases
+
+```
+Phase 1: Order Creation      →  Order exists in DB with status PENDING_PAYMENT
+Phase 2: Checkout Initiation →  Frontend gets a Razorpay Order to open Checkout
+Phase 3: Payment Resolution  →  Payment confirmed via Verify OR Webhook (whichever arrives first)
+Phase 4: Recovery            →  Frontend polls on reload to resume any in-flight payment
+```
+
+---
+
+## Phase 1 — Order Creation (Pre-Payment)
+
+**Actor:** Customer (via QR scan → frontend)
+
+### Steps
+1. Customer scans QR code → lands on menu page.
+2. Adds items → taps "Checkout".
+3. Frontend calls `POST /api/orders` (existing order controller).
+4. Backend creates `Order` with:
+   - `status = PENDING_PAYMENT`
+   - `tokenNumber = null` ← **never assigned until payment succeeds**
+5. Order is returned to frontend with `orderId`.
+
+### Business Rules Enforced
+- ✅ **Rule 1** — Order created exactly once (idempotency on order creation endpoint).
+- ✅ **Rule 5** — Order starts as `PENDING_PAYMENT`, not sent to kitchen yet.
+- ✅ **Rule 6** — No token assigned yet.
+
+---
+
+## Phase 2 — Checkout Initiation (Create Razorpay Order)
+
+**Actor:** Frontend → Backend → Razorpay
+
+### Endpoint
+```
+POST /api/payments/razorpay/order
+Body: { orderId, idempotencyKey }
+```
+
+### Backend Decision Tree
+
+```
+Acquire pg_advisory_xact_lock(orderId)  ← prevents race conditions
+        │
+        ▼
+Load Order + Payments from DB
+        │
+        ├─ Order not found → 404
+        ├─ Order.status ≠ PENDING_PAYMENT → 409 ORDER_NOT_AWAITING_PAYMENT
+        │
+        ├─ Any payment with status = SUCCESS? → 409 ORDER_ALREADY_PAID
+        │
+        ├─ idempotencyKey already exists in DB?
+        │       ├─ Same order + PENDING + has gatewayOrderId → return existing attempt (resume)
+        │       ├─ Same order + PENDING + no gatewayOrderId  → recovery path (see Phase 4)
+        │       └─ FAILED/CANCELLED → 409 PAYMENT_ATTEMPT_FAILED (start new)
+        │
+        ├─ Active PENDING attempt exists (different idempotencyKey)?
+        │       ├─ Has gatewayOrderId → return existing attempt → 409 OVERLAPPING ATTEMPT
+        │       └─ No gatewayOrderId → recovery path
+        │
+        ├─ Attempt limit reached (≥ MAX_PAYMENT_ATTEMPTS)? → 429 PAYMENT_ATTEMPT_LIMIT
+        │
+        └─ All clear → Create new Payment record (status=PENDING, no gatewayOrderId yet)
+                │
+                ▼
+        Call gateway.createRazorpayOrder({ amount, receipt })
+                │
+                ├─ Gateway returns 400/422 → mark Payment as FAILED → safe to retry
+                ├─ Gateway error (network etc.) → leave Payment PENDING → 502 UNRESOLVED
+                │
+                └─ Success → Save gatewayOrderId on Payment record
+                        │
+                        ▼
+                Return { razorpayOrder, payment, order } to frontend → 201
+```
+
+### Response to Frontend
+```json
+{
+  "success": true,
+  "razorpayOrder": { "id": "order_xxx", "amount": 45000, "currency": "INR" },
+  "payment": { "id": 12, "status": "PENDING", ... },
+  "order": { "id": 105, "amount": 450.00, ... }
+}
+```
+
+### Business Rules Enforced
+- ✅ **Rule 1** — Order locked before reading; creation already happened in Phase 1.
+- ✅ **Rule 2** — Every Payment record is persisted before calling gateway.
+- ✅ **Rule 3** — idempotencyKey deduplicates requests; same key = same attempt returned.
+- ✅ **Rule 4** — Active PENDING attempt detected → blocked from creating a second one.
+- ✅ **Rule 6** — Token generated exactly once (only on payment success in Phase 3).
+- ✅ **Rule 10** — Attempt limit enforced before creating new record.
+- ✅ **Rule 14** — Lock + transaction wraps the entire reservation.
+
+---
+
+## Phase 3 — Payment Resolution (Two Parallel Paths)
+
+After the customer completes (or fails) payment in Razorpay Checkout, **two things happen simultaneously:**
+
+```
+Client Callback                      Razorpay Webhook
+(from browser, unreliable)           (from Razorpay servers, authoritative)
+        │                                    │
+        ▼                                    ▼
+POST /api/payments/razorpay/verify   POST /api/payments/webhook
+```
+
+> **Whichever arrives first wins.** Both paths call the same `confirmCapturedPayment()` function which is idempotent.
+
+---
+
+### Path A — Verify (Client-Side Callback)
+
+**Endpoint:** `POST /api/payments/razorpay/verify`
+**Body:** `{ orderId, razorpay_payment_id, razorpay_order_id, razorpay_signature }`
+
+```
+Validate all inputs are present and well-formed
+        │
+        ▼
+Fetch payment from Razorpay by razorpay_payment_id (authoritative source)
+        │
+        ▼
+Find matching Payment record in DB via gatewayOrderId
+        │
+        ▼
+Verify HMAC signature  ← Rule 12
+        │
+        ├─ Signature invalid → 400 INVALID_PAYMENT_SIGNATURE
+        │
+        ▼
+Validate amount + currency match order ← Rule 9
+        │
+        ├─ Amount mismatch → 400 PAYMENT_AMOUNT_MISMATCH
+        │
+        ▼
+Check gateway payment status:
+        ├─ "captured"  → confirmCapturedPayment() → update Payment=SUCCESS, Order=PLACED, assign token
+        ├─ "failed"    → recordFailedPayment() → update Payment=FAILED → 409
+        └─ other       → recordUnresolvedGatewayPayment() → 409 NOT_CAPTURED
+```
+
+---
+
+### Path B — Webhook (Server-Side, Most Reliable)
+
+**Endpoint:** `POST /api/payments/webhook`
+
+```
+Verify Razorpay webhook signature  ← Rule 12 (HMAC with webhook secret)
+        │
+        ├─ Invalid → reject silently (log + 200 ACK to prevent Razorpay retry storms)
+        │
+        ▼
+Create WebhookEvent record (status=RECEIVED)  ← Rule 2 (preserve every event)
+        │
+        ▼
+Check WebhookEvent unique constraint [gateway + externalEventId]
+        ├─ Already PROCESSED → 200 "already processed"  ← Rule 3 (idempotency)
+        │
+        ▼
+Update WebhookEvent status = PROCESSING (increment processingAttempts)
+        │
+        ▼
+Find Payment by gatewayOrderId
+        │
+        ▼
+Is payment PENDING AND event = payment.captured?
+        ├─ YES → confirmCapturedPayment()  ← atomic: Payment=SUCCESS + Order=PLACED + Token
+        │              │
+        │              └─ notifyOrder() via Socket.IO → kitchen + display screen
+        │
+        ├─ payment.failed → recordFailedPayment()
+        │
+        └─ payment already SUCCESS → mark WebhookEvent PROCESSED, skip
+        │
+        ▼
+Update WebhookEvent status = PROCESSED (or FAILED with lastError)
+```
+
+### The `confirmCapturedPayment()` Function (Shared Core)
+
+This is the **heart of the payment module** — called by both Verify and Webhook paths:
+
+```
+Inside a DB Transaction:
+        │
+        ▼
+tx.payment.updateMany({ where: { id, status: IN [PENDING, FAILED, CANCELLED] }, data: { status: SUCCESS } })
+   → count = 0 means already processed → safe skip (idempotent)
+        │
+        ▼
+tx.order.updateMany({ where: { id, status: PENDING_PAYMENT, tokenNumber: null }, data: { status: PLACED } })
+   → count = 0 means already released → safe skip
+        │
+        ▼
+tx.dailyTokenCounter.upsert → increment → assign tokenNumber to order
+        │
+        ▼
+Return { payment, order, fulfilled: true }
+```
+
+### Business Rules Enforced (Phase 3)
+- ✅ **Rule 2** — WebhookEvent saved on receipt; PaymentTransaction recorded for every attempt.
+- ✅ **Rule 3** — `updateMany` with status condition = idempotent; duplicate webhooks are safe.
+- ✅ **Rule 5** — Order moves to `PLACED` **only** inside `confirmCapturedPayment()`.
+- ✅ **Rule 6** — Token assigned atomically inside the same transaction, exactly once.
+- ✅ **Rule 7** — Webhook path handles delayed success (even if verify path already ran).
+- ✅ **Rule 8** — Status only moves PENDING → SUCCESS or PENDING → FAILED.
+- ✅ **Rule 9** — Amount verified against order before confirmation.
+- ✅ **Rule 12** — Signature verified on both paths.
+- ✅ **Rule 14** — Everything in one DB transaction.
+
+---
+
+## Phase 4 — Recovery (Frontend Reload / Reconnect)
+
+**Actor:** Frontend (on page reload or app resume)
+
+**Endpoint:** `GET /api/payments/order/:orderId/attempts`
+
+```
+Frontend reloads mid-payment
+        │
+        ▼
+GET /api/payments/order/:orderId/attempts
+        │
+        ▼
+Return order + all payment attempts (status, gatewayOrderId, etc.)
+        │
+        ▼
+Frontend checks:
+        ├─ Any attempt SUCCESS? → show success screen (Rule 7 — delayed success handled)
+        ├─ Active PENDING attempt with gatewayOrderId?
+        │       │
+        │       └─ Frontend calls POST /api/payments/razorpay/order with SAME idempotencyKey
+        │               │
+        │               └─ Backend detects existing attempt → reconciles with Razorpay
+        │                       ├─ Already captured → confirm + return success
+        │                       └─ Still pending → return existing razorpayOrder → reopen Checkout
+        │
+        └─ All attempts FAILED/CANCELLED? → allow new attempt with new idempotencyKey
+```
+
+### Business Rules Enforced (Phase 4)
+- ✅ **Rule 2** — All historical attempts visible in the response.
+- ✅ **Rule 3** — Same idempotencyKey returns same attempt, never creates a duplicate.
+- ✅ **Rule 4** — Active attempt detected → frontend cannot initiate a second one.
+- ✅ **Rule 7** — If webhook arrived while frontend was away, success is detected here.
+
+---
+
+## Edge Cases & Special Paths
+
+| Scenario | What Happens |
+|----------|-------------|
+| Customer pays, network drops before verify callback | Webhook delivers success → order released. Frontend sees success on next poll. |
+| Customer tries to pay twice (double-tap) | `pg_advisory_xact_lock` + active attempt check → 409 blocked. |
+| Razorpay webhook fires before verify callback | `confirmCapturedPayment()` runs via webhook. Verify path finds Payment=SUCCESS → returns "already processed". |
+| Verify fires before webhook | `confirmCapturedPayment()` runs via verify. Webhook fires later → idempotent, skipped. |
+| Gateway crashes mid-order-creation | Payment record stays PENDING with no `gatewayOrderId`. Recovery path reconciles via Razorpay order receipt lookup. |
+| Customer hits attempt limit | 429 returned. Frontend shows "Contact restaurant" message. |
+| Webhook with invalid signature | Rejected. Logged. 200 returned to Razorpay to stop retries. |
+| Payment amount mismatch from gateway | 400 PAYMENT_AMOUNT_MISMATCH. Never confirmed. |
+
+---
+
+## API Summary
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/payments/razorpay/order` | Initiate / resume a payment attempt |
+| `POST` | `/api/payments/razorpay/verify` | Confirm payment from client callback |
+| `POST` | `/api/payments/razorpay/reconcile-failure` | Record a known-failed payment from checkout callback |
+| `POST` | `/api/payments/webhook` | Receive Razorpay server-side webhook |
+| `GET`  | `/api/payments/order/:orderId/attempts` | Fetch all attempts for recovery |
+
+---
+
+## Order Status Lifecycle
+
+```
+[Customer places order]
+        ↓
+  PENDING_PAYMENT    ← order lives here until payment
+        ↓ (payment SUCCESS + confirmCapturedPayment)
+     PLACED          ← kitchen sees the order
+        ↓
+    PREPARING
+        ↓
+      READY
+        ↓
+    COLLECTED
+```
+
+> Token number is assigned **atomically** when order moves from `PENDING_PAYMENT → PLACED`.
