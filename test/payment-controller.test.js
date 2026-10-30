@@ -1133,32 +1133,49 @@ test("non-expired attempt is not swept by the expiry job", async () => {
   assert.equal(h.state.payments[0].status, "PROCESSING");
 });
 
-test("gateway errors during expiry sweep are handled gracefully without aborting other sweeps", async () => {
+test("gateway errors during expiry sweep leave uncertain payments unresolved and continue other sweeps", async () => {
   const h = createHarness();
+  
   const past = new Date("2026-10-15T09:40:00.000Z");
-  const p1 = seedPayment(h, { id: 1, status: "PROCESSING", gatewayOrderId: "order_err" });
-  p1.expiresAt = past;
-  const p2 = seedPayment(h, { id: 2, status: "PENDING", gatewayOrderId: null, idempotencyKey: "key-orphan" });
-  p2.expiresAt = past;
-
-  h.gateway.fetchPaymentsForOrder = async () => {
-    throw new Error("Razorpay rate limited");
-  };
-
-  const job = createPaymentExpiryJob({
-    prisma: h.prisma,
-    gateway: h.gateway,
-    now: () => new Date("2026-10-15T10:00:00.000Z"),
-    logger: { info() {}, warn() {}, error() {} },
+  
+  const p1 = seedPayment(h, {
+  id: 1,
+  status: "PROCESSING",
+  gatewayOrderId: "order_err",
   });
-
+  p1.expiresAt = past;
+  
+  const p2 = seedPayment(h, {
+  id: 2,
+  status: "PENDING",
+  gatewayOrderId: null,
+  idempotencyKey: "key-orphan",
+  });
+  p2.expiresAt = past;
+  
+  h.gateway.fetchPaymentsForOrder = async () => {
+  throw new Error("Razorpay rate limited");
+  };
+  
+  const job = createPaymentExpiryJob({
+  prisma: h.prisma,
+  gateway: h.gateway,
+  now: () => new Date("2026-10-15T10:00:00.000Z"),
+  logger: { info() {}, warn() {}, error() {} },
+  });
+  
   const result = await job.sweepExpiredPayments();
-
+  
   assert.equal(result.swept, 2);
-  assert.equal(result.timedOut, 2);
-  assert.equal(h.state.payments[0].status, "TIMED_OUT");
+  assert.equal(result.timedOut, 1);
+  
+  // Razorpay's rate-limit error does not prove payment failure.
+  assert.equal(h.state.payments[0].status, "PROCESSING");
+  
+  // An expired attempt without a gateway order retains existing timeout behavior.
   assert.equal(h.state.payments[1].status, "TIMED_OUT");
-});
+  });
+  
 
 test("full refund marks payment REFUNDED and creates audit transaction (Rule 16)", async () => {
   const h = createHarness();

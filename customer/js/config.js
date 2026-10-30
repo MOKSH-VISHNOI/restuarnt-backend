@@ -17,7 +17,7 @@ const CONFIG = {
     // APIz
     
     apiBaseUrl:
-        "https://arise-gauge-definitely-belongs.trycloudflare.com",
+        "https://leaf-infectious-eternal-nerve.trycloudflare.com",
 
 
     // Razorpay

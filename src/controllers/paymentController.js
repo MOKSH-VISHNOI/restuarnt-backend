@@ -290,8 +290,17 @@ function createPaymentController({
       result = { payment: currentPayment, order: currentOrder, failed: currentPayment?.status === "FAILED" };
     };
 
-    if (transactionClient) await applyFailure(transactionClient);
-    else await prisma.$transaction(applyFailure);
+    
+    if (transactionClient) {
+          await applyFailure(transactionClient);
+      } else {
+          await prisma.$transaction(applyFailure, {
+              maxWait: 10000,
+              timeout: 15000,
+          });
+      }
+
+
     if (!transactionClient && result?.order?.status === "PAYMENT_ABANDONED") notifyOrder(req, result.order);
     return result;
   }
@@ -410,12 +419,17 @@ function createPaymentController({
         additionalCaptureDetected,
       };
     };
+    
     if (transactionClient) {
       await applyConfirmation(transactionClient);
     } else {
-      await prisma.$transaction(applyConfirmation);
+      await prisma.$transaction(applyConfirmation, {
+        maxWait: 10000,
+        timeout: 15000,
+      });
     }
-    return result;
+
+return result;
   }
 
   async function verifyGatewayPayment(payment, paymentId) {
@@ -1367,39 +1381,57 @@ function createPaymentController({
         throw new PaymentError(409, "WEBHOOK_PAYMENT_STATUS_MISMATCH", "Webhook event does not match the authoritative payment status");
       }
 
-      let transactionResult;
-      await prisma.$transaction(async (tx) => {
-        const claim = await tx.webhookEvent.updateMany({
-          where: { id: webhookRecord.id, status: { in: ["RECEIVED", "FAILED", "PROCESSING"] } },
-          data: { status: "PROCESSING", processingAttempts: { increment: 1 } },
-        });
-        if (claim.count === 0) {
-          transactionResult = { duplicate: true };
-          return;
-        }
+      
+    let transactionResult;
 
-        if (eventType === "payment.captured") {
-          transactionResult = await confirmCapturedPayment({
-            paymentId: payment.id,
-            gatewayPayment: authoritativePayment,
-            webhookEventId: webhookRecord.id,
-            transactionClient: tx,
-          });
-        } else {
-          transactionResult = await recordFailedPayment({
-            paymentId: payment.id,
-            gatewayPayment: authoritativePayment,
-            webhookEventId: webhookRecord.id,
-            transactionClient: tx,
-            req,
-          });
-        }
-
-        await tx.webhookEvent.update({
-          where: { id: webhookRecord.id },
-          data: { status: "PROCESSED", processedAt: now(), lastError: null },
-        });
+    await prisma.$transaction(async (tx) => {
+      const claim = await tx.webhookEvent.updateMany({
+        where: {
+          id: webhookRecord.id,
+          status: { in: ["RECEIVED", "FAILED", "PROCESSING"] },
+        },
+        data: {
+          status: "PROCESSING",
+          processingAttempts: { increment: 1 },
+        },
       });
+
+      if (claim.count === 0) {
+        transactionResult = { duplicate: true };
+        return;
+      }
+
+      if (eventType === "payment.captured") {
+        transactionResult = await confirmCapturedPayment({
+          paymentId: payment.id,
+          gatewayPayment: authoritativePayment,
+          webhookEventId: webhookRecord.id,
+          transactionClient: tx,
+        });
+      } else {
+        transactionResult = await recordFailedPayment({
+          paymentId: payment.id,
+          gatewayPayment: authoritativePayment,
+          webhookEventId: webhookRecord.id,
+          transactionClient: tx,
+          req,
+        });
+      }
+
+      await tx.webhookEvent.update({
+        where: { id: webhookRecord.id },
+        data: {
+          status: "PROCESSED",
+          processedAt: now(),
+          lastError: null,
+        },
+      });
+    }, {
+      maxWait: 5000,
+      timeout: 15000,
+    });
+
+
 
       if (transactionResult?.duplicate) {
         return res.status(200).json({ success: true, message: "Webhook event already being processed" });

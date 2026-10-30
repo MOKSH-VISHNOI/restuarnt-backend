@@ -11,6 +11,41 @@ let pendingPaymentOrderId = Number.isSafeInteger(storedPendingPaymentOrderId) &&
 let pendingPaymentOrder = null;
 let isRecoveringPendingPayment = pendingPaymentOrderId !== null;
 
+
+function returnToMenuAfterPaymentExhausted(order) {
+    // Preserve the failed order in customer order history.
+    if (order) {
+    saveCustomerOrder(order);
+        localStorage.setItem(
+            "currentOrder",
+            JSON.stringify(order)
+        );
+    }
+    
+    // Clear the shopping cart.
+    cart = [];
+    saveCart();
+    updateCart();
+    
+    // Clear pending-payment state.
+    sessionStorage.removeItem("yatharth_pending_payment_order_id");
+    pendingPaymentOrderId = null;
+    pendingPaymentOrder = null;
+    
+    // Remove the old order-page reference.
+    sessionStorage.removeItem("viewedOrderId");
+    
+    // Close Razorpay Checkout if it is still open.
+    if (activeRazorpayCheckout) {
+        activeRazorpayCheckout.close();
+    }
+    
+    // Return to the menu so the customer can start a fresh order.
+    window.location.href = "./index.html";
+    
+    }
+    
+
 // Recover only the payment the customer was actively completing. Completed historical
 // attempts stay available for lookup but must not redirect a deliberate new order.
 (async function recoverPendingPayment() {
@@ -26,13 +61,19 @@ let isRecoveringPendingPayment = pendingPaymentOrderId !== null;
         saveCustomerOrder(order);
         localStorage.setItem("currentOrder", JSON.stringify(order));
 
-        if (order.status !== "PENDING_PAYMENT" || order.paymentState === "ATTEMPTS_EXHAUSTED") {
+        if (order.paymentState === "ATTEMPTS_EXHAUSTED") {
+            returnToMenuAfterPaymentExhausted(order);
+            return;
+            }
+            
+            if (order.status !== "PENDING_PAYMENT") {
             sessionStorage.removeItem("yatharth_pending_payment_order_id");
             pendingPaymentOrder = null;
             sessionStorage.setItem("viewedOrderId", String(order.id));
             window.location.href = "./order.html";
             return;
         }
+            
 
         pendingPaymentOrderId = order.id;
     } catch (err) {
@@ -455,21 +496,18 @@ async function placeOrder(){
 
         if (error.code === "PAYMENT_ATTEMPT_LIMIT") {
             try {
-                const latest = await getPaymentAttempts(pendingPaymentOrderId);
+            const latest = await getPaymentAttempts(pendingPaymentOrderId);
+            
                 if (latest?.success && latest.order) {
-                    saveCustomerOrder(latest.order);
-                    localStorage.setItem("currentOrder", JSON.stringify(latest.order));
-                    sessionStorage.removeItem("yatharth_pending_payment_order_id");
-                    pendingPaymentOrderId = null;
-                    pendingPaymentOrder = null;
-                    sessionStorage.setItem("viewedOrderId", String(latest.order.id));
-                    window.location.href = "./order.html";
+                    returnToMenuAfterPaymentExhausted(latest.order);
                     return;
                 }
             } catch (refreshError) {
                 console.warn("Could not refresh exhausted payment order:", refreshError);
             }
-        }
+            
+            }
+            
 
         alert(error.message || "Unable to start payment. Please try again.");
 
@@ -486,10 +524,52 @@ async function placeOrder(){
 
 }
 
-async function reconcileCheckoutFailure(orderId, paymentData = {}) {
+
+    async function waitForPaymentResolution(orderId, maxChecks = 12) {
+        for (let attempt = 0; attempt < maxChecks; attempt++) {
+            // Gradually increase the delay between checks, up to 10 seconds.
+            const delay = Math.min(2000 * (attempt + 1), 10000);
+            await new Promise(resolve => setTimeout(resolve, delay));
+
+            try {
+                const response = await getPaymentAttempts(orderId);
+
+                if (!response?.success || !response.order) {
+                    continue;
+                }
+
+                const order = response.order;
+
+                saveCustomerOrder(order);
+                localStorage.setItem("currentOrder", JSON.stringify(order));
+
+                if (
+                    order.paymentState === "RETRY_AVAILABLE" ||
+                    order.paymentState === "ATTEMPTS_EXHAUSTED" ||
+                    order.status !== "PENDING_PAYMENT"
+                ) {
+                    return order;
+                }
+            } catch (error) {
+                console.warn("Payment status recheck failed:", error);
+            }
+        }
+
+        return null;
+    }
+
+
+    
+    let reconcilingPaymentOrderId = null;
+
+    async function reconcileCheckoutFailure(orderId, paymentData = {}) {
+    if (String(reconcilingPaymentOrderId) === String(orderId)) {
+    console.log("Payment reconciliation is already running for order:", orderId);
+    return;
+    }
+    reconcilingPaymentOrderId = orderId;
     placeOrderButton.disabled = true;
     placeOrderButton.textContent = "Checking Payment...";
-
     try {
         let response = null;
         if (paymentData.razorpay_order_id && paymentData.razorpay_payment_id) {
@@ -511,7 +591,12 @@ async function reconcileCheckoutFailure(orderId, paymentData = {}) {
         saveCustomerOrder(order);
         localStorage.setItem("currentOrder", JSON.stringify(order));
 
-        if (order.status !== "PENDING_PAYMENT" || order.paymentState === "ATTEMPTS_EXHAUSTED") {
+        if (order.paymentState === "ATTEMPTS_EXHAUSTED") {
+            returnToMenuAfterPaymentExhausted(order);
+            return;
+            }
+            
+            if (order.status !== "PENDING_PAYMENT") {
             activeRazorpayCheckout?.close();
             sessionStorage.removeItem("yatharth_pending_payment_order_id");
             pendingPaymentOrderId = null;
@@ -520,21 +605,77 @@ async function reconcileCheckoutFailure(orderId, paymentData = {}) {
             window.location.href = "./order.html";
             return;
         }
+            
 
-        if (order.paymentState === "RETRY_AVAILABLE") {
-            alert(`Payment failed. Attempt ${order.paymentAttemptsUsed} of ${order.maxPaymentAttempts} failed. You can retry this order.`);
-        } else {
-            alert("Razorpay has not confirmed a failed payment yet. Wait while we reconcile it; a new attempt will only be allowed after Razorpay confirms the previous attempt failed.");
-        }
+            if (order.paymentState === "RETRY_AVAILABLE") {
+                alert(`Payment failed. Attempt ${order.paymentAttemptsUsed} of ${order.maxPaymentAttempts} failed. You can retry this order.`);
+                } else {
+                alert("Payment status is still being confirmed. Checking again before allowing another attempt.");
+                const resolvedOrder = await waitForPaymentResolution(orderId);
+            
+            if (!resolvedOrder) {
+                alert("Payment status is still unresolved. Checking again shortly. Please do not start another payment.");
+            
+                setTimeout(() => {
+                    if (pendingPaymentOrderId !== null) {
+                        reconcileCheckoutFailure(orderId, paymentData);
+                    }
+                }, 5000);
+            
+                return;
+            }
+            
+            pendingPaymentOrder = resolvedOrder;
+            
+            if (resolvedOrder.paymentState === "ATTEMPTS_EXHAUSTED") {
+                returnToMenuAfterPaymentExhausted(resolvedOrder);
+                return;
+            }
+            
+            if (resolvedOrder.status !== "PENDING_PAYMENT") {
+                activeRazorpayCheckout?.close();
+                sessionStorage.removeItem("yatharth_pending_payment_order_id");
+                pendingPaymentOrderId = null;
+                pendingPaymentOrder = null;
+                sessionStorage.setItem("viewedOrderId", String(resolvedOrder.id));
+                window.location.href = "./order.html";
+                return;
+            }
+            
+            if (resolvedOrder.paymentState === "RETRY_AVAILABLE") {
+                alert(`Payment failed. Attempt ${resolvedOrder.paymentAttemptsUsed} of ${resolvedOrder.maxPaymentAttempts} failed. You can retry this order.`);
+            }
+            
+     }
+            
     } catch (error) {
         console.warn("Could not reconcile the failed checkout:", error);
         alert("Payment failed, but its final status is still being confirmed. Please wait a moment before retrying.");
-    } finally {
-        isPlacingOrder = false;
-        placeOrderButton.disabled = false;
-        placeOrderButton.textContent = "Place Order";
+    } 
+    finally {
+        const paymentIsResolved =
+            pendingPaymentOrder &&
+            (
+                pendingPaymentOrder.paymentState === "RETRY_AVAILABLE" ||
+                pendingPaymentOrder.paymentState === "ATTEMPTS_EXHAUSTED" ||
+                pendingPaymentOrder.status !== "PENDING_PAYMENT"
+            );
+
+        if (paymentIsResolved) {
+            isPlacingOrder = false;
+            placeOrderButton.disabled = false;
+            placeOrderButton.textContent = "Place Order";
+        } else {
+            isPlacingOrder = true;
+            placeOrderButton.disabled = true;
+            placeOrderButton.textContent = "Checking Payment...";
+        }
+
+        reconcilingPaymentOrderId = null;
     }
+
 }
+
 
 
 // ==========================================
