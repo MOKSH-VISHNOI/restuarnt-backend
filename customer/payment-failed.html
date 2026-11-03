@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#160d07">
+<title>Payment Failed | Yatharth</title>
+
+<style>
+:root {
+    --bg: #160d07;
+    --gold: #ffb629;
+    --gold-light: #ffd477;
+    --text: #fff4df;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 28px 16px;
+    display: grid;
+    place-items: center;
+    color: var(--text);
+    background:
+        radial-gradient(ellipse at 50% 38%, rgba(125,67,15,.2), transparent 52%),
+        linear-gradient(145deg, #211207, var(--bg) 52%, #100904);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* MAIN CARD */
+
+.card {
+    width: min(100%, 520px);
+    padding: 34px 32px 30px;
+    text-align: center;
+    border: 1px solid rgba(255,182,41,.3);
+    border-radius: 30px;
+    background: linear-gradient(155deg, #26180ef7, #140c07fc);
+    box-shadow: 0 24px 80px #0008;
+}
+
+/* BRAND */
+
+.brand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+    color: var(--gold-light);
+    font-size: 29px;
+    font-weight: 750;
+}
+
+.brand svg {
+    width: 48px;
+    height: 48px;
+    color: var(--gold);
+}
+
+/* PAYMENT FAILURE ILLUSTRATION */
+
+.illustration {
+    position: relative;
+    width: 210px;
+    height: 190px;
+    margin: 0 auto 14px;
+    display: grid;
+    place-items: center;
+}
+
+.illustration::before {
+    content: "";
+    position: absolute;
+    width: 190px;
+    height: 150px;
+    border-radius: 48% 52% 45% 55%;
+    background: radial-gradient(
+        circle,
+        rgba(255,174,35,.28),
+        rgba(153,81,9,.1) 68%,
+        transparent 70%
+    );
+}
+
+.bank-card {
+    position: relative;
+    width: 178px;
+    height: 112px;
+    border: 4px solid #f5e7d0;
+    border-radius: 17px;
+    background: linear-gradient(145deg,#fff8eb,#e9d8bd);
+    box-shadow: 0 16px 30px #0005;
+    transform: rotate(-13deg) translate(-5px,5px);
+    overflow: hidden;
+}
+
+.band {
+    height: 27px;
+    margin-top: 16px;
+    background: #30271f;
+}
+
+.line {
+    height: 11px;
+    margin: 14px 0 0 18px;
+    border-radius: 20px;
+    background: #b9a991;
+}
+
+.line.one {
+    width: 82px;
+}
+
+.line.two {
+    width: 54px;
+    margin-top: 9px;
+}
+
+.x {
+    position: absolute;
+    right: 8px;
+    bottom: 16px;
+    width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: white;
+    background: linear-gradient(145deg,#f45b3c,#d93620);
+    box-shadow: 0 8px 24px #dc391b52;
+    font-size: 54px;
+    font-weight: 350;
+}
+
+/* HEADING */
+
+h1 {
+    margin: 8px 0 14px;
+    color: #fff1d8;
+    font-size: clamp(34px,7vw,46px);
+    line-height: 1.12;
+    letter-spacing: -1.5px;
+}
+
+.description {
+    max-width: 390px;
+    margin: 0 auto;
+    color: #e0d1ba;
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+/* PAYMENT ATTEMPTS */
+
+.attempts {
+    margin: 34px 0 28px;
+    padding: 22px 22px 24px;
+    text-align: left;
+    border: 1px solid #ffb62933;
+    border-radius: 24px;
+    background: linear-gradient(145deg,#ffb62913,#ffffff05);
+}
+
+.attempt-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+    color: #fff0d6;
+    font-size: 17px;
+    font-weight: 650;
+}
+
+.bars {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+}
+
+.bar {
+    height: 13px;
+    border-radius: 20px;
+    background: #bea3803d;
+}
+
+.bar.used {
+    background: linear-gradient(90deg,#ffc13e,#e99516);
+    box-shadow: 0 0 12px #ffb62929;
+}
+
+/* STATUS MESSAGE */
+
+.note {
+    display: none;
+    margin: -8px 0 22px;
+    padding: 13px 15px;
+    border: 1px solid #ffb62938;
+    border-radius: 14px;
+    color: #f5dfb8;
+    background: #ffb62912;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+/* BUTTONS */
+
+.actions {
+    display: grid;
+    gap: 14px;
+}
+
+button {
+    width: 100%;
+    min-height: 68px;
+    padding: 15px 20px;
+    border-radius: 19px;
+    font: inherit;
+    font-size: 20px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: transform .16s, filter .16s;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+}
+
+button:focus-visible {
+    outline: 3px solid #fff0c9;
+    outline-offset: 3px;
+}
+
+.primary {
+    color: #241504;
+    border: 1px solid #ffc34f;
+    background: linear-gradient(105deg,#ffc13f,#f0a01d);
+    box-shadow: 0 10px 24px #d9891226;
+}
+
+.secondary {
+    color: #fff0d6;
+    border: 2px solid var(--gold);
+    background: #00000014;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: .48;
+}
+
+/* FOOTNOTE */
+
+.footnote {
+    margin: 20px 4px 0;
+    color: #a99880;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* LOADING ANIMATION */
+
+.loader {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-right: 8px;
+    vertical-align: -2px;
+    border: 2px solid #fff0d659;
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* RESPONSIVE */
+
+@media(max-width:480px) {
+    body {
+        padding: 16px 12px;
+    }
+
+    .card {
+        padding: 28px 20px 24px;
+        border-radius: 25px;
+    }
+
+    .brand {
+        margin-bottom: 24px;
+    }
+
+    .attempts {
+        padding: 19px 17px 21px;
+    }
+
+    button {
+        min-height: 60px;
+        font-size: 18px;
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    * {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<main class="card" aria-live="polite">
+
+    <!-- BRAND -->
+    <div class="brand">
+        <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <path d="M12 36c-6 0-9-5-9-11 0-7 5-12 12-12C17 6 23 2 31 2c9 0 15 5 17 13 7 0 13 5 13 12 0 6-5 11-12 11H12Z"
+                stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M15 37v13h34V37M25 38v8M39 38v8"
+                stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+
+        <span>Yatharth Café</span>
+    </div>
+
+    <!-- ILLUSTRATION -->
+    <div class="illustration" aria-hidden="true">
+        <div class="bank-card">
+            <div class="band"></div>
+            <div class="line one"></div>
+            <div class="line two"></div>
+        </div>
+
+        <div class="x">×</div>
+    </div>
+
+    <!-- FAILURE MESSAGE -->
+    <h1 id="title">Payment failed</h1>
+
+    <p class="description" id="description">
+        Your payment could not be completed.<br>
+        Please try again.
+    </p>
+
+    <!-- ATTEMPT INDICATOR -->
+    <section class="attempts" aria-label="Payment attempts">
+
+        <div class="attempt-heading">
+            <span>Attempts used</span>
+            <span id="attemptCount">1 of 3</span>
+        </div>
+
+        <div class="bars" aria-hidden="true">
+            <span class="bar used" id="bar1"></span>
+            <span class="bar" id="bar2"></span>
+            <span class="bar" id="bar3"></span>
+        </div>
+
+    </section>
+
+    <!-- STATUS MESSAGE -->
+    <div class="note" id="note" role="status"></div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+        <button class="primary" id="retry">
+            Retry Payment
+        </button>
+
+        <button class="secondary" id="menu">
+            Back to Menu
+        </button>
+    </div>
+
+    <p class="footnote" id="footnote">
+        Your order is saved. Retrying will continue with the same order,
+        so you do not need to place it again.
+    </p>
+
+</main>
+
+<!-- EXISTING YATHARTH API FILES -->
+<script src="./js/config.js"></script>
+<script src="./js/api.js"></script>
+
+<script>
+
+const MAX_ATTEMPTS = 3;
+
+const orderId = sessionStorage.getItem(
+    "yatharth_pending_payment_order_id"
+);
+
+const retryButton = document.getElementById("retry");
+const note = document.getElementById("note");
+
+let retryAvailable = false;
+
+
+// DISPLAY STATUS MESSAGE
+
+function showNote(message) {
+    note.textContent = message;
+    note.style.display = "block";
+}
+
+
+// UPDATE ATTEMPT INDICATOR
+
+function setAttempts(value) {
+
+    const used = Math.max(
+        0,
+        Math.min(MAX_ATTEMPTS, Number(value) || 0)
+    );
+
+    document.getElementById("attemptCount").textContent =
+        used + " of " + MAX_ATTEMPTS;
+
+    for (let i = 1; i <= MAX_ATTEMPTS; i++) {
+
+        document.getElementById("bar" + i)
+            .classList.toggle("used", i <= used);
+
+    }
+}
+
+
+// VERIFYING STATE
+
+function verifying(message) {
+
+    retryAvailable = false;
+
+    retryButton.disabled = true;
+
+    retryButton.innerHTML =
+        '<span class="loader"></span>Checking payment status';
+
+    showNote(
+        message ||
+        "We are confirming the payment status. Please keep this page open."
+    );
+}
+
+
+// RETRY AVAILABLE STATE
+
+function retryState(used) {
+
+    retryAvailable = true;
+
+    document.getElementById("title").textContent =
+        "Payment failed";
+
+    document.getElementById("description").innerHTML =
+        "Your payment could not be completed.<br>Please try again.";
+
+    document.getElementById("footnote").textContent =
+        "Your order is saved. Retrying will continue with the same order, so you do not need to place it again.";
+
+    setAttempts(used);
+
+    retryButton.disabled = false;
+    retryButton.textContent = "Retry Payment";
+
+    showNote(
+        "Payment failure confirmed. You may safely retry."
+    );
+}
+
+
+// ATTEMPTS EXHAUSTED STATE
+
+function exhaustedState(used) {
+
+    retryAvailable = false;
+
+    document.getElementById("title").textContent =
+        "Attempts limit reached";
+
+    document.getElementById("description").innerHTML =
+        "We couldn't complete your payment after 3 attempts.<br>Please return to the menu to start again.";
+
+    document.getElementById("footnote").textContent =
+        "The previous order cannot be retried. You can create a new order from the menu.";
+
+    setAttempts(used);
+
+    retryButton.disabled = true;
+    retryButton.textContent = "Retry limit reached";
+
+    showNote(
+        "For your security, the maximum number of payment attempts has been reached."
+    );
+}
+
+
+// PAYMENT SUCCESS STATE
+
+function confirmedState() {
+
+    retryAvailable = false;
+
+    document.getElementById("title").textContent =
+        "Payment successful";
+
+    document.getElementById("description").textContent =
+        "Your payment has been confirmed. Taking you to your order details.";
+
+    retryButton.disabled = true;
+    retryButton.textContent = "Payment confirmed";
+
+    showNote(
+        "Your order has been confirmed. Redirecting to order details..."
+    );
+
+    setTimeout(() => {
+        location.href = "./order.html";
+    }, 1400);
+}
+
+
+// NORMALIZE API RESPONSE
+
+function payloadOf(result) {
+
+    return result?.data ??
+           result?.result ??
+           result ??
+           {};
+
+}
+
+
+// FETCH PAYMENT STATUS
+
+async function refreshStatus() {
+
+    const p = payloadOf(
+        await getPaymentAttempts(orderId)
+    );
+
+    const state = String(
+        p.paymentState ??
+        p.state ??
+        p.order?.paymentState ??
+        p.status ??
+        ""
+    ).toUpperCase();
+
+    const used =
+        p.attemptsUsed ??
+        p.order?.attemptsUsed ??
+        p.paymentAttemptsUsed ??
+        p.attemptCount ??
+        1;
+
+    const orderStatus = String(
+        p.order?.status ??
+        p.orderStatus ??
+        ""
+    ).toUpperCase();
+
+    setAttempts(used);
+
+
+    if (
+        state === "ATTEMPTS_EXHAUSTED" ||
+        Number(used) >= MAX_ATTEMPTS
+    ) {
+
+        exhaustedState(used);
+        return "EXHAUSTED";
+
+    }
+
+
+    if (
+        orderStatus &&
+        orderStatus !== "PENDING_PAYMENT"
+    ) {
+
+        confirmedState();
+        return "CONFIRMED";
+
+    }
+
+
+    if (state === "RETRY_AVAILABLE") {
+
+        retryState(used);
+        return "RETRY_AVAILABLE";
+
+    }
+
+    return "PENDING";
+
+}
+
+
+// INITIALIZE FAILURE PAGE
+
+async function initialize() {
+
+    if (!orderId) {
+
+        document.getElementById("title").textContent =
+            "Payment status unavailable";
+
+        document.getElementById("description").textContent =
+            "We couldn't find the pending order details. Please return to the menu and check your order.";
+
+        retryButton.disabled = true;
+        retryButton.textContent = "Retry unavailable";
+
+        showNote(
+            "No pending payment order was found in this browser session."
+        );
+
+        return;
+    }
+
+
+    verifying();
+
+    try {
+
+        const raw = sessionStorage.getItem(
+            "yatharth_payment_failure_data"
+        );
+
+        const failureData = raw
+            ? JSON.parse(raw)
+            : {};
+
+
+        // RECONCILE PAYMENT FAILURE
+
+        if (
+            failureData.razorpay_order_id &&
+            failureData.razorpay_payment_id
+        ) {
+
+            try {
+
+                await reconcilePaymentFailure(
+                    orderId,
+                    failureData
+                );
+
+            } catch (error) {
+
+                console.warn(
+                    "Payment reconciliation request did not complete:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        // POLL PAYMENT STATUS
+
+        for (let i = 0; i < 12; i++) {
+
+            const state = await refreshStatus();
+
+            if (state !== "PENDING") {
+
+                if (
+                    state === "RETRY_AVAILABLE" ||
+                    state === "EXHAUSTED" ||
+                    state === "CONFIRMED"
+                ) {
+
+                    sessionStorage.removeItem(
+                        "yatharth_payment_failure_data"
+                    );
+
+                }
+
+                return;
+            }
+
+            await new Promise(resolve =>
+                setTimeout(
+                    resolve,
+                    Math.min(1000 + i * 400, 3500)
+                )
+            );
+
+        }
+
+        showCheckAgain();
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load payment status:",
+            error
+        );
+
+        showCheckAgain();
+
+    }
+
+}
+
+
+// CHECK STATUS AGAIN BUTTON
+
+function showCheckAgain() {
+
+    verifying(
+        "We couldn't confirm the final payment status yet. Check again before attempting another payment."
+    );
+
+    retryButton.disabled = false;
+    retryButton.textContent = "Check Payment Status";
+
+    retryButton.onclick = () => {
+
+        retryButton.onclick = null;
+        initialize();
+
+    };
+
+}
+
+
+// RETRY PAYMENT
+
+retryButton.addEventListener("click", () => {
+
+    if (!retryAvailable) return;
+
+    sessionStorage.setItem(
+        "yatharth_pending_payment_order_id",
+        String(orderId)
+    );
+
+    location.href = "./index.html";
+
+});
+
+
+// BACK TO MENU
+
+document.getElementById("menu").addEventListener(
+    "click",
+    () => {
+        location.href = "./index.html";
+    }
+);
+
+
+// START
+
+initialize();
+
+</script>
+
+</body>
+</html>

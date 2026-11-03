@@ -31,6 +31,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet"
+        
     >
 
     <!-- CSS -->
@@ -54,6 +55,10 @@
         rel="stylesheet"
         href="./css/checkout.css"
     > 
+
+    <link 
+        rel="stylesheet"    
+        href="./css/payment-status.css">
 
     <link
         rel="stylesheet"
@@ -553,6 +558,115 @@
 
     </div>
 
+</div>
+
+<!-- ========================= -->
+<!-- PAYMENT STATUS -->
+<!-- ========================= -->
+
+<div
+    id="paymentStatusOverlay"
+    class="payment-status-overlay hidden"
+    aria-hidden="true"
+>
+    <div
+        class="payment-status-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="paymentStatusTitle"
+        aria-describedby="paymentStatusMessage"
+    >
+        <!-- Status Icon -->
+        <div
+            id="paymentStatusIcon"
+            class="payment-status-icon verifying"
+            aria-hidden="true"
+        >
+            <span id="paymentStatusIconContent">↻</span>
+        </div>
+
+        <!-- Heading -->
+        <p class="payment-status-eyebrow">
+            YATHARTH PAYMENT
+        </p>
+
+        <h2 id="paymentStatusTitle">
+            Confirming your payment
+        </h2>
+
+        <!-- Main Message -->
+        <p
+            id="paymentStatusMessage"
+            class="payment-status-message"
+            aria-live="polite"
+        >
+            We're checking your payment status.
+            Please don't start another payment yet.
+        </p>
+
+        <!-- Attempt Counter -->
+        <div
+            id="paymentAttemptSummary"
+            class="payment-attempt-summary"
+        >
+            <div class="payment-attempt-heading">
+                <span>Payment attempts</span>
+                <strong id="paymentAttemptCount">Checking...</strong>
+            </div>
+
+            <div
+                class="payment-attempt-track"
+                role="progressbar"
+                aria-label="Payment attempts used"
+                aria-valuemin="0"
+                aria-valuemax="3"
+                aria-valuenow="0"
+                id="paymentAttemptProgress"
+            >
+                <span class="payment-attempt-segment"></span>
+                <span class="payment-attempt-segment"></span>
+                <span class="payment-attempt-segment"></span>
+            </div>
+
+            <p
+                id="paymentAttemptsRemaining"
+                class="payment-attempts-remaining"
+            >
+                Your remaining attempts will appear here.
+            </p>
+        </div>
+
+        <!-- Verification Indicator -->
+        <div
+            id="paymentVerificationIndicator"
+            class="payment-verification-indicator"
+        >
+            <span class="payment-verification-spinner"></span>
+
+            <span id="paymentVerificationText">
+                Verifying with the payment provider...
+            </span>
+        </div>
+
+        <!-- Action -->
+        <button
+            id="paymentStatusAction"
+            class="payment-status-action"
+            type="button"
+            disabled
+        >
+            Please wait...
+        </button>
+
+        <!-- Supporting Note -->
+        <p
+            id="paymentStatusFootnote"
+            class="payment-status-footnote"
+        >
+            Please avoid making another payment while we verify
+            this transaction.
+        </p>
+    </div>
 </div>
 
 

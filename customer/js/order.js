@@ -100,6 +100,8 @@ const placeOrderButton =
 
 let isPlacingOrder = false;
 let activeRazorpayCheckout = null;
+let paymentFailureHandling = false;
+
 
 
 // ==========================================
@@ -117,6 +119,286 @@ if(placeOrderButton){
     );
 
 }
+
+
+
+// ==========================================
+// PAYMENT STATUS UI
+// ==========================================
+
+const paymentStatusOverlay =
+    document.getElementById("paymentStatusOverlay");
+
+const paymentStatusIcon =
+    document.getElementById("paymentStatusIcon");
+
+const paymentStatusIconContent =
+    document.getElementById("paymentStatusIconContent");
+
+const paymentStatusTitle =
+    document.getElementById("paymentStatusTitle");
+
+const paymentStatusMessage =
+    document.getElementById("paymentStatusMessage");
+
+const paymentAttemptCount =
+    document.getElementById("paymentAttemptCount");
+
+const paymentAttemptProgress =
+    document.getElementById("paymentAttemptProgress");
+
+const paymentAttemptsRemaining =
+    document.getElementById("paymentAttemptsRemaining");
+
+const paymentVerificationIndicator =
+    document.getElementById("paymentVerificationIndicator");
+
+const paymentVerificationText =
+    document.getElementById("paymentVerificationText");
+
+const paymentStatusAction =
+    document.getElementById("paymentStatusAction");
+
+const paymentStatusFootnote =
+    document.getElementById("paymentStatusFootnote");
+
+
+// ==========================================
+// PAYMENT STATUS UI FUNCTIONS
+// ==========================================
+
+function showPaymentStatus() {
+    if (!paymentStatusOverlay) return;
+
+    paymentStatusOverlay.classList.remove("hidden");
+    paymentStatusOverlay.classList.remove("is-resolved");
+    paymentStatusOverlay.setAttribute("aria-hidden", "false");
+}
+
+function hidePaymentStatus() {
+    if (!paymentStatusOverlay) return;
+
+    paymentStatusOverlay.classList.add("hidden");
+    paymentStatusOverlay.setAttribute("aria-hidden", "true");
+}
+
+function updatePaymentAttemptDisplay(order, confirmedFailure = false) {
+    if (!order) return;
+
+    const maxAttempts = Number(order.maxPaymentAttempts) || 3;
+    const attemptsUsed = Math.max(
+        0,
+        Math.min(Number(order.paymentAttemptsUsed) || 0, maxAttempts)
+    );
+    const attemptsRemaining = Math.max(
+        0,
+        Number(
+            order.paymentAttemptsRemaining ??
+            (maxAttempts - attemptsUsed)
+        )
+    );
+
+    if (paymentAttemptCount) {
+        paymentAttemptCount.textContent =
+            `${attemptsUsed} of ${maxAttempts}`;
+    }
+
+    if (paymentAttemptsRemaining) {
+        if (order.paymentState === "ATTEMPTS_EXHAUSTED") {
+            paymentAttemptsRemaining.textContent =
+                "No payment attempts remaining.";
+        } else if (attemptsRemaining === 1) {
+            paymentAttemptsRemaining.textContent =
+                "1 payment attempt remaining.";
+        } else {
+            paymentAttemptsRemaining.textContent =
+                `${attemptsRemaining} payment attempts remaining.`;
+        }
+    }
+
+    if (paymentAttemptProgress) {
+        paymentAttemptProgress.setAttribute(
+            "aria-valuemax",
+            String(maxAttempts)
+        );
+
+        paymentAttemptProgress.setAttribute(
+            "aria-valuenow",
+            String(attemptsUsed)
+        );
+
+        const segments = [
+            ...paymentAttemptProgress.querySelectorAll(
+                ".payment-attempt-segment"
+            )
+        ];
+
+        segments.forEach((segment, index) => {
+            segment.classList.toggle(
+                "used",
+                index < attemptsUsed
+            );
+
+            segment.classList.toggle(
+                "failed",
+                confirmedFailure && index < attemptsUsed
+            );
+        });
+    }
+}
+
+function setPaymentStatusState(state, order = null) {
+    if (!paymentStatusOverlay) return;
+
+    const states = {
+        verifying: {
+            icon: "↻",
+            title: "Confirming your payment",
+            message:
+                "We're checking your payment status. Please don't start another payment yet.",
+            verification: "Verifying with the payment provider...",
+            button: "Please wait...",
+            footnote:
+                "Please avoid making another payment while we verify this transaction.",
+            resolved: false,
+            disabled: true,
+            showVerification: true,
+            danger: false
+        },
+
+        failed: {
+            icon: "!",
+            title: "Payment unsuccessful",
+            message:
+                "Your payment attempt was unsuccessful. You can retry when the status is confirmed.",
+            verification: "Payment failure confirmed.",
+            button: "Retry Payment",
+            footnote:
+                "If money was deducted, allow the payment provider time to confirm its final status.",
+            resolved: true,
+            disabled: false,
+            showVerification: false,
+            danger: true
+        },
+
+        exhausted: {
+            icon: "!",
+            title: "Payment attempts exhausted",
+            message:
+                "You've reached the maximum of three payment attempts for this order.",
+            verification: "No further attempts are available.",
+            button: "Returning to menu...",
+            footnote:
+                "Your failed order will remain available in your order history.",
+            resolved: true,
+            disabled: true,
+            showVerification: false,
+            danger: true
+        },
+
+        success: {
+            icon: "✓",
+            title: "Payment successful",
+            message:
+                "Your payment has been verified. We're opening your order confirmation.",
+            verification: "Payment verified successfully.",
+            button: "Opening your order...",
+            footnote:
+                "Your order confirmation is being prepared.",
+            resolved: true,
+            disabled: true,
+            showVerification: false,
+            danger: false
+        }
+    };
+
+    const config = states[state];
+    if (!config) return;
+
+    if (paymentStatusIcon) {
+        paymentStatusIcon.className =
+            `payment-status-icon ${state === "failed" ? "failed" : state === "success" ? "confirmed" : state === "exhausted" ? "exhausted" : "verifying"}`;
+    }
+
+    if (paymentStatusIconContent) {
+        paymentStatusIconContent.textContent = config.icon;
+    }
+
+    if (paymentStatusTitle) {
+        paymentStatusTitle.textContent = config.title;
+    }
+
+    if (paymentStatusMessage) {
+        paymentStatusMessage.textContent = config.message;
+    }
+
+    if (paymentVerificationText) {
+        paymentVerificationText.textContent = config.verification;
+    }
+
+    if (paymentVerificationIndicator) {
+        paymentVerificationIndicator.style.display =
+            config.showVerification ? "flex" : "none";
+    }
+
+    if (paymentStatusFootnote) {
+        paymentStatusFootnote.textContent = config.footnote;
+    }
+
+    if (paymentStatusAction) {
+        paymentStatusAction.textContent = config.button;
+        paymentStatusAction.disabled = config.disabled;
+        paymentStatusAction.classList.toggle("danger", config.danger);
+    }
+
+    paymentStatusOverlay.classList.toggle(
+        "is-resolved",
+        config.resolved
+    );
+
+    if (order) {
+        updatePaymentAttemptDisplay(
+            order,
+            state === "failed"
+        );
+    }
+
+    showPaymentStatus();
+
+    console.log("[DEBUG] Displaying payment overlay for state:", state);
+}
+
+
+
+// ==========================================
+// PAYMENT STATUS ACTION
+// ==========================================
+
+if (paymentStatusAction) {
+    paymentStatusAction.addEventListener("click", async () => {
+        if (paymentStatusAction.disabled) return;
+
+        // Only allow retry when the backend has confirmed it is available.
+        if (
+            !pendingPaymentOrder ||
+            pendingPaymentOrder.paymentState !== "RETRY_AVAILABLE"
+        ) {
+            return;
+        }
+
+        // Prevent duplicate clicks or overlapping payment attempts.
+        if (isPlacingOrder || reconcilingPaymentOrderId !== null) {
+            return;
+        }
+
+        hidePaymentStatus();
+
+        // Reuse the existing order and payment-attempt logic.
+        await placeOrder();
+    });
+}
+
+
 
 
 // ==========================================
@@ -424,6 +706,9 @@ async function placeOrder(){
                 ondismiss:
                     function(){
 
+                        // TEMPORARY DIAGNOSTIC LOG
+                        console.log("[DIAG] modal.ondismiss fired");
+
                         if (activeRazorpayCheckout === razorpay) {
                             activeRazorpayCheckout = null;
                         }
@@ -462,26 +747,89 @@ async function placeOrder(){
 
         activeRazorpayCheckout = razorpay;
 
+        console.log("[DIAG] Checkout instance created:", {
+            instanceExists: !!razorpay,
+            closeMethodExists: typeof razorpay.close,
+            failureFlag: paymentFailureHandling,
+            scriptURL: document.currentScript?.src || "Not available"
+            });
+            
 
-        razorpay.on(
-            "payment.failed",
-            function(response){
 
-                console.error(
-                    "Razorpay Payment Failed:",
+      
+     
+            razorpay.on("payment.failed", function (response) {
+                console.log(
+                    "[PAYMENT DEBUG] Razorpay payment.failed event fired:",
                     response
                 );
 
+                console.error("Razorpay Payment Failed:", response);
+
                 const metadata = response?.error?.metadata || {};
-                reconcileCheckoutFailure(order.id, {
+
+                const failureData = {
                     razorpay_order_id:
-                        metadata.order_id || response?.razorpay_order_id || paymentOrder?.razorpayOrder?.id,
+                        metadata.order_id ||
+                        response?.razorpay_order_id ||
+                        paymentOrder?.razorpayOrder?.id,
+
                     razorpay_payment_id:
-                        metadata.payment_id || response?.razorpay_payment_id,
+                        metadata.payment_id ||
+                        response?.razorpay_payment_id
+                };
+
+                // Prevent duplicate failure handling.
+                if (paymentFailureHandling) {
+                    console.log(
+                        "[PAYMENT DEBUG] Failure handling already started."
+                    );
+                    return;
+                }
+
+                console.log("[DIAG] Failure handler reached:", {
+                    orderId: order.id,
+                    failureFlagBefore: paymentFailureHandling,
+                    activeInstanceMatches: activeRazorpayCheckout === razorpay
                 });
 
-            }
-        );
+                paymentFailureHandling = true;
+
+                // Close Checkout immediately, without waiting for the backend.
+                try {
+
+                    console.log("[DIAG] Calling razorpay.close()", {
+                        instanceExists: !!razorpay,
+                        closeMethodExists: typeof razorpay.close,
+                        activeInstanceMatches: activeRazorpayCheckout === razorpay
+                    });
+                    razorpay.close();
+
+                    console.log("[DIAG] razorpay.close() returned without throwing");
+
+                } catch (error) {
+                    console.error(
+                        "[PAYMENT DEBUG] Checkout close error:",
+                        error
+                    );
+                }
+
+                // Reconcile the failure with the backend separately.
+                reconcileCheckoutFailure(order.id, failureData)
+                    .catch(function (error) {
+                        console.error(
+                            "[PAYMENT DEBUG] Failure reconciliation error:",
+                            error
+                        );
+                    })
+                    .finally(function () {
+                        paymentFailureHandling = false;
+                    });
+            });
+
+
+
+
 
 
         razorpay.open();
@@ -562,119 +910,231 @@ async function placeOrder(){
     
     let reconcilingPaymentOrderId = null;
 
+   
     async function reconcileCheckoutFailure(orderId, paymentData = {}) {
-    if (String(reconcilingPaymentOrderId) === String(orderId)) {
-    console.log("Payment reconciliation is already running for order:", orderId);
-    return;
-    }
-    reconcilingPaymentOrderId = orderId;
-    placeOrderButton.disabled = true;
-    placeOrderButton.textContent = "Checking Payment...";
-    try {
-        let response = null;
-        if (paymentData.razorpay_order_id && paymentData.razorpay_payment_id) {
-            try {
-                response = await reconcilePaymentFailure(orderId, paymentData);
-            } catch (reconcileError) {
-                // The order-level recovery endpoint remains a safe fallback: it
-                // also checks Razorpay's authoritative payment records.
-                console.warn("Exact payment reconciliation failed; checking the order history:", reconcileError);
-            }
-        }
-        if (!response) response = await getPaymentAttempts(orderId);
-        if (!response?.success || !response.order) {
-            throw new Error("Payment status is not available yet");
-        }
-
-        const order = response.order;
-        pendingPaymentOrder = order;
-        saveCustomerOrder(order);
-        localStorage.setItem("currentOrder", JSON.stringify(order));
-
-        if (order.paymentState === "ATTEMPTS_EXHAUSTED") {
-            returnToMenuAfterPaymentExhausted(order);
+        if (String(reconcilingPaymentOrderId) === String(orderId)) {
+            console.log(
+                "Payment reconciliation is already running for order:",
+                orderId
+            );
             return;
+        }
+
+        reconcilingPaymentOrderId = orderId;
+
+        console.log(
+            "[PAYMENT DEBUG] Reconciliation started:",
+            orderId,
+            paymentData
+        );
+
+        isPlacingOrder = true;
+
+        placeOrderButton.disabled = true;
+        placeOrderButton.textContent = "Checking Payment...";
+
+        setPaymentStatusState("verifying", pendingPaymentOrder);
+
+        try {
+            let response = null;
+
+            // First, reconcile the specific Razorpay payment when possible.
+            if (
+                paymentData.razorpay_order_id &&
+                paymentData.razorpay_payment_id
+            ) {
+                try {
+                    response = await reconcilePaymentFailure(
+                        orderId,
+                        paymentData
+                    );
+                } catch (reconcileError) {
+                    console.warn(
+                        "Exact payment reconciliation failed; checking the order history:",
+                        reconcileError
+                    );
+                }
             }
-            
+
+            // Fall back to the authoritative order payment-attempt history.
+            if (!response) {
+                response = await getPaymentAttempts(orderId);
+            }
+
+            if (!response?.success || !response.order) {
+                throw new Error("Payment status is not available yet");
+            }
+
+            const order = response.order;
+
+
+            console.log("[DEBUG] Payment state:", order.paymentState);
+            console.log("[DEBUG] Overlay element:", paymentStatusOverlay);
+            console.log("[DEBUG] Overlay hidden before display:",
+                    paymentStatusOverlay?.classList.contains("hidden")
+            );
+
+            console.log(
+                "[PAYMENT DEBUG] Reconciliation response:",
+                {
+                    orderId: order.id,
+                    status: order.status,
+                    paymentState: order.paymentState,
+                    attemptsUsed: order.paymentAttemptsUsed,
+                    attemptsRemaining: order.paymentAttemptsRemaining
+                }
+            );
+
+            pendingPaymentOrder = order;
+            saveCustomerOrder(order);
+            localStorage.setItem("currentOrder", JSON.stringify(order));
+
+            // All attempts have been used. Preserve the failed order and return
+            // the customer to the menu using the existing helper.
+            if (order.paymentState === "ATTEMPTS_EXHAUSTED") {
+                setPaymentStatusState("exhausted", order);
+                returnToMenuAfterPaymentExhausted(order);
+                return;
+            }
+
+            // If the order is no longer awaiting payment, open its status page.
             if (order.status !== "PENDING_PAYMENT") {
-            activeRazorpayCheckout?.close();
-            sessionStorage.removeItem("yatharth_pending_payment_order_id");
-            pendingPaymentOrderId = null;
-            pendingPaymentOrder = null;
-            sessionStorage.setItem("viewedOrderId", String(order.id));
-            window.location.href = "./order.html";
-            return;
-        }
-            
+                setPaymentStatusState("success", order);
 
+                activeRazorpayCheckout?.close();
+
+                sessionStorage.removeItem(
+                    "yatharth_pending_payment_order_id"
+                );
+
+                pendingPaymentOrderId = null;
+                pendingPaymentOrder = null;
+
+                sessionStorage.setItem(
+                    "viewedOrderId",
+                    String(order.id)
+                );
+
+                window.location.href = "./order.html";
+                return;
+            }
+
+            // The backend has confirmed that another attempt is allowed.
             if (order.paymentState === "RETRY_AVAILABLE") {
-                alert(`Payment failed. Attempt ${order.paymentAttemptsUsed} of ${order.maxPaymentAttempts} failed. You can retry this order.`);
-                } else {
-                alert("Payment status is still being confirmed. Checking again before allowing another attempt.");
-                const resolvedOrder = await waitForPaymentResolution(orderId);
-            
+                setPaymentStatusState("failed", order);
+
+                if (paymentStatusAction) {
+                    paymentStatusAction.textContent = "Retry Payment";
+                    paymentStatusAction.disabled = false;
+                }
+
+                return;
+            }
+
+            // The payment is not resolved yet. Keep the customer from starting
+            // another payment until the server confirms its final status.
+            setPaymentStatusState("verifying", order);
+
+            const resolvedOrder = await waitForPaymentResolution(orderId);
+
             if (!resolvedOrder) {
-                alert("Payment status is still unresolved. Checking again shortly. Please do not start another payment.");
-            
+                setPaymentStatusState("verifying", pendingPaymentOrder);
+
                 setTimeout(() => {
                     if (pendingPaymentOrderId !== null) {
                         reconcileCheckoutFailure(orderId, paymentData);
                     }
                 }, 5000);
-            
+
                 return;
             }
-            
+
             pendingPaymentOrder = resolvedOrder;
-            
+
+            saveCustomerOrder(resolvedOrder);
+            localStorage.setItem(
+                "currentOrder",
+                JSON.stringify(resolvedOrder)
+            );
+
+            // Check whether the maximum number of attempts has been reached.
             if (resolvedOrder.paymentState === "ATTEMPTS_EXHAUSTED") {
+                setPaymentStatusState("exhausted", resolvedOrder);
                 returnToMenuAfterPaymentExhausted(resolvedOrder);
                 return;
             }
-            
+
+            // A confirmed, non-pending order can proceed to the order page.
             if (resolvedOrder.status !== "PENDING_PAYMENT") {
+                setPaymentStatusState("success", resolvedOrder);
+
                 activeRazorpayCheckout?.close();
-                sessionStorage.removeItem("yatharth_pending_payment_order_id");
+
+                sessionStorage.removeItem(
+                    "yatharth_pending_payment_order_id"
+                );
+
                 pendingPaymentOrderId = null;
                 pendingPaymentOrder = null;
-                sessionStorage.setItem("viewedOrderId", String(resolvedOrder.id));
+
+                sessionStorage.setItem(
+                    "viewedOrderId",
+                    String(resolvedOrder.id)
+                );
+
                 window.location.href = "./order.html";
                 return;
             }
-            
+
+            // A failed attempt is now confirmed, so offer a retry.
             if (resolvedOrder.paymentState === "RETRY_AVAILABLE") {
-                alert(`Payment failed. Attempt ${resolvedOrder.paymentAttemptsUsed} of ${resolvedOrder.maxPaymentAttempts} failed. You can retry this order.`);
+                setPaymentStatusState("failed", resolvedOrder);
+
+                if (paymentStatusAction) {
+                    paymentStatusAction.textContent = "Retry Payment";
+                    paymentStatusAction.disabled = false;
+                }
             }
+        } catch (error) {
+
+            console.log("[PAYMENT DEBUG] Reconciliation entered catch block");
             
-     }
-            
-    } catch (error) {
-        console.warn("Could not reconcile the failed checkout:", error);
-        alert("Payment failed, but its final status is still being confirmed. Please wait a moment before retrying.");
-    } 
-    finally {
-        const paymentIsResolved =
-            pendingPaymentOrder &&
-            (
-                pendingPaymentOrder.paymentState === "RETRY_AVAILABLE" ||
-                pendingPaymentOrder.paymentState === "ATTEMPTS_EXHAUSTED" ||
-                pendingPaymentOrder.status !== "PENDING_PAYMENT"
+            console.warn(
+                "Could not reconcile the failed checkout:",
+                error
             );
 
-        if (paymentIsResolved) {
-            isPlacingOrder = false;
-            placeOrderButton.disabled = false;
-            placeOrderButton.textContent = "Place Order";
-        } else {
-            isPlacingOrder = true;
-            placeOrderButton.disabled = true;
-            placeOrderButton.textContent = "Checking Payment...";
-        }
+            setPaymentStatusState("verifying", pendingPaymentOrder);
 
-        reconcilingPaymentOrderId = null;
+            console.error(
+                "Payment status is not confirmed yet. Do not start another payment."
+            );
+        } finally {
+            const paymentIsResolved =
+                pendingPaymentOrder &&
+                (
+                    pendingPaymentOrder.paymentState === "RETRY_AVAILABLE" ||
+                    pendingPaymentOrder.paymentState === "ATTEMPTS_EXHAUSTED" ||
+                    pendingPaymentOrder.status !== "PENDING_PAYMENT"
+                );
+
+            if (paymentIsResolved) {
+                isPlacingOrder = false;
+
+                placeOrderButton.disabled = false;
+                placeOrderButton.textContent = "Place Order";
+            } else {
+                isPlacingOrder = true;
+
+                placeOrderButton.disabled = true;
+                placeOrderButton.textContent = "Checking Payment...";
+            }
+
+            reconcilingPaymentOrderId = null;
+        }
     }
 
-}
+
 
 
 

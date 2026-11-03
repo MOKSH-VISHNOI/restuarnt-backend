@@ -17,7 +17,7 @@ const CONFIG = {
     // APIz
     
     apiBaseUrl:
-        "https://leaf-infectious-eternal-nerve.trycloudflare.com",
+        "https://third-summit-nancy-olympics.trycloudflare.com",
 
 
     // Razorpay
