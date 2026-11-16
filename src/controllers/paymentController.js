@@ -1465,75 +1465,68 @@ return result;
     }
   }
 
-  async function getPaymentAttemptsForOrder(req, res) {
-    try {
-      const numericOrderId = parseOrderId(req.params?.orderId);
-      if (!numericOrderId) {
-        throw new PaymentError(400, "INVALID_ORDER_ID", "A valid orderId is required");
-      }
-      const order = await prisma.order.findUnique({
-        where: { id: numericOrderId },
-        include: orderWithPayments,
-      });
-      if (!order) throw new PaymentError(404, "ORDER_NOT_FOUND", "Order not found");
+  
+// Read-only status endpoint. Do not call Razorpay from a polling GET request.
+// Authoritative gateway reconciliation is handled by reconcileCheckoutFailure
+// (exact payment ID) and the webhook/recovery paths.
+async function getPaymentAttemptsForOrder(req, res) {
+  try {
+    const numericOrderId = parseOrderId(req.params?.orderId);
 
-      let sawFailure = false;
-      let sawUnresolvedPayment = false;
-      let reconciledCapturedPayment = false;
-      let additionalCaptureNeedsReconciliation = false;
-      let additionalCaptureDetected = false;
-      const paymentOrdersToReconcile = (order.payments || []).filter((item) =>
-        item.gateway === "RAZORPAY" && item.gatewayOrderId &&
-        ["PENDING", "PROCESSING", "FAILED", "CANCELLED", "TIMED_OUT"].includes(item.status),
+    if (!numericOrderId) {
+      throw new PaymentError(
+        400,
+        "INVALID_ORDER_ID",
+        "A valid orderId is required"
       );
-      for (const payment of paymentOrdersToReconcile) {
-        try {
-          const reconciliation = await reconcilePendingPayment(payment, req);
-          if (reconciliation?.fulfilled) {
-            reconciledCapturedPayment = true;
-          }
-          additionalCaptureNeedsReconciliation ||= reconciliation?.additionalCaptureNeedsReconciliation === true;
-          additionalCaptureDetected ||= reconciliation?.additionalCaptureDetected === true;
-          if (reconciliation?.failed) sawFailure = true;
-          if (reconciliation?.unresolved) sawUnresolvedPayment = true;
-        } catch (error) {
-          if (!(error instanceof PaymentError && error.code === "GATEWAY_UNAVAILABLE")) throw error;
-        }
-      }
-      const latestOrder = await prisma.order.findUnique({
-        where: { id: numericOrderId },
-        include: orderWithPayments,
-      });
-      const paymentSummary = getPaymentSummary(latestOrder || order);
-      additionalCaptureNeedsReconciliation ||= paymentSummary.additionalCaptureNeedsReconciliation;
-      if (reconciledCapturedPayment) {
-        return res.status(200).json({
-          success: true,
-          message: "Payment reconciled",
-          additionalCaptureNeedsReconciliation,
-          additionalCaptureDetected,
-          order: { ...(latestOrder || order), ...paymentSummary },
-        });
-      }
-      return res.status(200).json({
-        success: true,
-        additionalCaptureNeedsReconciliation,
-        additionalCaptureDetected,
-        message: sawFailure
-          ? "Payment failures reconciled"
-          : sawUnresolvedPayment
-            ? "Payment outcome is still being confirmed"
-            : undefined,
-        order: withPaymentSummary(latestOrder || order),
-      });
-    } catch (error) {
-      if (error instanceof PaymentError) {
-        return res.status(error.status).json({ success: false, code: error.code, message: error.message });
-      }
-      logger.error("getPaymentAttemptsForOrder error:", error);
-      return res.status(500).json({ success: false, message: "Failed to get payment attempts" });
     }
+
+    const order = await prisma.order.findUnique({
+      where: { id: numericOrderId },
+      include: orderWithPayments,
+    });
+
+    if (!order) {
+      throw new PaymentError(
+        404,
+        "ORDER_NOT_FOUND",
+        "Order not found"
+      );
+    }
+
+    // Calculate payment state using database records only.
+    const paymentSummary = getPaymentSummary(order);
+
+    return res.status(200).json({
+      success: true,
+      additionalCaptureNeedsReconciliation:
+        paymentSummary.additionalCaptureNeedsReconciliation === true,
+      additionalCaptureDetected:
+        paymentSummary.additionalCaptureDetected === true,
+      order: {
+        ...order,
+        ...paymentSummary,
+      },
+    });
+
+  } catch (error) {
+    if (error instanceof PaymentError) {
+      return res.status(error.status).json({
+        success: false,
+        code: error.code,
+        message: error.message,
+      });
+    }
+
+    logger.error("getPaymentAttemptsForOrder error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get payment attempts",
+    });
   }
+}
+
 
   return {
     createPaymentOrder,

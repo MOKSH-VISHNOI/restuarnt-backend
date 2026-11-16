@@ -17,7 +17,7 @@ const CONFIG = {
     // APIz
     
     apiBaseUrl:
-        "https://third-summit-nancy-olympics.trycloudflare.com",
+        "https://bonus-affordable-lead-hour.trycloudflare.com",
 
 
     // Razorpay

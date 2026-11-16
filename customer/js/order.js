@@ -49,40 +49,115 @@ function returnToMenuAfterPaymentExhausted(order) {
 // Recover only the payment the customer was actively completing. Completed historical
 // attempts stay available for lookup but must not redirect a deliberate new order.
 (async function recoverPendingPayment() {
+    let recoveryCompleted = false;
+
     try {
-        const orderId = sessionStorage.getItem("yatharth_pending_payment_order_id");
+        const orderId = sessionStorage.getItem(
+            "yatharth_pending_payment_order_id"
+        );
+
         if (!orderId) return;
 
+        // Fetch the latest order and payment-attempt state.
         const resp = await getPaymentAttempts(orderId);
+
         if (!resp?.success || !resp.order) return;
 
         const order = resp.order;
-        pendingPaymentOrder = order;
-        saveCustomerOrder(order);
-        localStorage.setItem("currentOrder", JSON.stringify(order));
 
+        pendingPaymentOrder = order;
+
+        saveCustomerOrder(order);
+
+        localStorage.setItem(
+            "currentOrder",
+            JSON.stringify(order)
+        );
+
+        // Stop if all payment attempts have been exhausted.
         if (order.paymentState === "ATTEMPTS_EXHAUSTED") {
+            sessionStorage.removeItem(
+                "yatharth_retry_payment_requested"
+            );
+
             returnToMenuAfterPaymentExhausted(order);
             return;
-            }
-            
-            if (order.status !== "PENDING_PAYMENT") {
-            sessionStorage.removeItem("yatharth_pending_payment_order_id");
+        }
+
+        // If the order is no longer pending, don't retry payment.
+        if (order.status !== "PENDING_PAYMENT") {
+            sessionStorage.removeItem(
+                "yatharth_pending_payment_order_id"
+            );
+
+            sessionStorage.removeItem(
+                "yatharth_retry_payment_requested"
+            );
+
             pendingPaymentOrder = null;
-            sessionStorage.setItem("viewedOrderId", String(order.id));
+
+            sessionStorage.setItem(
+                "viewedOrderId",
+                String(order.id)
+            );
+
             window.location.href = "./order.html";
             return;
         }
-            
 
         pendingPaymentOrderId = order.id;
+
+        // Recovery is successful only after confirming the pending order.
+        recoveryCompleted = true;
+
     } catch (err) {
-        console.warn("Payment recovery check failed:", err);
+        console.warn(
+            "Payment recovery check failed:",
+            err
+        );
+
     } finally {
         isRecoveringPendingPayment = false;
+
+        const retryRequested =
+            sessionStorage.getItem(
+                "yatharth_retry_payment_requested"
+            ) === "1";
+
+        // Only process an explicit retry after successful recovery.
+        if (retryRequested && recoveryCompleted) {
+
+            // Consume the request so refreshing cannot trigger another retry.
+            sessionStorage.removeItem(
+                "yatharth_retry_payment_requested"
+            );
+
+            if (
+                pendingPaymentOrder &&
+                pendingPaymentOrder.paymentState === "RETRY_AVAILABLE" &&
+                pendingPaymentOrder.status === "PENDING_PAYMENT" &&
+                Array.isArray(cart) &&
+                cart.length > 0 &&
+                orderMatchesCart(pendingPaymentOrder, cart)
+            ) {
+
+                // Reuse the existing payment flow.
+                setTimeout(() => {
+                    placeOrder();
+                }, 0);
+
+            } else {
+                console.warn(
+                    "Automatic retry stopped: order or cart validation failed."
+                );
+
+                alert(
+                    "We couldn't safely resume this payment. Please check your cart and try again."
+                );
+            }
+        }
     }
 })();
-
 // ==========================================
 // DOM
 // ==========================================
@@ -814,20 +889,39 @@ async function placeOrder(){
                     );
                 }
 
-                // Reconcile the failure with the backend separately.
-                reconcileCheckoutFailure(order.id, failureData)
-                    .catch(function (error) {
-                        console.error(
-                            "[PAYMENT DEBUG] Failure reconciliation error:",
-                            error
-                        );
-                    })
-                    .finally(function () {
-                        paymentFailureHandling = false;
+                // Save payment details for the dedicated failure page.
+                try {
+
+                    // Preserve the existing pending order.
+                    sessionStorage.setItem(
+                        "yatharth_pending_payment_order_id",
+                        String(order.id)
+                    );
+
+                    // Preserve Razorpay's failure details for backend reconciliation.
+                    sessionStorage.setItem(
+                        "yatharth_payment_failure_data",
+                        JSON.stringify(failureData)
+                    );
+
+                    console.log("[PAYMENT DEBUG] Failure details saved:", {
+                        orderId: order.id,
+                        failureData
                     });
+
+                    // Navigate to the dedicated payment failure page.
+                    window.location.href = "./payment-failed.html";
+
+                } catch (error) {
+
+                    console.error(
+                        "[PAYMENT DEBUG] Unable to save payment failure details:",
+                        error
+                    );
+
+                }
+
             });
-
-
 
 
 
