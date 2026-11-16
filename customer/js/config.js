@@ -17,7 +17,7 @@ const CONFIG = {
     // APIz
     
     apiBaseUrl:
-        "https://bonus-affordable-lead-hour.trycloudflare.com",
+        "https://durable-enters-affordable-thru.trycloudflare.com",
 
 
     // Razorpay

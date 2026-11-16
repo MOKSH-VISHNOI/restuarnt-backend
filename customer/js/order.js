@@ -135,17 +135,14 @@ function returnToMenuAfterPaymentExhausted(order) {
             if (
                 pendingPaymentOrder &&
                 pendingPaymentOrder.paymentState === "RETRY_AVAILABLE" &&
-                pendingPaymentOrder.status === "PENDING_PAYMENT" &&
-                Array.isArray(cart) &&
-                cart.length > 0 &&
-                orderMatchesCart(pendingPaymentOrder, cart)
+                pendingPaymentOrder.status === "PENDING_PAYMENT"
             ) {
-
-                // Reuse the existing payment flow.
+            
+                // Retry directly using the existing server-side order.
                 setTimeout(() => {
-                    placeOrder();
+                    placeOrder(pendingPaymentOrder);
                 }, 0);
-
+            
             } else {
                 console.warn(
                     "Automatic retry stopped: order or cart validation failed."
@@ -183,16 +180,11 @@ let paymentFailureHandling = false;
 // EVENT
 // ==========================================
 
-if(placeOrderButton){
-
+if (placeOrderButton) {
     placeOrderButton.addEventListener(
-
         "click",
-
-        placeOrder
-
+        () => placeOrder()
     );
-
 }
 
 
@@ -480,7 +472,14 @@ if (paymentStatusAction) {
 // PLACE ORDER
 // ==========================================
 
-async function placeOrder(){
+async function placeOrder(existingOrder = null) {
+
+    if (
+        existingOrder instanceof Event ||
+        existingOrder instanceof PointerEvent
+    ) {
+        existingOrder = null;
+    }
 
     if(isRecoveringPendingPayment){
         return;
@@ -490,10 +489,9 @@ async function placeOrder(){
         return;
     }
 
-    if(cart.length === 0){
-        alert(
-            "Your cart is empty."
-        );
+    // A retry uses an existing order and does not require cart contents.
+    if (!existingOrder && cart.length === 0) {
+        alert("Your cart is empty.");
         return;
     }
 
@@ -504,8 +502,9 @@ async function placeOrder(){
     placeOrderButton.textContent =
         "Creating Payment...";
 
-    const orderData =
-        buildOrderPayload();
+    const orderData = existingOrder
+        ? null
+        : buildOrderPayload();
 
     try{
 
@@ -513,9 +512,11 @@ async function placeOrder(){
         // 1. CREATE PENDING PAYMENT ORDER
         // ==========================================
 
-        let order = null;
+        // Use the supplied order when this is a payment retry.
+        // Otherwise, follow the normal order creation/recovery flow.
+        let order = existingOrder || null;
 
-        if (pendingPaymentOrderId !== null) {
+        if (!order && pendingPaymentOrderId !== null) {
             // Load the authoritative prior order before deciding whether this is
             // a retry of the same cart or a genuinely new cart.
             if (!pendingPaymentOrder) {
@@ -609,6 +610,13 @@ async function placeOrder(){
 
         let paymentOrder;
 
+        console.log("========== PAYMENT ORDER DEBUG ==========");
+        console.log("Order object:", order);
+        console.log("Order ID:", order?.id);
+        console.log("Order ID type:", typeof order?.id);
+        console.log("Pending order ID:", pendingPaymentOrderId);
+        console.log("Idempotency key:", idempotencyKey);
+        console.log("==========================================");
         try{
             paymentOrder = await createPaymentOrder(
                 order.id,
